@@ -27,7 +27,6 @@ module IMM_EXTENDER #(
         parameter SB_FORMAT     = 3'b011 ,
         parameter UJ_FORMAT     = 3'b100 
     ) (
-		input			 CLK		,	
         input   [24 : 0] IMM_INPUT  ,
         input   [2  : 0] IMM_FORMAT ,
         output  [31 : 0] IMM_OUTPUT  
@@ -35,7 +34,7 @@ module IMM_EXTENDER #(
     
     reg [31 : 0] IMM_OUTPUT_REG;
     
-    always@(posedge CLK)
+    always@(*)
     begin
         case(IMM_FORMAT)
             I_FORMAT:
