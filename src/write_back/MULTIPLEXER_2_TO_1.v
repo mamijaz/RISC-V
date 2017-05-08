@@ -20,7 +20,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module MULTIPLEXER_2_TO_1#(
+module MULTIPLEXER_2_TO_1 #(
         parameter BUS_WIDTH     = 32       
     ) (
         input   [BUS_WIDTH - 1 : 0] IN1     ,
