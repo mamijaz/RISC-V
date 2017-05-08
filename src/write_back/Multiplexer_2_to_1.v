@@ -5,7 +5,7 @@
 // 
 // Create Date:     05/06/2017 08:43:21 AM
 // Design Name: 
-// Module Name:     Multiplexer_2_to_1
+// Module Name:     MULTIPLEXER_2_TO_1
 // Project Name:    RISC-V
 // Target Devices: 
 // Tool Versions: 
@@ -20,7 +20,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module Multiplexer_2_to_1#(
+module MULTIPLEXER_2_TO_1#(
         parameter BUS_WIDTH     = 32       
     ) (
         input   [BUS_WIDTH - 1 : 0] IN1     ,
