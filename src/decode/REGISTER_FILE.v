@@ -52,10 +52,10 @@ module REGISTER_FILE #(
         end
     end
     
-    always@(posedge CLK)
+    always@(*)
     begin
-            RS1_DATA_REG <= REGISTER [ RS1_ADDRESS ];
-            RS2_DATA_REG <= REGISTER [ RS2_ADDRESS ];
+            RS1_DATA_REG = REGISTER [ RS1_ADDRESS ];
+            RS2_DATA_REG = REGISTER [ RS2_ADDRESS ];
     end
     
     always@(negedge CLK)

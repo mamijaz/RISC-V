@@ -59,9 +59,13 @@ module INS_DECODER #(
     reg             WRITE_BACK_MUX_SELECT_REG   ;
     reg             RD_WRITE_ENABLE_REG         ;
     
+    wire [6  : 0]   OPCODE                      ;
+    
+    assign OPCODE = INSTRUCTION[6:0];
+    
     always@(*)
     begin
-        case(INSTRUCTION [6 : 0])
+        case(OPCODE)
                 RV321_LUI:
                 begin 
                 end
