@@ -62,6 +62,10 @@ module MULTIPLEXER_6_TO_1 #(
             begin
                 OUT_REG = IN6;
             end 
+			default:
+            begin
+                OUT_REG = 32'b0;
+            end
         endcase
     end
     
