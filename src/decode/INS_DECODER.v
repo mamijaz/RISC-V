@@ -38,7 +38,10 @@ module INS_DECODER #(
         parameter RV321_FUN3_XOR        = 3'b100        ,
         parameter RV321_FUN3_SRL_SRA    = 3'b101        ,
         parameter RV321_FUN3_OR         = 3'b110        ,
-        parameter RV321_FUN3_AND        = 3'b110        ,
+        parameter RV321_FUN3_AND        = 3'b111        ,
+        
+        parameter RV321_FUN7_ADD        = 7'b0000000    ,
+        parameter RV321_FUN7_SUB        = 7'b0100000    ,
         
         parameter R_FORMAT              = 3'b000        ,
         parameter I_FORMAT              = 3'b001        ,
@@ -47,7 +50,9 @@ module INS_DECODER #(
         parameter SB_FORMAT             = 3'b100        ,
         parameter UJ_FORMAT             = 3'b101        ,
         
-        parameter ALU_ADD               = 5'b00001      
+        parameter ALU_NOP               = 5'b00000      ,
+        parameter ALU_ADD               = 5'b00001      ,
+        parameter ALU_SUB               = 5'b00010           
     ) (
         input   [31 : 0] INSTRUCTION            ,
         output  [2  : 0] IMM_FORMAT             ,
@@ -125,7 +130,20 @@ module INS_DECODER #(
                     case(FUN3)
                         RV321_FUN3_ADD_SUB:
                         begin
-                            ALU_INSTRUCTION_REG = ALU_ADD;  
+                            case(FUN7)  
+                                RV321_FUN7_ADD:
+                                begin
+                                    ALU_INSTRUCTION_REG = ALU_ADD; 
+                                end
+                                RV321_FUN7_SUB:
+                                begin
+                                    ALU_INSTRUCTION_REG = ALU_ADD;
+                                end 
+                                default:
+                                begin
+                                    ALU_INSTRUCTION_REG = ALU_NOP;
+                                end
+                            endcase
                         end
                         RV321_FUN3_SLL:
                         begin
@@ -151,7 +169,7 @@ module INS_DECODER #(
                     endcase
                     IMM_FORMAT_REG              = R_FORMAT;
                     RS1_ADDRESS_REG             = RS_1;
-                    RS2_ADDRESS_REG             = RS_1;
+                    RS2_ADDRESS_REG             = RS_2;
                     RD_ADDRESS_REG              = RD;
                     SHIFT_AMOUNT_REG            = 5'b0;
                     ALU_INPUT_1_SELECT_REG      = 1'b0;   
