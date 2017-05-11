@@ -42,9 +42,9 @@ module DECODING_STAGE #(
             output  [4  : 0] ALU_INSTRUCTION        ,
             output           ALU_INPUT_1_SELECT     ,
             output           ALU_INPUT_2_SELECT     ,
-            output  [2  : 0] DATA_CACHE_READ        ,
-            output  [1  : 0] DATA_CACHE_WRITE       ,
-            output  [31 : 0] DATA_CACHE_WRITE_DATA  ,
+            output  [2  : 0] DATA_CACHE_LOAD        ,
+            output  [1  : 0] DATA_CACHE_STORE       ,
+            output  [31 : 0] DATA_CACHE_STORE_DATA  ,
             output           WRITE_BACK_MUX_SELECT  ,
             output           RD_WRITE_ENABLE_OUT        
     );
@@ -60,9 +60,9 @@ module DECODING_STAGE #(
     reg  [4  : 0]   ALU_INSTRUCTION_REG         ;
     reg             ALU_INPUT_1_SELECT_REG      ;
     reg             ALU_INPUT_2_SELECT_REG      ;
-    reg  [2  : 0]   DATA_CACHE_READ_REG         ;
-    reg  [1  : 0]   DATA_CACHE_WRITE_REG        ;
-    reg  [31 : 0]   DATA_CACHE_WRITE_DATA_REG   ;
+    reg  [2  : 0]   DATA_CACHE_LOAD_REG         ;
+    reg  [1  : 0]   DATA_CACHE_STORE_REG        ;
+    reg  [31 : 0]   DATA_CACHE_STORE_DATA_REG   ;
     reg             WRITE_BACK_MUX_SELECT_REG   ;
     reg             RD_WRITE_ENABLE_REG         ;
     
@@ -77,9 +77,9 @@ module DECODING_STAGE #(
     wire [4  : 0]   alu_instruction             ;
     wire            alu_input_1_select          ;
     wire            alu_input_2_select          ;
-    wire [2  : 0]   data_cache_read             ;
-    wire [1  : 0]   data_cache_write            ;
-    wire [31 : 0]   data_cache_write_data       ;
+    wire [2  : 0]   data_cache_load             ;
+    wire [1  : 0]   data_cache_store            ;
+    wire [31 : 0]   data_cache_store_data       ;
     wire            write_back_mux_select       ;
     wire            rd_write_enable_out         ;
 
@@ -93,8 +93,8 @@ module DECODING_STAGE #(
         .ALU_INSTRUCTION(alu_instruction),
         .ALU_INPUT_1_SELECT(alu_input_1_select),
         .ALU_INPUT_2_SELECT(alu_input_2_select),
-        .DATA_CACHE_READ(data_cache_read),
-        .DATA_CACHE_WRITE(data_cache_write),
+        .DATA_CACHE_LOAD(data_cache_load),
+        .DATA_CACHE_STORE(data_cache_store),
         .WRITE_BACK_MUX_SELECT(write_back_mux_select),
         .RD_WRITE_ENABLE(rd_write_enable_out)        
         );
@@ -118,7 +118,7 @@ module DECODING_STAGE #(
      
     always@(posedge CLK) 
     begin
-        if(STALL_DECODING_STAGE != HIGH)
+        if((STALL_DECODING_STAGE != HIGH) & (CLEAR_DECODING_STAGE != HIGH))
         begin
             PC_REG                      <= PC_IN                    ;
             RS1_ADDRESS_REG             <= rs1_address              ;
@@ -131,11 +131,30 @@ module DECODING_STAGE #(
             ALU_INSTRUCTION_REG         <= alu_instruction          ;
             ALU_INPUT_1_SELECT_REG      <= alu_input_1_select       ;
             ALU_INPUT_2_SELECT_REG      <= alu_input_2_select       ;
-            DATA_CACHE_READ_REG         <= data_cache_read          ;
-            DATA_CACHE_WRITE_REG        <= data_cache_write         ;
-            DATA_CACHE_WRITE_DATA_REG   <= rs2_data                 ;
+            DATA_CACHE_LOAD_REG         <= data_cache_load          ;
+            DATA_CACHE_STORE_REG        <= data_cache_store         ;
+            DATA_CACHE_STORE_DATA_REG   <= rs2_data                 ;
             WRITE_BACK_MUX_SELECT_REG   <= write_back_mux_select    ;
             RD_WRITE_ENABLE_REG         <= rd_write_enable_out      ;
+        end
+        if(CLEAR_DECODING_STAGE == HIGH)
+        begin
+            PC_REG                      <= 32'b0                    ;
+            RS1_ADDRESS_REG             <= 5'b0                     ;
+            RS2_ADDRESS_REG             <= 5'b0                     ;
+            RD_ADDRESS_REG              <= 5'b0                     ;
+            RS1_DATA_REG                <= 32'b0                    ;
+            RS2_DATA_REG                <= 32'b0                    ;             
+            IMM_OUTPUT_REG              <= 32'b0                    ;
+            SHIFT_AMOUNT_REG            <= 5'b0                     ;
+            ALU_INSTRUCTION_REG         <= 5'b0                     ;
+            ALU_INPUT_1_SELECT_REG      <= 1'b0                     ;
+            ALU_INPUT_2_SELECT_REG      <= 1'b0                     ;
+            DATA_CACHE_LOAD_REG         <= 3'b000                   ;
+            DATA_CACHE_STORE_REG        <= 2'b00                    ;
+            DATA_CACHE_STORE_DATA_REG   <= 32'b0                    ;
+            WRITE_BACK_MUX_SELECT_REG   <= 1'b0                     ;
+            RD_WRITE_ENABLE_REG         <= 1'b0                     ;
         end
     end
     
@@ -150,9 +169,9 @@ module DECODING_STAGE #(
     assign ALU_INSTRUCTION          = ALU_INSTRUCTION_REG       ;
     assign ALU_INPUT_1_SELECT       = ALU_INPUT_1_SELECT_REG    ;
     assign ALU_INPUT_2_SELECT       = ALU_INPUT_2_SELECT_REG    ;
-    assign DATA_CACHE_READ          = DATA_CACHE_READ_REG       ;
-    assign DATA_CACHE_WRITE         = DATA_CACHE_WRITE_REG      ;
-    assign DATA_CACHE_WRITE_DATA    = DATA_CACHE_WRITE_DATA_REG ;
+    assign DATA_CACHE_LOAD          = DATA_CACHE_LOAD_REG       ;
+    assign DATA_CACHE_STORE         = DATA_CACHE_STORE_REG      ;
+    assign DATA_CACHE_STORE_DATA    = DATA_CACHE_STORE_DATA_REG ;
     assign WRITE_BACK_MUX_SELECT    = WRITE_BACK_MUX_SELECT_REG ;
     assign RD_WRITE_ENABLE_OUT      = RD_WRITE_ENABLE_REG       ;
     

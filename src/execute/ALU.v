@@ -26,8 +26,9 @@ module ALU #(
         input   [INPUT_WIDTH - 1 : 0]   ALU_IN1           ,
         input   [INPUT_WIDTH - 1 : 0]   ALU_IN2           ,
         input   [4               : 0]   SHIFT_AMOUNT      ,
-        output  [4               : 0]   ALU_INSTRUCTION   ,
-        output  [INPUT_WIDTH - 1 : 0]   ALU_OUT
+        input   [4               : 0]   ALU_INSTRUCTION   ,
+        output  [INPUT_WIDTH - 1 : 0]   ALU_OUT           ,
+        output  [1               : 0]   BRANCH_TAKEN
     );
     
     always@(*)
