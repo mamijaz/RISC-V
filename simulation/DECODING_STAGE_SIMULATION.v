@@ -63,7 +63,7 @@ module DECODING_STAGE_SIMULATION;
         .PC_OUT(pc_out),
         .RS1_ADDRESS(rs1_address),
         .RS2_ADDRESS(rs2_address),
-        .RD_ADDRESS_OUT(rd_address),
+        .RD_ADDRESS_OUT(rd_address_out),
         .RS1_DATA(rs1_data),
         .RS2_DATA(rs2_data),                       
         .IMM_OUTPUT(imm_output),

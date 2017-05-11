@@ -21,24 +21,33 @@
 
 
 module INS_DECODER #(
-        parameter RV321_LUI           = 7'b0110111 ,
-        parameter RV321_AUIPC         = 7'b0010111 ,
-        parameter RV321_JAL           = 7'b1101111 ,
-        parameter RV321_JALR          = 7'b1100111 ,
-        parameter RV321_BRANCH        = 7'b1100011 ,
-        parameter RV321_LOAD          = 7'b0000011 ,
-        parameter RV321_STORE         = 7'b0100011 ,
-        parameter RV321_IMMEDIATE     = 7'b0010011 ,
-        parameter RV321_ALU           = 7'b0110011 ,
+        parameter RV321_LUI             = 7'b0110111    ,
+        parameter RV321_AUIPC           = 7'b0010111    ,
+        parameter RV321_JAL             = 7'b1101111    ,
+        parameter RV321_JALR            = 7'b1100111    ,
+        parameter RV321_BRANCH          = 7'b1100011    ,
+        parameter RV321_LOAD            = 7'b0000011    ,
+        parameter RV321_STORE           = 7'b0100011    ,
+        parameter RV321_IMMEDIATE       = 7'b0010011    ,
+        parameter RV321_ALU             = 7'b0110011    ,
         
-        parameter RV321_FUN3_ADD      = 3'b000     ,
-        parameter RV321_FUN3_SLL      = 3'b001     ,
-        parameter RV321_FUN3_SLT      = 3'b010     ,
-        parameter RV321_FUN3_SLTU     = 3'b011     ,
-        parameter RV321_FUN3_XOR      = 3'b100     ,
-        parameter RV321_FUN3_SRL      = 3'b101     ,
-        parameter RV321_FUN3_OR       = 3'b110     ,
-        parameter RV321_FUN3_AND      = 3'b110 
+        parameter RV321_FUN3_ADD_SUB    = 3'b000        ,
+        parameter RV321_FUN3_SLL        = 3'b001        ,
+        parameter RV321_FUN3_SLT        = 3'b010        ,
+        parameter RV321_FUN3_SLTU       = 3'b011        ,
+        parameter RV321_FUN3_XOR        = 3'b100        ,
+        parameter RV321_FUN3_SRL_SRA    = 3'b101        ,
+        parameter RV321_FUN3_OR         = 3'b110        ,
+        parameter RV321_FUN3_AND        = 3'b110        ,
+        
+        parameter R_FORMAT              = 3'b000        ,
+        parameter I_FORMAT              = 3'b001        ,
+        parameter S_FORMAT              = 3'b010        ,
+        parameter U_FORMAT              = 3'b011        ,
+        parameter SB_FORMAT             = 3'b100        ,
+        parameter UJ_FORMAT             = 3'b101        ,
+        
+        parameter ALU_ADD               = 5'b00001      
     ) (
         input   [31 : 0] INSTRUCTION            ,
         output  [2  : 0] IMM_FORMAT             ,
@@ -113,6 +122,44 @@ module INS_DECODER #(
                 end
                 RV321_ALU:
                 begin 
+                    case(FUN3)
+                        RV321_FUN3_ADD_SUB:
+                        begin
+                            ALU_INSTRUCTION_REG = ALU_ADD;  
+                        end
+                        RV321_FUN3_SLL:
+                        begin
+                        end
+                        RV321_FUN3_SLT:
+                        begin
+                        end
+                        RV321_FUN3_SLTU:
+                        begin
+                        end
+                        RV321_FUN3_XOR:
+                        begin
+                        end
+                        RV321_FUN3_SRL_SRA:
+                        begin
+                        end
+                        RV321_FUN3_OR:
+                        begin
+                        end
+                        RV321_FUN3_AND:
+                        begin
+                        end
+                    endcase
+                    IMM_FORMAT_REG              = R_FORMAT;
+                    RS1_ADDRESS_REG             = RS_1;
+                    RS2_ADDRESS_REG             = RS_1;
+                    RD_ADDRESS_REG              = RD;
+                    SHIFT_AMOUNT_REG            = 5'b0;
+                    ALU_INPUT_1_SELECT_REG      = 1'b0;   
+                    ALU_INPUT_2_SELECT_REG      = 1'b0;
+                    DATA_CACHE_READ_REG         = 3'b0;
+                    DATA_CACHE_WRITE_REG        = 2'b0;
+                    WRITE_BACK_MUX_SELECT_REG   = 1'b0;
+                    RD_WRITE_ENABLE_REG         = 1'b1;
                 end
                 default:
                 begin
