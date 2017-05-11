@@ -29,11 +29,11 @@ module REGISTER_FILE #(
         input                                      CLK         ,
         input  [$clog2(REGISTER_DEPTH) - 1 : 0]    RS1_ADDRESS ,
         input  [$clog2(REGISTER_DEPTH) - 1 : 0]    RS2_ADDRESS ,
-        output [REGISTER_WIDTH - 1         : 0]    RS1_DATA    ,
-        output [REGISTER_WIDTH - 1         : 0]    RS2_DATA    ,
         input  [$clog2(REGISTER_DEPTH) - 1 : 0]    RD_ADDRESS  ,
         input  [REGISTER_WIDTH - 1         : 0]    RD_DATA     ,
-        input                                      RD_WRITE_EN
+        input                                      RD_WRITE_EN ,
+        output [REGISTER_WIDTH - 1         : 0]    RS1_DATA    ,
+        output [REGISTER_WIDTH - 1         : 0]    RS2_DATA    
     );
     
     reg [REGISTER_WIDTH - 1         : 0]    REGISTER [REGISTER_DEPTH - 1 : 0]    ;

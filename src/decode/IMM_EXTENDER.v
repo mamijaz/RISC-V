@@ -21,11 +21,12 @@
 
 
 module IMM_EXTENDER #(
-        parameter I_FORMAT      = 3'b000 ,
-        parameter S_FORMAT      = 3'b001 ,
-        parameter U_FORMAT      = 3'b010 ,
-        parameter SB_FORMAT     = 3'b011 ,
-        parameter UJ_FORMAT     = 3'b100 
+        parameter R_FORMAT      = 3'b000 ,
+        parameter I_FORMAT      = 3'b001 ,
+        parameter S_FORMAT      = 3'b010 ,
+        parameter U_FORMAT      = 3'b011 ,
+        parameter SB_FORMAT     = 3'b100 ,
+        parameter UJ_FORMAT     = 3'b101 
     ) (
         input   [24 : 0] IMM_INPUT  ,
         input   [2  : 0] IMM_FORMAT ,
@@ -37,6 +38,10 @@ module IMM_EXTENDER #(
     always@(*)
     begin
         case(IMM_FORMAT)
+            R_FORMAT:
+            begin
+                IMM_OUTPUT_REG = 32'b0;
+            end
             I_FORMAT:
             begin 
                 if(IMM_INPUT[24] == 1'b1)

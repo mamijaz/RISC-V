@@ -29,15 +29,24 @@ module INS_DECODER #(
         parameter RV321_LOAD          = 7'b0000011 ,
         parameter RV321_STORE         = 7'b0100011 ,
         parameter RV321_IMMEDIATE     = 7'b0010011 ,
-        parameter RV321_ALU           = 7'b0110011
+        parameter RV321_ALU           = 7'b0110011 ,
+        
+        parameter RV321_FUN3_ADD      = 3'b000     ,
+        parameter RV321_FUN3_SLL      = 3'b001     ,
+        parameter RV321_FUN3_SLT      = 3'b010     ,
+        parameter RV321_FUN3_SLTU     = 3'b011     ,
+        parameter RV321_FUN3_XOR      = 3'b100     ,
+        parameter RV321_FUN3_SRL      = 3'b101     ,
+        parameter RV321_FUN3_OR       = 3'b110     ,
+        parameter RV321_FUN3_AND      = 3'b110 
     ) (
         input   [31 : 0] INSTRUCTION            ,
         output  [2  : 0] IMM_FORMAT             ,
         output  [4  : 0] RS1_ADDRESS            ,
         output  [4  : 0] RS2_ADDRESS            ,
         output  [4  : 0] RD_ADDRESS             ,
-		output  [5  : 0] SHIFT_AMOUNT           ,
-		output  [5  : 0] ALU_INSTRUCTION        ,
+		output  [4  : 0] SHIFT_AMOUNT           ,
+		output  [4  : 0] ALU_INSTRUCTION        ,
         output           ALU_INPUT_1_SELECT     ,
         output           ALU_INPUT_2_SELECT     ,
         output  [2  : 0] DATA_CACHE_READ        ,
@@ -50,8 +59,8 @@ module INS_DECODER #(
     reg  [4  : 0]   RS1_ADDRESS_REG             ;
     reg  [4  : 0]   RS2_ADDRESS_REG             ;
     reg  [4  : 0]   RD_ADDRESS_REG              ;
-    reg  [5  : 0]   SHIFT_AMOUNT_REG            ;
-    reg  [5  : 0]   ALU_INSTRUCTION_REG         ;
+    reg  [4  : 0]   SHIFT_AMOUNT_REG            ;
+    reg  [4  : 0]   ALU_INSTRUCTION_REG         ;
     reg             ALU_INPUT_1_SELECT_REG      ;
     reg             ALU_INPUT_2_SELECT_REG      ;
     reg  [2  : 0]   DATA_CACHE_READ_REG         ;
@@ -60,8 +69,20 @@ module INS_DECODER #(
     reg             RD_WRITE_ENABLE_REG         ;
     
     wire [6  : 0]   OPCODE                      ;
+    wire [4  : 0]   RD                          ;
+    wire [2  : 0]   FUN3                        ;
+    wire [4  : 0]   RS_1                        ;
+    wire [4  : 0]   RS_2                        ;
+    wire [6  : 0]   FUN7                        ;
+    wire [4  : 0]   SHAMT                       ;
     
-    assign OPCODE = INSTRUCTION[6:0];
+    assign OPCODE   = INSTRUCTION[6  :  0]      ; 
+    assign RD       = INSTRUCTION[11 :  7]      ;
+    assign FUN3     = INSTRUCTION[14 : 12]      ; 
+    assign RS_1     = INSTRUCTION[19 : 15]      ;
+    assign RS_2     = INSTRUCTION[24 : 20]      ;
+    assign FUN7     = INSTRUCTION[31 : 25]      ;
+    assign SHAMT    = INSTRUCTION[24 : 20]      ;
     
     always@(*)
     begin
@@ -92,6 +113,9 @@ module INS_DECODER #(
                 end
                 RV321_ALU:
                 begin 
+                end
+                default:
+                begin
                 end
         endcase
     end
