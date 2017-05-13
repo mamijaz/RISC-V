@@ -59,7 +59,9 @@ module ALU #(
     
     always@(*)
     begin
-    
+        case(ALU_INSTRUCTION)
+        
+        endcase
     end
     
     assign  ALU_OUT         = ALU_OUT_REG       ;
