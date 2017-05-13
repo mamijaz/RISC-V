@@ -52,7 +52,7 @@ module EXECUTION_STAGE #(
         input   [31 : 0] RS2_DATA_WB                ,
         output  [4  : 0] RD_ADDRESS_OUT             ,
         output  [31 : 0] ALU_OUT                    ,
-        output  [1  : 0] BRANCH_TAKEN               ,
+        output           BRANCH_TAKEN               ,
         output  [2  : 0] DATA_CACHE_LOAD_OUT        ,
         output  [1  : 0] DATA_CACHE_STORE_OUT       ,
         output  [31 : 0] DATA_CACHE_STORE_DATA_OUT  ,
