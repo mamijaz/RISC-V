@@ -33,54 +33,54 @@ module IMM_EXTENDER #(
         output  [31 : 0] IMM_OUTPUT  
     );
     
-    reg [31 : 0] IMM_OUTPUT_REG;
+    reg [31 : 0] imm_output_reg;
     
     always@(*)
     begin
         case(IMM_FORMAT)
             R_FORMAT:
             begin
-                IMM_OUTPUT_REG = 32'b0;
+                imm_output_reg = 32'b0;
             end
             I_FORMAT:
             begin 
                 if(IMM_INPUT[24] == 1'b1)
-                    IMM_OUTPUT_REG = {20'b11111111111111111111,IMM_INPUT[24:13]};
+                    imm_output_reg = {20'b11111111111111111111,IMM_INPUT[24:13]};
                 else
-                    IMM_OUTPUT_REG = {20'b0,IMM_INPUT[24:13]};
+                    imm_output_reg = {20'b0,IMM_INPUT[24:13]};
             end
             S_FORMAT:
             begin 
-                if(IMM_INPUT[24]==1'b1)
-                    IMM_OUTPUT_REG = {20'b11111111111111111111,IMM_INPUT[24:18],IMM_INPUT[4:0]};
+                if(IMM_INPUT[24] == 1'b1)
+                    imm_output_reg = {20'b11111111111111111111,IMM_INPUT[24:18],IMM_INPUT[4:0]};
                 else
-                    IMM_OUTPUT_REG = {20'b0,IMM_INPUT[24:18],IMM_INPUT[4:0]};
+                    imm_output_reg = {20'b0,IMM_INPUT[24:18],IMM_INPUT[4:0]};
             end
             U_FORMAT:   
             begin    
-                IMM_OUTPUT_REG = {IMM_INPUT[24:5],12'b0};
+                imm_output_reg = {IMM_INPUT[24:5],12'b0};
             end
             SB_FORMAT:                
             begin
-                if(IMM_INPUT[24]==1'b1)
-                    IMM_OUTPUT_REG = {20'b11111111111111111111,IMM_INPUT[0],IMM_INPUT[23:18],IMM_INPUT[4:1],1'b0};
+                if(IMM_INPUT[24] == 1'b1)
+                    imm_output_reg = {20'b11111111111111111111,IMM_INPUT[0],IMM_INPUT[23:18],IMM_INPUT[4:1],1'b0};
                 else
-                    IMM_OUTPUT_REG = {20'b0,IMM_INPUT[0],IMM_INPUT[23:18],IMM_INPUT[4:1],1'b0};
+                    imm_output_reg = {20'b0,IMM_INPUT[0],IMM_INPUT[23:18],IMM_INPUT[4:1],1'b0};
             end
             UJ_FORMAT:            
             begin
-                if(IMM_INPUT[24]==1'b1)
-                    IMM_OUTPUT_REG = {12'b111111111111,IMM_INPUT[12:5],IMM_INPUT[13],IMM_INPUT[23:18],IMM_INPUT[17:14],1'b0};
+                if(IMM_INPUT[24] == 1'b1)
+                    imm_output_reg = {12'b111111111111,IMM_INPUT[12:5],IMM_INPUT[13],IMM_INPUT[23:18],IMM_INPUT[17:14],1'b0};
                 else
-                    IMM_OUTPUT_REG = {12'b0,IMM_INPUT[12:5],IMM_INPUT[13],IMM_INPUT[23:18],IMM_INPUT[17:14],1'b0};
+                    imm_output_reg = {12'b0,IMM_INPUT[12:5],IMM_INPUT[13],IMM_INPUT[23:18],IMM_INPUT[17:14],1'b0};
             end
             default:
             begin
-                IMM_OUTPUT_REG = 32'b0;
+                imm_output_reg = 32'b0;
             end
         endcase
     end
     
-    assign IMM_OUTPUT = IMM_OUTPUT_REG;
+    assign IMM_OUTPUT = imm_output_reg;
     
 endmodule

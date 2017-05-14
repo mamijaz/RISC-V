@@ -37,13 +37,13 @@ module PROGRAME_COUNTER_STAGE #(
         output           CLEAR_EXECUTION_STAGE
     );
     
-    reg  [31 : 0] PC_REG                            ;
-    reg           CLEAR_DECODING_STAGE_REG          ;
-    reg           CLEAR_EXECUTION_STAGE_REG         ;
-    reg  [31 : 0] IMM_ALIGNED_REG                   ;
-    reg           PC_RS_1_SELECT_REG                ;
-    reg           PC_PREDICT_SELECT_REG             ;
-    reg           PC_MISPREDICT_SELECT_REG          ;
+    reg  [31 : 0] pc_reg                            ;
+    reg           clear_decoding_stage_reg          ;
+    reg           clear_execution_stage_reg         ;
+    reg  [31 : 0] imm_aligned_reg                   ;
+    reg           pc_rs_1_select_reg                ;
+    reg           pc_predict_select_reg             ;
+    reg           pc_mispredict_select_reg          ;
     
     wire [31 : 0] pc_predictor_out                  ;
     wire [31 : 0] pc_execution_or_rs_1              ;
@@ -54,21 +54,21 @@ module PROGRAME_COUNTER_STAGE #(
     MULTIPLEXER_2_TO_1 PC_EXECUTION_OR_RS_1(
         .IN1(PC_EXECUTION),
         .IN2(RS1_DATA),
-        .SELECT(PC_RS_1_SELECT_REG),
+        .SELECT(pc_rs_1_select_reg),
         .OUT(pc_execution_or_rs_1) 
         );
     
     MULTIPLEXER_2_TO_1 PC_CURRENT_PLUS_4_OR_PC_PREDICTED(
-        .IN1(PC_REG+4),
+        .IN1(pc_reg+4),
         .IN2(pc_predictor_out),
-        .SELECT(PC_PREDICT_SELECT_REG),
+        .SELECT(pc_predict_select_reg),
         .OUT(pc_current_plus_4_or_pc_predicted) 
         );
         
     MULTIPLEXER_2_TO_1 PC_MISPREDICTED(
         .IN1(pc_current_plus_4_or_pc_predicted),
         .IN2(pc_execution_or_rs_1),
-        .SELECT(PC_MISPREDICT_SELECT_REG),
+        .SELECT(pc_mispredict_select_reg),
         .OUT(pc_next) 
         );
     
@@ -79,11 +79,11 @@ module PROGRAME_COUNTER_STAGE #(
     
     always@(posedge CLK)
     begin
-        PC_REG <= pc_next;
+        pc_reg <= pc_next;
     end
     
-    assign PC                       = PC_REG                    ;
-    assign CLEAR_DECODING_STAGE     = CLEAR_DECODING_STAGE_REG  ;
-    assign CLEAR_EXECUTION_STAGE    = CLEAR_EXECUTION_STAGE_REG ;
+    assign PC                       = pc_reg                    ;
+    assign CLEAR_DECODING_STAGE     = clear_decoding_stage_reg  ;
+    assign CLEAR_EXECUTION_STAGE    = clear_execution_stage_reg ;
             
 endmodule

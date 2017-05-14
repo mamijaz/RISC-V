@@ -29,22 +29,22 @@ module MULTIPLEXER_2_TO_1 #(
         output  [BUS_WIDTH - 1 : 0] OUT     
     );
     
-    reg [BUS_WIDTH - 1 : 0] OUT_REG;
+    reg [BUS_WIDTH - 1 : 0] out_reg;
         
     always@(*)
     begin
         case(SELECT)
             1'b0:
             begin
-                OUT_REG = IN1;
+                out_reg = IN1;
             end
             1'b1:
             begin
-                OUT_REG = IN2;
+                out_reg = IN2;
             end
         endcase
     end 
     
-    assign OUT = OUT_REG;
+    assign OUT = out_reg;
     
 endmodule

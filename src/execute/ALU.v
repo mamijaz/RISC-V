@@ -22,6 +22,8 @@
 
 module ALU #(
         parameter INPUT_WIDTH           = 32            ,
+        parameter HIGH                  = 1'b1          ,
+        parameter LOW                   = 1'b0          ,
         
         parameter ALU_NOP               = 5'b00000      ,
         parameter ALU_ADD               = 5'b00001      ,
@@ -54,17 +56,26 @@ module ALU #(
         output                          BRANCH_TAKEN
     );
    
-    reg  [4  : 0]   ALU_OUT_REG         ;
-    reg             BRANCH_TAKEN_REG    ;
+    reg  [INPUT_WIDTH - 1 : 0]  alu_out_reg         ;
+    reg                         branch_taken_reg    ;
     
     always@(*)
     begin
         case(ALU_INSTRUCTION)
-        
+            ALU_NOP:
+            begin
+                alu_out_reg         = 32'b0;
+                branch_taken_reg    = LOW;
+            end
+            default:
+            begin
+                alu_out_reg         = 32'b0;
+                branch_taken_reg    = LOW;
+            end
         endcase
     end
     
-    assign  ALU_OUT         = ALU_OUT_REG       ;
-    assign  BRANCH_TAKEN    = BRANCH_TAKEN_REG  ;
+    assign  ALU_OUT         = alu_out_reg       ;
+    assign  BRANCH_TAKEN    = branch_taken_reg  ;
     
 endmodule

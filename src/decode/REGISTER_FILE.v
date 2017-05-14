@@ -24,7 +24,8 @@ module REGISTER_FILE #(
         parameter REGISTER_WIDTH     = 32       ,
         parameter REGISTER_DEPTH     = 32       ,
         parameter STACK_POINTER_ADD  = 2        ,
-        parameter STACK_POINTER_VAL  = 32'd1024  
+        parameter STACK_POINTER_VAL  = 32'd1024 ,
+        parameter HIGH               = 1'b1 
     ) (
         input                                      CLK         ,
         input  [$clog2(REGISTER_DEPTH) - 1 : 0]    RS1_ADDRESS ,
@@ -36,9 +37,9 @@ module REGISTER_FILE #(
         output [REGISTER_WIDTH - 1         : 0]    RS2_DATA    
     );
     
-    reg [REGISTER_WIDTH - 1         : 0]    REGISTER [REGISTER_DEPTH - 1 : 0]    ;
-    reg [REGISTER_WIDTH - 1         : 0]    RS1_DATA_REG                         ;
-    reg [REGISTER_WIDTH - 1         : 0]    RS2_DATA_REG                         ;
+    reg [REGISTER_WIDTH - 1         : 0]    register        [REGISTER_DEPTH - 1 : 0]    ;
+    reg [REGISTER_WIDTH - 1         : 0]    rs1_data_reg                                ;
+    reg [REGISTER_WIDTH - 1         : 0]    rs2_data_reg                                ;
     
     integer i;
     initial
@@ -46,27 +47,27 @@ module REGISTER_FILE #(
         for(i = 0 ; i < REGISTER_DEPTH ; i = i + 1)
         begin
             if(i == STACK_POINTER_ADD)
-                REGISTER[ i ] = STACK_POINTER_VAL;
+                register[ i ] = STACK_POINTER_VAL;
             else
-                REGISTER[ i ] = 32'd0;
+                register[ i ] = 32'd0;
         end
     end
     
     always@(*)
     begin
-            RS1_DATA_REG = REGISTER [ RS1_ADDRESS ];
-            RS2_DATA_REG = REGISTER [ RS2_ADDRESS ];
+            rs1_data_reg = register [ RS1_ADDRESS ];
+            rs2_data_reg = register [ RS2_ADDRESS ];
     end
     
     always@(negedge CLK)
     begin
-        if((RD_WRITE_EN == 1'b1) & (RD_ADDRESS != 5'b0))
+        if((RD_WRITE_EN == HIGH) & (RD_ADDRESS != 5'b0))
         begin
-           REGISTER [RD_ADDRESS] <= RD_DATA;
+           register [RD_ADDRESS] <= RD_DATA;
         end
     end
     
-    assign RS1_DATA = RS1_DATA_REG;
-    assign RS2_DATA = RS2_DATA_REG;
+    assign RS1_DATA = rs1_data_reg;
+    assign RS2_DATA = rs2_data_reg;
     
 endmodule

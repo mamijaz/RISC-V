@@ -21,7 +21,8 @@
 
 
 module DECODING_STAGE #(
-            parameter HIGH = 1'b1
+            parameter HIGH  = 1'b1  ,
+            parameter LOW   = 1'b0
         ) (
             input            CLK                    ,
             input            STALL_DECODING_STAGE   ,
@@ -49,22 +50,22 @@ module DECODING_STAGE #(
             output           RD_WRITE_ENABLE_OUT        
     );
     
-    reg  [31 : 0]   PC_REG                      ;
-    reg  [4  : 0]   RS1_ADDRESS_REG             ;
-    reg  [4  : 0]   RS2_ADDRESS_REG             ;
-    reg  [4  : 0]   RD_ADDRESS_REG              ;
-    reg  [31 : 0]   RS1_DATA_REG                ;
-    reg  [31 : 0]   RS2_DATA_REG                ;                       
-    reg  [31 : 0]   IMM_OUTPUT_REG              ;
-    reg  [4  : 0]   SHIFT_AMOUNT_REG            ;
-    reg  [4  : 0]   ALU_INSTRUCTION_REG         ;
-    reg             ALU_INPUT_1_SELECT_REG      ;
-    reg             ALU_INPUT_2_SELECT_REG      ;
-    reg  [2  : 0]   DATA_CACHE_LOAD_REG         ;
-    reg  [1  : 0]   DATA_CACHE_STORE_REG        ;
-    reg  [31 : 0]   DATA_CACHE_STORE_DATA_REG   ;
-    reg             WRITE_BACK_MUX_SELECT_REG   ;
-    reg             RD_WRITE_ENABLE_REG         ;
+    reg  [31 : 0]   pc_reg                      ;
+    reg  [4  : 0]   rs1_address_reg             ;
+    reg  [4  : 0]   rs2_address_reg             ;
+    reg  [4  : 0]   rd_address_reg              ;
+    reg  [31 : 0]   rs1_data_reg                ;
+    reg  [31 : 0]   rs2_data_reg                ;                       
+    reg  [31 : 0]   imm_output_reg              ;
+    reg  [4  : 0]   shift_amount_reg            ;
+    reg  [4  : 0]   alu_instruction_reg         ;
+    reg             alu_input_1_select_reg      ;
+    reg             alu_input_2_select_reg      ;
+    reg  [2  : 0]   data_cache_load_reg         ;
+    reg  [1  : 0]   data_cache_store_reg        ;
+    reg  [31 : 0]   data_cache_store_data_reg   ;
+    reg             write_back_mux_select_reg   ;
+    reg             rd_write_enable_reg         ;
     
     wire [4  : 0]   rs1_address                 ;
     wire [4  : 0]   rs2_address                 ;
@@ -120,59 +121,59 @@ module DECODING_STAGE #(
     begin
         if((STALL_DECODING_STAGE != HIGH) & (CLEAR_DECODING_STAGE != HIGH))
         begin
-            PC_REG                      <= PC_IN                    ;
-            RS1_ADDRESS_REG             <= rs1_address              ;
-            RS2_ADDRESS_REG             <= rs2_address              ;
-            RD_ADDRESS_REG              <= rd_address_out           ;
-            RS1_DATA_REG                <= rs1_data                 ;
-            RS2_DATA_REG                <= rs2_data                 ;             
-            IMM_OUTPUT_REG              <= imm_output               ;
-            SHIFT_AMOUNT_REG            <= shift_amount             ;
-            ALU_INSTRUCTION_REG         <= alu_instruction          ;
-            ALU_INPUT_1_SELECT_REG      <= alu_input_1_select       ;
-            ALU_INPUT_2_SELECT_REG      <= alu_input_2_select       ;
-            DATA_CACHE_LOAD_REG         <= data_cache_load          ;
-            DATA_CACHE_STORE_REG        <= data_cache_store         ;
-            DATA_CACHE_STORE_DATA_REG   <= rs2_data                 ;
-            WRITE_BACK_MUX_SELECT_REG   <= write_back_mux_select    ;
-            RD_WRITE_ENABLE_REG         <= rd_write_enable_out      ;
+            pc_reg                      <= PC_IN                    ;
+            rs1_address_reg             <= rs1_address              ;
+            rs2_address_reg             <= rs2_address              ;
+            rd_address_reg              <= rd_address_out           ;
+            rs1_data_reg                <= rs1_data                 ;
+            rs2_data_reg                <= rs2_data                 ;             
+            imm_output_reg              <= imm_output               ;
+            shift_amount_reg            <= shift_amount             ;
+            alu_instruction_reg         <= alu_instruction          ;
+            alu_input_1_select_reg      <= alu_input_1_select       ;
+            alu_input_2_select_reg      <= alu_input_2_select       ;
+            data_cache_load_reg         <= data_cache_load          ;
+            data_cache_store_reg        <= data_cache_store         ;
+            data_cache_store_data_reg   <= rs2_data                 ;
+            write_back_mux_select_reg   <= write_back_mux_select    ;
+            rd_write_enable_reg         <= rd_write_enable_out      ;
         end
         if(CLEAR_DECODING_STAGE == HIGH)
         begin
-            PC_REG                      <= 32'b0                    ;
-            RS1_ADDRESS_REG             <= 5'b0                     ;
-            RS2_ADDRESS_REG             <= 5'b0                     ;
-            RD_ADDRESS_REG              <= 5'b0                     ;
-            RS1_DATA_REG                <= 32'b0                    ;
-            RS2_DATA_REG                <= 32'b0                    ;             
-            IMM_OUTPUT_REG              <= 32'b0                    ;
-            SHIFT_AMOUNT_REG            <= 5'b0                     ;
-            ALU_INSTRUCTION_REG         <= 5'b0                     ;
-            ALU_INPUT_1_SELECT_REG      <= 1'b0                     ;
-            ALU_INPUT_2_SELECT_REG      <= 1'b0                     ;
-            DATA_CACHE_LOAD_REG         <= 3'b000                   ;
-            DATA_CACHE_STORE_REG        <= 2'b00                    ;
-            DATA_CACHE_STORE_DATA_REG   <= 32'b0                    ;
-            WRITE_BACK_MUX_SELECT_REG   <= 1'b0                     ;
-            RD_WRITE_ENABLE_REG         <= 1'b0                     ;
+            pc_reg                      <= 32'b0                    ;
+            rs1_address_reg             <= 5'b0                     ;
+            rs2_address_reg             <= 5'b0                     ;
+            rd_address_reg              <= 5'b0                     ;
+            rs1_data_reg                <= 32'b0                    ;
+            rs2_data_reg                <= 32'b0                    ;             
+            imm_output_reg              <= 32'b0                    ;
+            shift_amount_reg            <= 5'b0                     ;
+            alu_instruction_reg         <= 5'b0                     ;
+            alu_input_1_select_reg      <= LOW                      ;
+            alu_input_2_select_reg      <= LOW                      ;
+            data_cache_load_reg         <= 3'b0                     ;
+            data_cache_store_reg        <= 2'b0                     ;
+            data_cache_store_data_reg   <= 32'b0                    ;
+            write_back_mux_select_reg   <= LOW                      ;
+            rd_write_enable_reg         <= LOW                      ;
         end
     end
     
-    assign PC_OUT                   = PC_REG                    ;
-    assign RS1_ADDRESS              = RS1_ADDRESS_REG           ;        
-    assign RS2_ADDRESS              = RS2_ADDRESS_REG           ;
-    assign RD_ADDRESS_OUT           = RD_ADDRESS_REG            ;
-    assign RS1_DATA                 = RS1_DATA_REG              ;
-    assign RS2_DATA                 = RS2_DATA_REG              ;        
-    assign IMM_OUTPUT               = IMM_OUTPUT_REG            ;
-    assign SHIFT_AMOUNT             = SHIFT_AMOUNT_REG          ;
-    assign ALU_INSTRUCTION          = ALU_INSTRUCTION_REG       ;
-    assign ALU_INPUT_1_SELECT       = ALU_INPUT_1_SELECT_REG    ;
-    assign ALU_INPUT_2_SELECT       = ALU_INPUT_2_SELECT_REG    ;
-    assign DATA_CACHE_LOAD          = DATA_CACHE_LOAD_REG       ;
-    assign DATA_CACHE_STORE         = DATA_CACHE_STORE_REG      ;
-    assign DATA_CACHE_STORE_DATA    = DATA_CACHE_STORE_DATA_REG ;
-    assign WRITE_BACK_MUX_SELECT    = WRITE_BACK_MUX_SELECT_REG ;
-    assign RD_WRITE_ENABLE_OUT      = RD_WRITE_ENABLE_REG       ;
+    assign PC_OUT                   = pc_reg                    ;
+    assign RS1_ADDRESS              = rs1_address_reg           ;        
+    assign RS2_ADDRESS              = rs2_address_reg           ;
+    assign RD_ADDRESS_OUT           = rd_address_reg            ;
+    assign RS1_DATA                 = rs1_data_reg              ;
+    assign RS2_DATA                 = rs2_data_reg              ;        
+    assign IMM_OUTPUT               = imm_output_reg            ;
+    assign SHIFT_AMOUNT             = shift_amount_reg          ;
+    assign ALU_INSTRUCTION          = alu_instruction_reg       ;
+    assign ALU_INPUT_1_SELECT       = alu_input_1_select_reg    ;
+    assign ALU_INPUT_2_SELECT       = alu_input_2_select_reg    ;
+    assign DATA_CACHE_LOAD          = data_cache_load_reg       ;
+    assign DATA_CACHE_STORE         = data_cache_store_reg      ;
+    assign DATA_CACHE_STORE_DATA    = data_cache_store_data_reg ;
+    assign WRITE_BACK_MUX_SELECT    = write_back_mux_select_reg ;
+    assign RD_WRITE_ENABLE_OUT      = rd_write_enable_reg       ;
     
 endmodule

@@ -21,7 +21,7 @@
 
 
 module MULTIPLEXER_6_TO_1 #(
-        parameter BUS_WIDTH     = 32       
+        parameter BUS_WIDTH     = 32          
     ) (
         input   [BUS_WIDTH - 1 : 0] IN1     ,
         input   [BUS_WIDTH - 1 : 0] IN2     ,
@@ -33,42 +33,42 @@ module MULTIPLEXER_6_TO_1 #(
         output  [BUS_WIDTH - 1 : 0] OUT     
     );
     
-    reg [BUS_WIDTH - 1 : 0] OUT_REG;
+    reg [BUS_WIDTH - 1 : 0] out_reg;
     
     always@(*)
     begin
         case(SELECT)
             3'b000:
             begin
-                OUT_REG = IN1;
+                out_reg = IN1;
             end 
             3'b001:
             begin
-                OUT_REG = IN2;
+                out_reg = IN2;
             end 
             3'b010:
             begin
-                OUT_REG = IN3;
+                out_reg = IN3;
             end 
             3'b011:
             begin
-                OUT_REG = IN4;
+                out_reg = IN4;
             end 
             3'b100:
             begin
-                OUT_REG = IN5;
+                out_reg = IN5;
             end 
             3'b101:
             begin
-                OUT_REG = IN6;
+                out_reg = IN6;
             end 
 			default:
             begin
-                OUT_REG = 32'b0;
+                out_reg = 32'b0;
             end
         endcase
     end
     
-   assign OUT = OUT_REG;
+   assign OUT = out_reg;
     
 endmodule
