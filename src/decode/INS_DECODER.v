@@ -108,7 +108,6 @@ module INS_DECODER #(
         output  [4  : 0] RS1_ADDRESS            ,
         output  [4  : 0] RS2_ADDRESS            ,
         output  [4  : 0] RD_ADDRESS             ,
-		output  [4  : 0] SHIFT_AMOUNT           ,
 		output  [4  : 0] ALU_INSTRUCTION        ,
         output           ALU_INPUT_1_SELECT     ,
         output           ALU_INPUT_2_SELECT     ,
@@ -122,7 +121,6 @@ module INS_DECODER #(
     reg  [4  : 0]   rs1_address_reg             ;
     reg  [4  : 0]   rs2_address_reg             ;
     reg  [4  : 0]   rd_address_reg              ;
-    reg  [4  : 0]   shift_amount_reg            ;
     reg  [4  : 0]   alu_instruction_reg         ;
     reg             alu_input_1_select_reg      ;
     reg             alu_input_2_select_reg      ;
@@ -137,7 +135,6 @@ module INS_DECODER #(
     wire [4  : 0]   rs_1                        ;
     wire [4  : 0]   rs_2                        ;
     wire [6  : 0]   fun7                        ;
-    wire [4  : 0]   shamt                       ;
     
     assign opcode   = INSTRUCTION[6  :  0]      ; 
     assign rd       = INSTRUCTION[11 :  7]      ;
@@ -145,7 +142,6 @@ module INS_DECODER #(
     assign rs_1     = INSTRUCTION[19 : 15]      ;
     assign rs_2     = INSTRUCTION[24 : 20]      ;
     assign fun7     = INSTRUCTION[31 : 25]      ;
-    assign shamt    = INSTRUCTION[24 : 20]      ;
     
     always@(*)
     begin
@@ -156,9 +152,8 @@ module INS_DECODER #(
                     rs1_address_reg             = 5'b0;
                     rs2_address_reg             = 5'b0;
                     rd_address_reg              = rd;
-                    shift_amount_reg            = 5'b0;
                     alu_instruction_reg         = ALU_ADD;
-                    alu_input_1_select_reg      = LOW;   
+                    alu_input_1_select_reg      = HIGH;   
                     alu_input_2_select_reg      = HIGH;
                     data_cache_load_reg         = DATA_CACHE_LOAD_NONE;
                     data_cache_store_reg        = DATA_CACHE_STORE_NONE;
@@ -171,7 +166,6 @@ module INS_DECODER #(
                     rs1_address_reg             = 5'b0;
                     rs2_address_reg             = 5'b0;
                     rd_address_reg              = rd;
-                    shift_amount_reg            = 5'b0;
                     alu_instruction_reg         = ALU_ADD;
                     alu_input_1_select_reg      = HIGH;   
                     alu_input_2_select_reg      = HIGH;
@@ -186,10 +180,9 @@ module INS_DECODER #(
                     rs1_address_reg             = 5'b0;
                     rs2_address_reg             = 5'b0;
                     rd_address_reg              = rd;
-                    shift_amount_reg            = 5'b0;
                     alu_instruction_reg         = ALU_JAL;
-                    alu_input_1_select_reg      = LOW;   
-                    alu_input_2_select_reg      = LOW;
+                    alu_input_1_select_reg      = HIGH;   
+                    alu_input_2_select_reg      = HIGH;
                     data_cache_load_reg         = DATA_CACHE_LOAD_NONE;
                     data_cache_store_reg        = DATA_CACHE_STORE_NONE;
                     write_back_mux_select_reg   = LOW;
@@ -201,10 +194,9 @@ module INS_DECODER #(
                     rs1_address_reg             = rs_1;
                     rs2_address_reg             = 5'b0;
                     rd_address_reg              = rd;
-                    shift_amount_reg            = 5'b0;
                     alu_instruction_reg         = ALU_JALR;
                     alu_input_1_select_reg      = LOW;   
-                    alu_input_2_select_reg      = LOW;
+                    alu_input_2_select_reg      = HIGH;
                     data_cache_load_reg         = DATA_CACHE_LOAD_NONE;
                     data_cache_store_reg        = DATA_CACHE_STORE_NONE;
                     write_back_mux_select_reg   = LOW;
@@ -246,7 +238,6 @@ module INS_DECODER #(
                     rs1_address_reg             = rs_1;
                     rs2_address_reg             = rs_2;
                     rd_address_reg              = 5'b0;
-                    shift_amount_reg            = 5'b0;
                     alu_input_1_select_reg      = LOW;   
                     alu_input_2_select_reg      = LOW;
                     data_cache_load_reg         = DATA_CACHE_LOAD_NONE;
@@ -286,7 +277,6 @@ module INS_DECODER #(
                     rs1_address_reg             = rs_1;
                     rs2_address_reg             = 5'b0;
                     rd_address_reg              = rd;
-                    shift_amount_reg            = 5'b0;
                     alu_instruction_reg         = ALU_ADD;
                     alu_input_1_select_reg      = LOW;   
                     alu_input_2_select_reg      = HIGH;
@@ -318,7 +308,6 @@ module INS_DECODER #(
                     rs1_address_reg             = rs_1;
                     rs2_address_reg             = rs_2;
                     rd_address_reg              = 5'b0;
-                    shift_amount_reg            = 5'b0;
                     alu_instruction_reg         = ALU_ADD;
                     alu_input_1_select_reg      = LOW;   
                     alu_input_2_select_reg      = HIGH;
@@ -331,27 +320,22 @@ module INS_DECODER #(
                     case(fun3)
                         RV321_FUN3_ADD_SUB:
                         begin
-                            shift_amount_reg    = 5'b0;
                             alu_instruction_reg = ALU_ADD; 
                         end
                         RV321_FUN3_SLL:
                         begin
-                            shift_amount_reg    = shamt;
                             alu_instruction_reg = ALU_SLLI; 
                         end
                         RV321_FUN3_SLT:
                         begin
-                            shift_amount_reg    = 5'b0;
                             alu_instruction_reg = ALU_SLT; 
                         end
                         RV321_FUN3_SLTU:
                         begin
-                            shift_amount_reg    = 5'b0;
                             alu_instruction_reg = ALU_SLTU; 
                         end
                         RV321_FUN3_XOR:
                         begin
-                           shift_amount_reg     = 5'b0; 
                            alu_instruction_reg  = ALU_XOR; 
                         end
                         RV321_FUN3_SRL_SRA:
@@ -370,16 +354,13 @@ module INS_DECODER #(
                                     alu_instruction_reg = ALU_NOP;
                                 end
                             endcase
-                            shift_amount_reg = shamt;
                         end
                         RV321_FUN3_OR:
                         begin
-                            shift_amount_reg    = 5'b0;
                             alu_instruction_reg = ALU_OR; 
                         end
                         RV321_FUN3_AND:
                         begin
-                            shift_amount_reg    = 5'b0;
                             alu_instruction_reg = ALU_OR; 
                         end
                     endcase
@@ -460,7 +441,6 @@ module INS_DECODER #(
                     rs1_address_reg             = rs_1;
                     rs2_address_reg             = rs_2;
                     rd_address_reg              = rd;
-                    shift_amount_reg            = 5'b0;
                     alu_input_1_select_reg      = LOW;   
                     alu_input_2_select_reg      = LOW;
                     data_cache_load_reg         = DATA_CACHE_LOAD_NONE;
@@ -474,7 +454,6 @@ module INS_DECODER #(
                     rs1_address_reg             = 5'b0;
                     rs2_address_reg             = 5'b0;
                     rd_address_reg              = 5'b0;
-                    shift_amount_reg            = 5'b0;
                     alu_instruction_reg         = ALU_NOP;
                     alu_input_1_select_reg      = LOW;   
                     alu_input_2_select_reg      = LOW;
@@ -490,7 +469,6 @@ module INS_DECODER #(
     assign  RS1_ADDRESS             = rs1_address_reg           ;
     assign  RS2_ADDRESS             = rs2_address_reg           ;
     assign  RD_ADDRESS              = rd_address_reg            ;
-    assign  SHIFT_AMOUNT            = shift_amount_reg          ;
     assign  ALU_INSTRUCTION         = alu_instruction_reg       ;
     assign  ALU_INPUT_1_SELECT      = alu_input_1_select_reg    ;
     assign  ALU_INPUT_2_SELECT      = alu_input_2_select_reg    ;

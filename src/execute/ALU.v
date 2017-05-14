@@ -50,7 +50,6 @@ module ALU #(
     ) (
         input   [INPUT_WIDTH - 1 : 0]   ALU_IN1           ,
         input   [INPUT_WIDTH - 1 : 0]   ALU_IN2           ,
-        input   [4               : 0]   SHIFT_AMOUNT      ,
         input   [4               : 0]   ALU_INSTRUCTION   ,
         output  [INPUT_WIDTH - 1 : 0]   ALU_OUT           ,
         output                          BRANCH_TAKEN
@@ -67,6 +66,167 @@ module ALU #(
                 alu_out_reg         = 32'b0;
                 branch_taken_reg    = LOW;
             end
+            ALU_ADD:
+            begin
+                alu_out_reg         = $signed(ALU_IN1) + $signed(ALU_IN2);
+                branch_taken_reg    = LOW;
+            end
+            ALU_SUB:
+            begin
+                alu_out_reg         = $signed(ALU_IN1) - $signed(ALU_IN2);
+                branch_taken_reg    = LOW;
+            end
+            ALU_SLL:
+            begin
+                alu_out_reg         = ALU_IN1 << ALU_IN2;
+                branch_taken_reg    = LOW;
+            end
+            ALU_SLT:
+            begin
+                if(ALU_IN1 < ALU_IN2)
+                begin
+                    alu_out_reg         = 32'b1;
+                end
+                else
+                begin
+                    alu_out_reg         = 32'b0;
+                end
+                branch_taken_reg    = LOW;
+            end
+            ALU_SLTU:
+            begin
+                if($signed(ALU_IN1) < $signed(ALU_IN2))
+                begin
+                    alu_out_reg         = 32'b1;
+                end
+                else
+                begin
+                    alu_out_reg         = 32'b0;
+                end
+                branch_taken_reg    = LOW;
+            end
+            ALU_XOR:
+            begin
+                alu_out_reg         = ALU_IN1 ^ ALU_IN2;
+                branch_taken_reg    = LOW;
+            end
+            ALU_SRL:
+            begin
+                alu_out_reg         = ALU_IN1 >> ALU_IN2;
+                branch_taken_reg    = LOW;
+            end
+            ALU_SRA:
+            begin
+                alu_out_reg         = ALU_IN1 >>> ALU_IN2;
+                branch_taken_reg    = LOW;
+            end
+            ALU_OR:
+            begin
+                alu_out_reg         = ALU_IN1 | ALU_IN2;
+                branch_taken_reg    = LOW;
+            end
+            ALU_AND:
+            begin
+                alu_out_reg         = ALU_IN1 & ALU_IN2;
+                branch_taken_reg    = LOW;
+            end
+            ALU_SLLI:
+            begin
+                alu_out_reg         = ALU_IN1 << ALU_IN2[4:0];
+                branch_taken_reg    = LOW;
+            end
+            ALU_SRLI:
+            begin
+                alu_out_reg         = ALU_IN1 >> ALU_IN2[4:0];
+                branch_taken_reg    = LOW;
+            end
+            ALU_SRAI:
+            begin
+                alu_out_reg         = ALU_IN1 >>> ALU_IN2[4:0];
+                branch_taken_reg    = LOW;
+            end
+            ALU_JAL:
+            begin
+                alu_out_reg         = ALU_IN1 + 4;
+                branch_taken_reg    = LOW;
+            end
+            ALU_JALR:
+            begin
+                alu_out_reg         = ALU_IN1 + 4;
+                branch_taken_reg    = LOW;
+            end
+            ALU_BEQ:
+            begin
+                alu_out_reg         = 32'b0;
+                if(ALU_IN1 == ALU_IN2)
+                begin
+                    branch_taken_reg    = HIGH;
+                end
+                else
+                begin
+                    branch_taken_reg    = LOW;
+                end
+            end
+            ALU_BNE:
+            begin
+                alu_out_reg         = 32'b0;
+                if(ALU_IN1 != ALU_IN2)
+                begin
+                    branch_taken_reg    = HIGH;
+                end
+                else
+                begin
+                    branch_taken_reg    = LOW;
+                end
+            end
+            ALU_BLT:
+            begin
+                alu_out_reg         = 32'b0;
+                if($signed(ALU_IN1) < $signed(ALU_IN2))
+                begin
+                    branch_taken_reg    = HIGH;
+                end
+                else
+                begin
+                    branch_taken_reg    = LOW;
+                end
+            end
+            ALU_BGE:
+            begin
+                alu_out_reg         = 32'b0;
+                if($signed(ALU_IN1) >= $signed(ALU_IN2))
+                begin
+                    branch_taken_reg    = HIGH;
+                end
+                else
+                begin
+                    branch_taken_reg    = LOW;
+                end
+            end
+            ALU_BLTU:
+            begin
+                alu_out_reg         = 32'b0;
+                if(ALU_IN1 == ALU_IN2)
+                begin
+                    branch_taken_reg    = HIGH;
+                end
+                else
+                begin
+                    branch_taken_reg    = LOW;
+                end
+            end
+            ALU_BGEU:
+            begin
+                alu_out_reg         = 32'b0;
+                if(ALU_IN1 >= ALU_IN2)
+                begin
+                    branch_taken_reg    = HIGH;
+                end
+                else
+                begin
+                    branch_taken_reg    = LOW;
+                end
+            end      
             default:
             begin
                 alu_out_reg         = 32'b0;

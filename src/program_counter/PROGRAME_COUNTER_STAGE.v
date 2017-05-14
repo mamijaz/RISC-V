@@ -22,7 +22,10 @@
 
 module PROGRAME_COUNTER_STAGE #(
         parameter ALU_JAL               = 5'b01010      ,
-        parameter ALU_JALR              = 5'b01011      
+        parameter ALU_JALR              = 5'b01011      ,
+        
+        parameter HIGH                  = 1'b1          ,
+        parameter LOW                   = 1'b0
     ) (
         input            CLK                        ,
         input            STALL_EXECUTION_STAGE      ,
@@ -40,7 +43,6 @@ module PROGRAME_COUNTER_STAGE #(
     reg  [31 : 0] pc_reg                            ;
     reg           clear_decoding_stage_reg          ;
     reg           clear_execution_stage_reg         ;
-    reg  [31 : 0] imm_aligned_reg                   ;
     reg           pc_rs_1_select_reg                ;
     reg           pc_predict_select_reg             ;
     reg           pc_mispredict_select_reg          ;

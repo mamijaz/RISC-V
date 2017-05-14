@@ -38,8 +38,7 @@ module DECODING_STAGE #(
             output  [4  : 0] RD_ADDRESS_OUT         ,
             output  [31 : 0] RS1_DATA               ,
             output  [31 : 0] RS2_DATA               ,                       
-            output  [31 : 0] IMM_OUTPUT             ,
-            output  [4  : 0] SHIFT_AMOUNT           ,
+            output  [31 : 0] IMM_OUTPUT             , 
             output  [4  : 0] ALU_INSTRUCTION        ,
             output           ALU_INPUT_1_SELECT     ,
             output           ALU_INPUT_2_SELECT     ,
@@ -57,7 +56,6 @@ module DECODING_STAGE #(
     reg  [31 : 0]   rs1_data_reg                ;
     reg  [31 : 0]   rs2_data_reg                ;                       
     reg  [31 : 0]   imm_output_reg              ;
-    reg  [4  : 0]   shift_amount_reg            ;
     reg  [4  : 0]   alu_instruction_reg         ;
     reg             alu_input_1_select_reg      ;
     reg             alu_input_2_select_reg      ;
@@ -74,7 +72,6 @@ module DECODING_STAGE #(
     wire [31 : 0]   rs2_data                    ;  
     wire [2  : 0]   imm_format                  ;                    
     wire [31 : 0]   imm_output                  ;
-    wire [4  : 0]   shift_amount                ;
     wire [4  : 0]   alu_instruction             ;
     wire            alu_input_1_select          ;
     wire            alu_input_2_select          ;
@@ -90,7 +87,6 @@ module DECODING_STAGE #(
         .RS1_ADDRESS(rs1_address),
         .RS2_ADDRESS(rs2_address),
         .RD_ADDRESS(rd_address_out),
-        .SHIFT_AMOUNT(shift_amount),
         .ALU_INSTRUCTION(alu_instruction),
         .ALU_INPUT_1_SELECT(alu_input_1_select),
         .ALU_INPUT_2_SELECT(alu_input_2_select),
@@ -128,7 +124,6 @@ module DECODING_STAGE #(
             rs1_data_reg                <= rs1_data                 ;
             rs2_data_reg                <= rs2_data                 ;             
             imm_output_reg              <= imm_output               ;
-            shift_amount_reg            <= shift_amount             ;
             alu_instruction_reg         <= alu_instruction          ;
             alu_input_1_select_reg      <= alu_input_1_select       ;
             alu_input_2_select_reg      <= alu_input_2_select       ;
@@ -147,7 +142,6 @@ module DECODING_STAGE #(
             rs1_data_reg                <= 32'b0                    ;
             rs2_data_reg                <= 32'b0                    ;             
             imm_output_reg              <= 32'b0                    ;
-            shift_amount_reg            <= 5'b0                     ;
             alu_instruction_reg         <= 5'b0                     ;
             alu_input_1_select_reg      <= LOW                      ;
             alu_input_2_select_reg      <= LOW                      ;
@@ -166,7 +160,6 @@ module DECODING_STAGE #(
     assign RS1_DATA                 = rs1_data_reg              ;
     assign RS2_DATA                 = rs2_data_reg              ;        
     assign IMM_OUTPUT               = imm_output_reg            ;
-    assign SHIFT_AMOUNT             = shift_amount_reg          ;
     assign ALU_INSTRUCTION          = alu_instruction_reg       ;
     assign ALU_INPUT_1_SELECT       = alu_input_1_select_reg    ;
     assign ALU_INPUT_2_SELECT       = alu_input_2_select_reg    ;

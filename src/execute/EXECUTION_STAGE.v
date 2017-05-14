@@ -34,7 +34,6 @@ module EXECUTION_STAGE #(
         input   [31 : 0] RS1_DATA                   ,
         input   [31 : 0] RS2_DATA                   ,                       
         input   [31 : 0] IMM_DATA                   ,
-        input   [4  : 0] SHIFT_AMOUNT               ,
         input   [4  : 0] ALU_INSTRUCTION            ,
         input   [2  : 0] DATA_CACHE_LOAD_IN         ,
         input   [1  : 0] DATA_CACHE_STORE_IN        ,
@@ -98,7 +97,6 @@ module EXECUTION_STAGE #(
     ALU ALU(
         .ALU_IN1(alu_in1),
         .ALU_IN2(alu_in2),
-        .SHIFT_AMOUNT(SHIFT_AMOUNT),
         .ALU_INSTRUCTION(ALU_INSTRUCTION),
         .ALU_OUT(alu_out),
         .BRANCH_TAKEN(BRANCH_TAKEN)
