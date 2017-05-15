@@ -40,7 +40,6 @@ module DECODING_STAGE_SIMULATION;
     wire  [31 : 0] rs1_data                 ;
     wire  [31 : 0] rs2_data                 ;                     
     wire  [31 : 0] imm_output               ;
-    wire  [4  : 0] shift_amount             ;
     wire  [4  : 0] alu_instruction          ;
     wire           alu_input_1_select       ;
     wire           alu_input_2_select       ;
@@ -67,7 +66,6 @@ module DECODING_STAGE_SIMULATION;
         .RS1_DATA(rs1_data),
         .RS2_DATA(rs2_data),                       
         .IMM_OUTPUT(imm_output),
-        .SHIFT_AMOUNT(shift_amount),
         .ALU_INSTRUCTION(alu_instruction),
         .ALU_INPUT_1_SELECT(alu_input_1_select),
         .ALU_INPUT_2_SELECT(alu_input_2_select),

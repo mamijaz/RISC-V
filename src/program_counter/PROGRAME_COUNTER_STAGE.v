@@ -47,6 +47,7 @@ module PROGRAME_COUNTER_STAGE #(
     reg           pc_predict_select_reg             ;
     reg           pc_mispredict_select_reg          ;
     
+    wire          pc_predictor_status               ;
     wire [31 : 0] pc_predictor_out                  ;
     wire [31 : 0] pc_execution_or_rs_1              ;
     wire [31 : 0] pc_current_plus_4_or_pc_predicted ;
@@ -69,14 +70,48 @@ module PROGRAME_COUNTER_STAGE #(
         
     MULTIPLEXER_2_TO_1 PC_MISPREDICTED(
         .IN1(pc_current_plus_4_or_pc_predicted),
-        .IN2(pc_execution_or_rs_1),
+        .IN2($signed(pc_execution_or_rs_1)+$signed(IMM_INPUT)),
         .SELECT(pc_mispredict_select_reg),
         .OUT(pc_next) 
         );
     
     always@(*)
     begin
-    
+        if(pc_predictor_status == HIGH)
+        begin
+            pc_predict_select_reg = HIGH;
+        end
+        else
+        begin
+            pc_predict_select_reg = LOW;
+        end
+        
+        if(ALU_INSTRUCTION == ALU_JAL)
+        begin
+            pc_rs_1_select_reg = HIGH;
+        end
+        else
+        begin
+            pc_rs_1_select_reg = LOW;
+        end
+        
+        if((ALU_INSTRUCTION == ALU_JAL)|(ALU_INSTRUCTION == ALU_JALR)|(BRANCH_TAKEN == HIGH))
+        begin
+            if(($signed(pc_execution_or_rs_1) + $signed(IMM_INPUT)) != PC_DECODING)
+            begin
+                pc_mispredict_select_reg  = HIGH;
+                clear_decoding_stage_reg  = HIGH;
+                clear_execution_stage_reg = HIGH;
+            end
+            else
+            begin
+                pc_mispredict_select_reg = LOW;
+            end
+        end
+        else
+        begin
+            pc_mispredict_select_reg = LOW;
+        end
     end
     
     always@(posedge CLK)
