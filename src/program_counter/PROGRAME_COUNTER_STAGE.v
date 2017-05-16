@@ -53,6 +53,11 @@ module PROGRAME_COUNTER_STAGE #(
     wire [31 : 0] pc_current_plus_4_or_pc_predicted ;
     wire [31 : 0] pc_mispredicted                   ;
     wire [31 : 0] pc_next                           ;
+	
+	initial
+	begin
+        pc_reg = 32'b0;
+    end
     
     MULTIPLEXER_2_TO_1 PC_EXECUTION_OR_RS_1(
         .IN1(PC_EXECUTION),
