@@ -27,16 +27,16 @@ module PROGRAME_COUNTER_STAGE #(
         parameter HIGH                  = 1'b1          ,
         parameter LOW                   = 1'b0
     ) (
-        input            CLK                        ,
-        input            STALL_EXECUTION_STAGE      ,
-        input  [4  : 0]  ALU_INSTRUCTION            ,
-        input            BRANCH_TAKEN               ,
-        input  [31 : 0]  PC_EXECUTION               ,
-        input  [31 : 0]  RS1_DATA                   ,
-        input  [31 : 0]  IMM_INPUT                  ,
-        input  [31 : 0]  PC_DECODING                ,
-        output [31 : 0]  PC                         ,
-        output           CLEAR_DECODING_STAGE       ,
+        input            CLK                            ,
+        input            STALL_PROGRAME_COUNTER_STAGE   ,
+        input  [4  : 0]  ALU_INSTRUCTION                ,
+        input            BRANCH_TAKEN                   ,
+        input  [31 : 0]  PC_EXECUTION                   ,
+        input  [31 : 0]  RS1_DATA                       ,
+        input  [31 : 0]  IMM_INPUT                      ,
+        input  [31 : 0]  PC_DECODING                    ,
+        output [31 : 0]  PC                             ,
+        output           CLEAR_DECODING_STAGE           ,
         output           CLEAR_EXECUTION_STAGE
     );
     
@@ -121,7 +121,10 @@ module PROGRAME_COUNTER_STAGE #(
     
     always@(posedge CLK)
     begin
-        pc_reg <= pc_next;
+        if(STALL_PROGRAME_COUNTER_STAGE != HIGH)
+        begin
+            pc_reg <= pc_next;
+        end
     end
     
     assign PC                       = pc_reg                    ;
