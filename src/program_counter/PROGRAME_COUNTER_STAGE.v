@@ -59,21 +59,21 @@ module PROGRAME_COUNTER_STAGE #(
         pc_reg = 32'b0;
     end
     
-    MULTIPLEXER_2_TO_1 PC_EXECUTION_OR_RS_1(
+    MULTIPLEXER_2_TO_1 pc_execution_or_rs_1_mux(
         .IN1(PC_EXECUTION),
         .IN2(RS1_DATA),
         .SELECT(pc_rs_1_select_reg),
         .OUT(pc_execution_or_rs_1) 
         );
     
-    MULTIPLEXER_2_TO_1 PC_CURRENT_PLUS_4_OR_PC_PREDICTED(
+    MULTIPLEXER_2_TO_1 pc_current_plus_4_or_pc_predicted_mux(
         .IN1(pc_reg+4),
         .IN2(pc_predictor_out),
         .SELECT(pc_predict_select_reg),
         .OUT(pc_current_plus_4_or_pc_predicted) 
         );
         
-    MULTIPLEXER_2_TO_1 PC_MISPREDICTED(
+    MULTIPLEXER_2_TO_1 pc_mispredicted_mux(
         .IN1(pc_current_plus_4_or_pc_predicted),
         .IN2($signed(pc_execution_or_rs_1)+$signed(IMM_INPUT)),
         .SELECT(pc_mispredict_select_reg),

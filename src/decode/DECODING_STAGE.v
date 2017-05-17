@@ -81,7 +81,7 @@ module DECODING_STAGE #(
     wire            write_back_mux_select       ;
     wire            rd_write_enable_out         ;
 
-    INS_DECODER INS_DECODER(
+    INS_DECODER ins_decoder(
         .INSTRUCTION(INSTRUCTION),
         .IMM_FORMAT(imm_format),
         .RS1_ADDRESS(rs1_address),
@@ -96,7 +96,7 @@ module DECODING_STAGE #(
         .RD_WRITE_ENABLE(rd_write_enable_out)        
         );
         
-    REGISTER_FILE REGISTER_FILE(
+    REGISTER_FILE register_file(
         .CLK(CLK),
         .RS1_ADDRESS(rs1_address),
         .RS2_ADDRESS(rs2_address),
@@ -107,7 +107,7 @@ module DECODING_STAGE #(
         .RD_WRITE_EN(RD_WRITE_ENABLE_IN)
         );
         
-    IMM_EXTENDER IMM_EXTENDER(
+    IMM_EXTENDER imm_extender(
         .IMM_INPUT(INSTRUCTION[31:7]),
         .IMM_FORMAT(imm_format),
         .IMM_OUTPUT(imm_output) 

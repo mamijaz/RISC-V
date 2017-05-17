@@ -72,7 +72,7 @@ module EXECUTION_STAGE #(
     wire [31 : 0] alu_in2                           ;
     wire [31 : 0] alu_out                           ;   
         
-    MULTIPLEXER_6_TO_1 ALU_IN1_MUX(
+    MULTIPLEXER_6_TO_1 alu_in1_mux(
         .IN1(RS1_DATA),
         .IN2(PC_IN),
         .IN3(RS1_DATA_DM1),
@@ -83,7 +83,7 @@ module EXECUTION_STAGE #(
         .OUT(alu_in1)
         );
     
-    MULTIPLEXER_6_TO_1 ALU_IN2_MUX(
+    MULTIPLEXER_6_TO_1 alu_in2_mux(
         .IN1(RS2_DATA),
         .IN2(IMM_DATA),
         .IN3(RS2_DATA_DM1),
@@ -94,7 +94,7 @@ module EXECUTION_STAGE #(
         .OUT(alu_in2)
         );
     
-    ALU ALU(
+    ALU alu(
         .ALU_IN1(alu_in1),
         .ALU_IN2(alu_in2),
         .ALU_INSTRUCTION(ALU_INSTRUCTION),
