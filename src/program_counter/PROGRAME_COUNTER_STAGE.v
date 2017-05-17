@@ -36,15 +36,15 @@ module PROGRAME_COUNTER_STAGE #(
         input  [31 : 0]  IMM_INPUT                      ,
         input  [31 : 0]  PC_DECODING                    ,
         output [31 : 0]  PC                             ,
+		output           CLEAR_INSTRUCTION_FETCH_STAGE	,
         output           CLEAR_DECODING_STAGE           ,
-        output           CLEAR_EXECUTION_STAGE			,
-		output           CLEAR_INSTRUCTION_FETCH_STAGE	
+        output           CLEAR_EXECUTION_STAGE			
     );
     
     reg  [31 : 0] pc_reg                            ;
+	reg 		  clear_instruction_fetch_stage_reg ;
     reg           clear_decoding_stage_reg          ;
     reg           clear_execution_stage_reg         ;
-	reg 		  clear_instruction_fetch_stage_reg ;
     reg           pc_rs_1_select_reg                ;
     reg           pc_predict_select_reg             ;
     reg           pc_mispredict_select_reg          ;
@@ -107,9 +107,9 @@ module PROGRAME_COUNTER_STAGE #(
             if(($signed(pc_execution_or_rs_1) + $signed(IMM_INPUT)) != PC_DECODING)
             begin
                 pc_mispredict_select_reg            = HIGH;
+				clear_instruction_fetch_stage_reg   = HIGH;
                 clear_decoding_stage_reg            = HIGH;
                 clear_execution_stage_reg           = HIGH;
-                clear_instruction_fetch_stage_reg   = HIGH;
             end
             else
             begin
@@ -131,8 +131,8 @@ module PROGRAME_COUNTER_STAGE #(
     end
     
     assign PC                               = pc_reg                            ;
+	assign CLEAR_INSTRUCTION_FETCH_STAGE    = clear_instruction_fetch_stage_reg ;
     assign CLEAR_DECODING_STAGE             = clear_decoding_stage_reg          ;
     assign CLEAR_EXECUTION_STAGE            = clear_execution_stage_reg         ;
-    assign CLEAR_INSTRUCTION_FETCH_STAGE    = clear_instruction_fetch_stage_reg ;
             
 endmodule
