@@ -23,24 +23,25 @@
 module PROGRAME_COUNTER_STAGE_SIMULATION;
 
     // Inputs
-    reg            clk                        ;
-    reg            stall_execution_stage      ;
-    reg  [4  : 0]  alu_instruction            ;
-    reg            branch_taken               ;
-    reg  [31 : 0]  pc_execution               ;
-    reg  [31 : 0]  rs1_data                   ;
-    reg  [31 : 0]  imm_input                  ;
-    reg  [31 : 0]  pc_decoding                ;
+    reg            clk                          ;
+    reg            stall_programe_counter_stage ;
+    reg  [4  : 0]  alu_instruction              ;
+    reg            branch_taken                 ;
+    reg  [31 : 0]  pc_execution                 ;
+    reg  [31 : 0]  rs1_data                     ;
+    reg  [31 : 0]  imm_input                    ;
+    reg  [31 : 0]  pc_decoding                  ;
    
     // Outputs
-    wire [31 : 0]  pc                         ;
-    wire           clear_decoding_stage       ;
-    wire           clear_execution_stage      ;
+    wire [31 : 0]  pc                               ;
+    wire           clear_decoding_stage             ;
+    wire           clear_execution_stage            ;
+    wire           clear_instruction_fetch_stage    ;
    
     // Instantiate the Unit Under Test (UUT)
     PROGRAME_COUNTER_STAGE uut(
         .CLK(clk),
-        .STALL_EXECUTION_STAGE(stall_execution_stage),
+        .STALL_PROGRAME_COUNTER_STAGE(stall_programe_counter_stage),
         .ALU_INSTRUCTION(alu_instruction),
         .BRANCH_TAKEN(branch_taken),
         .PC_EXECUTION(pc_execution),
@@ -49,20 +50,21 @@ module PROGRAME_COUNTER_STAGE_SIMULATION;
         .PC_DECODING(pc_decoding),
         .PC(pc),
         .CLEAR_DECODING_STAGE(clear_decoding_stage),
-        .CLEAR_EXECUTION_STAGE(clear_execution_stage)
+        .CLEAR_EXECUTION_STAGE(clear_execution_stage),
+        .CLEAR_INSTRUCTION_FETCH_STAGE(clear_instruction_fetch_stage)
         );
    
     initial 
     begin
         // Initialize Inputs
-        clk                      = 1'b0 ;
-        stall_execution_stage    = 1'b0 ;
-        alu_instruction          = 5'b0 ;
-        branch_taken             = 1'b0 ;
-        pc_execution             = 32'b0 ;
-        rs1_data                 = 32'b0 ;
-        imm_input                = 32'b0 ;
-        pc_decoding              = 32'b0 ;
+        clk                             = 1'b0 ;
+        stall_programe_counter_stage    = 1'b0 ;
+        alu_instruction                 = 5'b0 ;
+        branch_taken                    = 1'b0 ;
+        pc_execution                    = 32'b0 ;
+        rs1_data                        = 32'b0 ;
+        imm_input                       = 32'b0 ;
+        pc_decoding                     = 32'b0 ;
 
         // Wait 100 ns for global reset to finish
         #100;
