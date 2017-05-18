@@ -113,18 +113,24 @@ module PROGRAME_COUNTER_STAGE #(
             end
             else
             begin
-                pc_mispredict_select_reg = LOW;
+                pc_mispredict_select_reg            = LOW;
+                clear_instruction_fetch_stage_reg   = LOW;
+                clear_decoding_stage_reg            = LOW;
+                clear_execution_stage_reg           = LOW;
             end
         end
         else
         begin
-            pc_mispredict_select_reg = LOW;
+            pc_mispredict_select_reg            = LOW;
+            clear_instruction_fetch_stage_reg   = LOW;
+            clear_decoding_stage_reg            = LOW;
+            clear_execution_stage_reg           = LOW;
         end
     end
     
     always@(posedge CLK)
     begin
-        if(STALL_PROGRAME_COUNTER_STAGE != HIGH)
+        if(STALL_PROGRAME_COUNTER_STAGE == LOW)
         begin
             pc_reg <= pc_next;
         end

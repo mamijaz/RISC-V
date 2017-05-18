@@ -104,9 +104,9 @@ module EXECUTION_STAGE #(
         
     always@(posedge CLK) 
     begin
-        if(STALL_EXECUTION_STAGE != HIGH)
+        if(STALL_EXECUTION_STAGE == LOW)
         begin
-            if(CLEAR_EXECUTION_STAGE != HIGH)
+            if(CLEAR_EXECUTION_STAGE == LOW)
             begin
                 rd_address_out_reg             <= RD_ADDRESS_IN             ;
                 alu_out_reg                    <= alu_out                   ;

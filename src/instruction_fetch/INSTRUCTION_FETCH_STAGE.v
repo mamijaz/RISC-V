@@ -21,7 +21,8 @@
 
 
 module INSTRUCTION_FETCH_STAGE #(
-        parameter HIGH  = 1'b1  
+        parameter HIGH  = 1'b1  ,
+        parameter LOW   = 1'b0
     ) (
         input            CLK                            ,
         input            STALL_INSTRUCTION_FETCH_STAGE  ,
@@ -34,11 +35,14 @@ module INSTRUCTION_FETCH_STAGE #(
     
     always@(posedge CLK) 
     begin
-        if((STALL_INSTRUCTION_FETCH_STAGE != HIGH) & (CLEAR_INSTRUCTION_FETCH_STAGE != HIGH))
+        if(CLEAR_INSTRUCTION_FETCH_STAGE == LOW)
         begin
-            pc_reg  <= PC_IN;
+            if(STALL_INSTRUCTION_FETCH_STAGE == LOW) 
+            begin
+                pc_reg  <= PC_IN;
+            end
         end
-        if(CLEAR_INSTRUCTION_FETCH_STAGE == HIGH)
+        else
         begin
             pc_reg  <= 32'b0;
         end
