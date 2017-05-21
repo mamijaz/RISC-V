@@ -30,6 +30,9 @@ module RISCV_PROCESSOR #(
     PROGRAME_COUNTER_STAGE programe_counter_stage(
         );
         
+    HAZARD_CONTROL_UNIT hazard_control_unit(
+        );
+        
     INSTRUCTION_CACHE instruction_cache(
         );
         
