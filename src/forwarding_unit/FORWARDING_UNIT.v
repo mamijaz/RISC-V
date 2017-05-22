@@ -21,7 +21,19 @@
 
 
 module FORWARDING_UNIT #(
-        parameter HIGH  = 1'b1
+        parameter SELECT_RS1            = 1'b0          ,
+        parameter SELECT_PC             = 1'b1          ,
+        parameter SELECT_RS2            = 1'b0          ,
+        parameter SELECT_IMM            = 1'b1          ,
+        
+        parameter DIRECT_RS1            = 3'b000        ,
+        parameter ALU_IN1_PC            = 3'b001        ,
+        parameter DIRECT_RS2            = 3'b000        ,
+        parameter ALU_IN1_IMM           = 3'b001        ,
+        parameter FORWARDING_RD_DM1     = 3'b010        ,
+        parameter FORWARDING_RD_DM2     = 3'b011        ,
+        parameter FORWARDING_RD_DM3     = 3'b100        ,
+        parameter FORWARDING_RD_WB      = 3'b101        
     ) (
         input            ALU_INPUT_1_SELECT     ,
         input            ALU_INPUT_2_SELECT     ,
@@ -40,60 +52,60 @@ module FORWARDING_UNIT #(
     
     always@(*) 
     begin 
-        if(ALU_INPUT_1_SELECT != HIGH)
+        if(ALU_INPUT_1_SELECT == SELECT_RS1)
         begin
             if(RD_ADDRESS_WB == RS1_ADDRESS)
             begin
-                alu_input_mux_1_select_reg = 3'b101;
+                alu_input_mux_1_select_reg = FORWARDING_RD_WB;
             end
             else if (RD_ADDRESS_DM3 == RS1_ADDRESS)
             begin
-                alu_input_mux_1_select_reg = 3'b100;
+                alu_input_mux_1_select_reg = FORWARDING_RD_DM3;
             end
             else if (RD_ADDRESS_DM2 == RS1_ADDRESS)
             begin
-                alu_input_mux_1_select_reg = 3'b011;
+                alu_input_mux_1_select_reg = FORWARDING_RD_DM2;
             end
             else if (RD_ADDRESS_DM1 == RS1_ADDRESS)
             begin
-                alu_input_mux_1_select_reg = 3'b010;
+                alu_input_mux_1_select_reg = FORWARDING_RD_DM1;
             end
             else
             begin
-                alu_input_mux_1_select_reg = 3'b000;
+                alu_input_mux_1_select_reg = DIRECT_RS1;
             end
         end
         else
         begin
-            alu_input_mux_1_select_reg = 3'b001;
+            alu_input_mux_1_select_reg = ALU_IN1_PC;
         end
         
-        if(ALU_INPUT_2_SELECT != HIGH)
+        if(ALU_INPUT_2_SELECT == SELECT_RS2)
         begin
             if(RD_ADDRESS_WB == RS2_ADDRESS)
             begin
-                alu_input_mux_2_select_reg = 3'b101;
+                alu_input_mux_2_select_reg = FORWARDING_RD_WB;
             end
             else if (RD_ADDRESS_DM3 == RS2_ADDRESS)
             begin
-                alu_input_mux_2_select_reg = 3'b100;
+                alu_input_mux_2_select_reg = FORWARDING_RD_DM3;
             end
             else if (RD_ADDRESS_DM2 == RS2_ADDRESS)
             begin
-                alu_input_mux_2_select_reg = 3'b011;
+                alu_input_mux_2_select_reg = FORWARDING_RD_DM2;
             end
             else if (RD_ADDRESS_DM1 == RS2_ADDRESS)
             begin
-                alu_input_mux_2_select_reg = 3'b010;
+                alu_input_mux_2_select_reg = FORWARDING_RD_DM1;
             end
             else
             begin
-                alu_input_mux_2_select_reg = 3'b000;
+                alu_input_mux_2_select_reg = DIRECT_RS2;
             end
         end
         else
         begin
-            alu_input_mux_2_select_reg = 3'b001;
+            alu_input_mux_2_select_reg = ALU_IN1_IMM;
         end
     end
     
