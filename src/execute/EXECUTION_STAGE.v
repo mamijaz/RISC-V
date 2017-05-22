@@ -42,14 +42,10 @@ module EXECUTION_STAGE #(
         input            RD_WRITE_ENABLE_IN         ,
         input   [2  : 0] ALU_IN1_MUX_SELECT         ,
         input   [2  : 0] ALU_IN2_MUX_SELECT         ,
-        input   [31 : 0] RS1_DATA_DM1               ,
-        input   [31 : 0] RS1_DATA_DM2               ,
-        input   [31 : 0] RS1_DATA_DM3               ,
-        input   [31 : 0] RS1_DATA_WB                ,
-        input   [31 : 0] RS2_DATA_DM1               ,
-        input   [31 : 0] RS2_DATA_DM2               ,
-        input   [31 : 0] RS2_DATA_DM3               ,
-        input   [31 : 0] RS2_DATA_WB                ,
+        input   [31 : 0] RD_DATA_DM1                ,
+        input   [31 : 0] RD_DATA_DM2                ,
+        input   [31 : 0] RD_DATA_DM3                ,
+        input   [31 : 0] RD_DATA_WB                 ,
         output  [4  : 0] RD_ADDRESS_OUT             ,
         output  [31 : 0] ALU_OUT                    ,
         output           BRANCH_TAKEN               ,
@@ -75,10 +71,10 @@ module EXECUTION_STAGE #(
     MULTIPLEXER_6_TO_1 alu_in1_mux(
         .IN1(RS1_DATA),
         .IN2(PC_IN),
-        .IN3(RS1_DATA_DM1),
-        .IN4(RS1_DATA_DM2),
-        .IN5(RS1_DATA_DM3),
-        .IN6(RS1_DATA_WB),
+        .IN3(RD_DATA_DM1),
+        .IN4(RD_DATA_DM2),
+        .IN5(RD_DATA_DM3),
+        .IN6(RD_DATA_WB),
         .SELECT(ALU_IN1_MUX_SELECT),
         .OUT(alu_in1)
         );
@@ -86,10 +82,10 @@ module EXECUTION_STAGE #(
     MULTIPLEXER_6_TO_1 alu_in2_mux(
         .IN1(RS2_DATA),
         .IN2(IMM_DATA),
-        .IN3(RS2_DATA_DM1),
-        .IN4(RS2_DATA_DM2),
-        .IN5(RS2_DATA_DM3),
-        .IN6(RS2_DATA_WB),
+        .IN3(RD_DATA_DM1),
+        .IN4(RD_DATA_DM2),
+        .IN5(RD_DATA_DM3),
+        .IN6(RD_DATA_WB),
         .SELECT(ALU_IN2_MUX_SELECT),
         .OUT(alu_in2)
         );
