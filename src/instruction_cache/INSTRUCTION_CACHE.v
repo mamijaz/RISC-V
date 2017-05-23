@@ -21,8 +21,13 @@
 
 
 module INSTRUCTION_CACHE #(
-    
-    ) (
-
-    );
+        parameter HIGH  = 1'b1  ,
+        parameter LOW   = 1'b0
+   ) (
+        input   [31 : 0] PC                         ,
+        input            INSTRUCTION_CACHE_STALL    ,
+        output  [31 : 0] INSTRUCTION                ,
+        output           INSTRUCTION_CACHE_READY    
+   );
+   
 endmodule
