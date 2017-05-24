@@ -25,6 +25,7 @@ module INSTRUCTION_CACHE #(
         parameter LOW   = 1'b0
    ) (
         input   [31 : 0] PC                         ,
+        input            PC_VALID                   ,
         input            INSTRUCTION_CACHE_STALL    ,
         output  [31 : 0] INSTRUCTION                ,
         output           INSTRUCTION_CACHE_READY    

@@ -32,6 +32,7 @@ module DECODING_STAGE #(
             input            RD_WRITE_ENABLE_IN     ,
             input   [31 : 0] INSTRUCTION            ,
             input   [31 : 0] PC_IN                  ,
+            input            PC_VALID               ,
             output  [31 : 0] PC_OUT                 ,
             output  [4  : 0] RS1_ADDRESS            ,
             output  [4  : 0] RS2_ADDRESS            ,
@@ -119,21 +120,42 @@ module DECODING_STAGE #(
         begin
             if(STALL_DECODING_STAGE == LOW)
             begin
-                pc_reg                      <= PC_IN                    ;
-                rs1_address_reg             <= rs1_address              ;
-                rs2_address_reg             <= rs2_address              ;
-                rd_address_reg              <= rd_address_out           ;
-                rs1_data_reg                <= rs1_data                 ;
-                rs2_data_reg                <= rs2_data                 ;             
-                imm_output_reg              <= imm_output               ;
-                alu_instruction_reg         <= alu_instruction          ;
-                alu_input_1_select_reg      <= alu_input_1_select       ;
-                alu_input_2_select_reg      <= alu_input_2_select       ;
-                data_cache_load_reg         <= data_cache_load          ;
-                data_cache_store_reg        <= data_cache_store         ;
-                data_cache_store_data_reg   <= rs2_data                 ;
-                write_back_mux_select_reg   <= write_back_mux_select    ;
-                rd_write_enable_reg         <= rd_write_enable_out      ;
+                if(PC_VALID == HIGH)
+                begin
+                    pc_reg                      <= PC_IN                    ;
+                    rs1_address_reg             <= rs1_address              ;
+                    rs2_address_reg             <= rs2_address              ;
+                    rd_address_reg              <= rd_address_out           ;
+                    rs1_data_reg                <= rs1_data                 ;
+                    rs2_data_reg                <= rs2_data                 ;             
+                    imm_output_reg              <= imm_output               ;
+                    alu_instruction_reg         <= alu_instruction          ;
+                    alu_input_1_select_reg      <= alu_input_1_select       ;
+                    alu_input_2_select_reg      <= alu_input_2_select       ;
+                    data_cache_load_reg         <= data_cache_load          ;
+                    data_cache_store_reg        <= data_cache_store         ;
+                    data_cache_store_data_reg   <= rs2_data                 ;
+                    write_back_mux_select_reg   <= write_back_mux_select    ;
+                    rd_write_enable_reg         <= rd_write_enable_out      ;
+                end
+                else
+                begin
+                    pc_reg                      <= 32'b0                    ;
+                    rs1_address_reg             <= 5'b0                     ;
+                    rs2_address_reg             <= 5'b0                     ;
+                    rd_address_reg              <= 5'b0                     ;
+                    rs1_data_reg                <= 32'b0                    ;
+                    rs2_data_reg                <= 32'b0                    ;             
+                    imm_output_reg              <= 32'b0                    ;
+                    alu_instruction_reg         <= 5'b0                     ;
+                    alu_input_1_select_reg      <= LOW                      ;
+                    alu_input_2_select_reg      <= LOW                      ;
+                    data_cache_load_reg         <= 3'b0                     ;
+                    data_cache_store_reg        <= 2'b0                     ;
+                    data_cache_store_data_reg   <= 32'b0                    ;
+                    write_back_mux_select_reg   <= LOW                      ;
+                    rd_write_enable_reg         <= LOW                      ;
+                end
             end
         end
         else

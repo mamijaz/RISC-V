@@ -37,9 +37,9 @@ module RISCV_PROCESSOR #(
         .IMM_INPUT(),
         .PC_DECODING(),
         .PC(),
+        .PC_VALID(),
         .CLEAR_INSTRUCTION_FETCH_STAGE(),
-        .CLEAR_DECODING_STAGE(),
-        .CLEAR_EXECUTION_STAGE()       
+        .CLEAR_DECODING_STAGE()   
         );
         
     HAZARD_CONTROL_UNIT hazard_control_unit(
@@ -47,6 +47,7 @@ module RISCV_PROCESSOR #(
         
     INSTRUCTION_CACHE instruction_cache(
         .PC(),
+        .PC_VALID(),
         .INSTRUCTION_CACHE_STALL(),
         .INSTRUCTION(),
         .INSTRUCTION_CACHE_READY()   
@@ -57,23 +58,29 @@ module RISCV_PROCESSOR #(
         .STALL_INSTRUCTION_FETCH_STAGE(),
         .CLEAR_INSTRUCTION_FETCH_STAGE(),
         .PC_IN(),
-        .PC_OUT() 
+        .PC_VALID_IN(),
+        .PC_OUT(),
+        .PC_VALID_OUT()
         );
         
     INSTRUCTION_FETCH_STAGE instruction_fetch_stage_2(
         .CLK(),
         .STALL_INSTRUCTION_FETCH_STAGE(),
         .CLEAR_INSTRUCTION_FETCH_STAGE(),
-        .PC_IN(),
-        .PC_OUT() 
+        .PC_IN(),      
+        .PC_VALID_IN(),
+        .PC_OUT(),     
+        .PC_VALID_OUT() 
         );
         
     INSTRUCTION_FETCH_STAGE instruction_fetch_stage_3(
         .CLK(),
         .STALL_INSTRUCTION_FETCH_STAGE(),
         .CLEAR_INSTRUCTION_FETCH_STAGE(),
-        .PC_IN(),
-        .PC_OUT() 
+        .PC_IN(),      
+        .PC_VALID_IN(),
+        .PC_OUT(),     
+        .PC_VALID_OUT() 
         );
     
     DECODING_STAGE decoding_stage(
@@ -85,6 +92,7 @@ module RISCV_PROCESSOR #(
         .RD_WRITE_ENABLE_IN(),
         .INSTRUCTION(),
         .PC_IN(),
+        .PC_VALID(),
         .PC_OUT(),
         .RS1_ADDRESS(),
         .RS2_ADDRESS(),

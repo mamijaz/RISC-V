@@ -26,7 +26,6 @@ module EXECUTION_STAGE #(
     ) (
         input            CLK                        ,
         input            STALL_EXECUTION_STAGE      ,
-        input            CLEAR_EXECUTION_STAGE      ,
         input   [31 : 0] PC_IN                      ,
         input   [4  : 0] RS1_ADDRESS                ,
         input   [4  : 0] RS2_ADDRESS                ,
@@ -102,26 +101,13 @@ module EXECUTION_STAGE #(
     begin
         if(STALL_EXECUTION_STAGE == LOW)
         begin
-            if(CLEAR_EXECUTION_STAGE == LOW)
-            begin
-                rd_address_out_reg             <= RD_ADDRESS_IN             ;
-                alu_out_reg                    <= alu_out                   ;
-                data_cache_load_out_reg        <= DATA_CACHE_LOAD_IN        ;
-                data_cache_store_out_reg       <= DATA_CACHE_STORE_IN       ;
-                data_cache_store_data_out_reg  <= DATA_CACHE_STORE_DATA_IN  ;
-                write_back_mux_select_out_reg  <= WRITE_BACK_MUX_SELECT_IN  ;
-                rd_write_enable_out_reg        <= RD_WRITE_ENABLE_IN        ;
-            end
-            else
-            begin
-                rd_address_out_reg             <= 5'b0                      ;
-                alu_out_reg                    <= 32'b0                     ;
-                data_cache_load_out_reg        <= 3'b0                      ;
-                data_cache_store_out_reg       <= 2'b0                      ;
-                data_cache_store_data_out_reg  <= 32'b0                     ;
-                write_back_mux_select_out_reg  <= LOW                       ;
-                rd_write_enable_out_reg        <= LOW                       ;
-            end
+            rd_address_out_reg             <= RD_ADDRESS_IN             ;
+            alu_out_reg                    <= alu_out                   ;
+            data_cache_load_out_reg        <= DATA_CACHE_LOAD_IN        ;
+            data_cache_store_out_reg       <= DATA_CACHE_STORE_IN       ;
+            data_cache_store_data_out_reg  <= DATA_CACHE_STORE_DATA_IN  ;
+            write_back_mux_select_out_reg  <= WRITE_BACK_MUX_SELECT_IN  ;
+            rd_write_enable_out_reg        <= RD_WRITE_ENABLE_IN        ;
         end
     end
     

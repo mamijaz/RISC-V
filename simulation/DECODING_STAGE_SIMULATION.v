@@ -31,6 +31,7 @@ module DECODING_STAGE_SIMULATION;
     reg            rd_write_enable_in       ;
     reg   [31 : 0] instruction              ;
     reg   [31 : 0] pc_in                    ;
+    reg            pc_valid                 ;
     
     // Outputs
     wire  [31 : 0] pc_out                   ;
@@ -59,6 +60,7 @@ module DECODING_STAGE_SIMULATION;
         .RD_WRITE_ENABLE_IN(rd_write_enable_in),
         .INSTRUCTION(instruction),
         .PC_IN(pc_in),
+        .PC_VALID(pc_valid),
         .PC_OUT(pc_out),
         .RS1_ADDRESS(rs1_address),
         .RS2_ADDRESS(rs2_address),
@@ -87,6 +89,7 @@ module DECODING_STAGE_SIMULATION;
         rd_write_enable_in       = 1'b0 ;
         instruction              = 32'b00000000001000000000001000110011 ;
         pc_in                    = 32'b00000000000000000000000000000001 ;
+        pc_valid                 = 1'b1 ;
 
         // Wait 100 ns for global reset to finish
         #100;

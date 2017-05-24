@@ -34,9 +34,9 @@ module PROGRAME_COUNTER_STAGE_SIMULATION;
    
     // Outputs
     wire [31 : 0]  pc                               ;
-    wire           clear_decoding_stage             ;
-    wire           clear_execution_stage            ;
+    wire           pc_valid                         ;
     wire           clear_instruction_fetch_stage    ;
+    wire           clear_decoding_stage             ;
    
     // Instantiate the Unit Under Test (UUT)
     PROGRAME_COUNTER_STAGE uut(
@@ -49,9 +49,9 @@ module PROGRAME_COUNTER_STAGE_SIMULATION;
         .IMM_INPUT(imm_input),
         .PC_DECODING(pc_decoding),
         .PC(pc),
-        .CLEAR_DECODING_STAGE(clear_decoding_stage),
-        .CLEAR_EXECUTION_STAGE(clear_execution_stage),
-        .CLEAR_INSTRUCTION_FETCH_STAGE(clear_instruction_fetch_stage)
+        .PC_VALID(pc_valid),
+        .CLEAR_INSTRUCTION_FETCH_STAGE(clear_instruction_fetch_stage),
+        .CLEAR_DECODING_STAGE(clear_decoding_stage)  
         );
    
     initial 

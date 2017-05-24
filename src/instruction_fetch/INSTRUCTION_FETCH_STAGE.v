@@ -28,10 +28,13 @@ module INSTRUCTION_FETCH_STAGE #(
         input            STALL_INSTRUCTION_FETCH_STAGE  ,
         input            CLEAR_INSTRUCTION_FETCH_STAGE  ,
         input   [31 : 0] PC_IN                          ,
-        output  [31 : 0] PC_OUT                 
+        input            PC_VALID_IN                    ,
+        output  [31 : 0] PC_OUT                         ,
+        output           PC_VALID_OUT     
     );
     
-    reg   [31 : 0] pc_reg   ;
+    reg   [31 : 0] pc_reg       ;
+    reg            pc_valid_reg ;
     
     always@(posedge CLK) 
     begin
@@ -39,15 +42,18 @@ module INSTRUCTION_FETCH_STAGE #(
         begin
             if(STALL_INSTRUCTION_FETCH_STAGE == LOW) 
             begin
-                pc_reg  <= PC_IN;
+                pc_reg          <= PC_IN        ;
+                pc_valid_reg    <= PC_VALID_IN  ;
             end
         end
         else
         begin
-            pc_reg  <= 32'b0;
+            pc_reg          <= 32'b0;
+            pc_valid_reg    <= LOW  ;
         end
     end
     
-    assign PC_OUT = pc_reg;
+    assign PC_OUT       = pc_reg        ;
+    assign PC_VALID_OUT = pc_valid_reg  ;
     
 endmodule
