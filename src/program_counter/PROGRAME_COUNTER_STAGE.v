@@ -92,7 +92,7 @@ module PROGRAME_COUNTER_STAGE #(
         begin
             pc_predict_select_reg = LOW;
         end
-        
+    
         if(ALU_INSTRUCTION == ALU_JAL)
         begin
             pc_rs_1_select_reg = HIGH;
@@ -101,7 +101,7 @@ module PROGRAME_COUNTER_STAGE #(
         begin
             pc_rs_1_select_reg = LOW;
         end
-        
+            
         if((ALU_INSTRUCTION == ALU_JAL)|(ALU_INSTRUCTION == ALU_JALR)|(BRANCH_TAKEN == HIGH))
         begin
             if(($signed(pc_execution_or_rs_1) + $signed(IMM_INPUT)) != PC_DECODING)

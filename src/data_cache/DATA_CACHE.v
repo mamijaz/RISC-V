@@ -35,7 +35,8 @@ module DATA_CACHE #(
         parameter HIGH                  = 1'b1          ,
         parameter LOW                   = 1'b0
     ) (
-        input            DATA_CACHE_STALL               ,
+        input            CLK                            ,
+        input            STALL_DATA_CACHE               ,
         input   [31 : 0] DATA_CACHE_READ_ADDRESS        ,
         input   [2  : 0] DATA_CACHE_LOAD                ,
         input   [31 : 0] DATA_CACHE_WRITE_ADDRESS       ,

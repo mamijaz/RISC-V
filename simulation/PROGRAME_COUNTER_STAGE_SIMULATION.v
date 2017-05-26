@@ -23,14 +23,14 @@
 module PROGRAME_COUNTER_STAGE_SIMULATION;
 
     // Inputs
-    reg            clk                          ;
-    reg            stall_programe_counter_stage ;
-    reg  [4  : 0]  alu_instruction              ;
-    reg            branch_taken                 ;
-    reg  [31 : 0]  pc_execution                 ;
-    reg  [31 : 0]  rs1_data                     ;
-    reg  [31 : 0]  imm_input                    ;
-    reg  [31 : 0]  pc_decoding                  ;
+    reg            clk                              ;
+    reg            stall_programe_counter_stage     ;
+    reg  [4  : 0]  alu_instruction                  ;
+    reg            branch_taken                     ;
+    reg  [31 : 0]  pc_execution                     ;
+    reg  [31 : 0]  rs1_data                         ;
+    reg  [31 : 0]  imm_input                        ;
+    reg  [31 : 0]  pc_decoding                      ;
    
     // Outputs
     wire [31 : 0]  pc                               ;

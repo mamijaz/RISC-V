@@ -27,24 +27,18 @@ module EXECUTION_STAGE #(
         input            CLK                        ,
         input            STALL_EXECUTION_STAGE      ,
         input   [31 : 0] PC_IN                      ,
-        input   [4  : 0] RS1_ADDRESS                ,
-        input   [4  : 0] RS2_ADDRESS                ,
         input   [4  : 0] RD_ADDRESS_IN              ,
         input   [31 : 0] RS1_DATA                   ,
         input   [31 : 0] RS2_DATA                   ,                       
         input   [31 : 0] IMM_DATA                   ,
         input   [4  : 0] ALU_INSTRUCTION            ,
+        input            ALU_INPUT_1_SELECT         ,
+        input            ALU_INPUT_2_SELECT         ,
         input   [2  : 0] DATA_CACHE_LOAD_IN         ,
         input   [1  : 0] DATA_CACHE_STORE_IN        ,
         input   [31 : 0] DATA_CACHE_STORE_DATA_IN   ,
         input            WRITE_BACK_MUX_SELECT_IN   ,
         input            RD_WRITE_ENABLE_IN         ,
-        input   [2  : 0] ALU_IN1_MUX_SELECT         ,
-        input   [2  : 0] ALU_IN2_MUX_SELECT         ,
-        input   [31 : 0] RD_DATA_DM1                ,
-        input   [31 : 0] RD_DATA_DM2                ,
-        input   [31 : 0] RD_DATA_DM3                ,
-        input   [31 : 0] RD_DATA_WB                 ,
         output  [4  : 0] RD_ADDRESS_OUT             ,
         output  [31 : 0] ALU_OUT                    ,
         output           BRANCH_TAKEN               ,
@@ -67,25 +61,17 @@ module EXECUTION_STAGE #(
     wire [31 : 0] alu_in2                           ;
     wire [31 : 0] alu_out                           ;   
         
-    MULTIPLEXER_6_TO_1 alu_in1_mux(
+    MULTIPLEXER_2_TO_1 alu_in1_mux(
         .IN1(RS1_DATA),
         .IN2(PC_IN),
-        .IN3(RD_DATA_DM1),
-        .IN4(RD_DATA_DM2),
-        .IN5(RD_DATA_DM3),
-        .IN6(RD_DATA_WB),
-        .SELECT(ALU_IN1_MUX_SELECT),
+        .SELECT(ALU_INPUT_1_SELECT),
         .OUT(alu_in1)
         );
     
-    MULTIPLEXER_6_TO_1 alu_in2_mux(
+    MULTIPLEXER_2_TO_1 alu_in2_mux(
         .IN1(RS2_DATA),
         .IN2(IMM_DATA),
-        .IN3(RD_DATA_DM1),
-        .IN4(RD_DATA_DM2),
-        .IN5(RD_DATA_DM3),
-        .IN6(RD_DATA_WB),
-        .SELECT(ALU_IN2_MUX_SELECT),
+        .SELECT(ALU_INPUT_2_SELECT),
         .OUT(alu_in2)
         );
     

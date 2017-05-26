@@ -21,95 +21,128 @@
 
 
 module FORWARDING_UNIT #(
-        parameter SELECT_RS1            = 1'b0          ,
-        parameter SELECT_PC             = 1'b1          ,
-        parameter SELECT_RS2            = 1'b0          ,
-        parameter SELECT_IMM            = 1'b1          ,
+        parameter SELECT_DIRECT_RS1     = 1'b0          ,
+        parameter SELECT_RS1_FORWARDED  = 1'b1          ,
+        parameter SELECT_DIRECT_RS2     = 1'b0          ,
+        parameter SELECT_RS2_FORWARDED  = 1'b1          ,
         
-        parameter DIRECT_RS1            = 3'b000        ,
-        parameter ALU_IN1_PC            = 3'b001        ,
-        parameter DIRECT_RS2            = 3'b000        ,
-        parameter ALU_IN1_IMM           = 3'b001        ,
-        parameter FORWARDING_RD_DM1     = 3'b010        ,
-        parameter FORWARDING_RD_DM2     = 3'b011        ,
-        parameter FORWARDING_RD_DM3     = 3'b100        ,
-        parameter FORWARDING_RD_WB      = 3'b101        
+        parameter FORWARDING_RD_DM1     = 2'b00         ,
+        parameter FORWARDING_RD_DM2     = 2'b01         ,
+        parameter FORWARDING_RD_DM3     = 2'b10         ,
+        parameter FORWARDING_RD_WB      = 2'b11        
     ) (
-        input            ALU_INPUT_1_SELECT     ,
-        input            ALU_INPUT_2_SELECT     ,
-        input   [4  : 0] RS1_ADDRESS            ,
-        input   [4  : 0] RS2_ADDRESS            ,
-        input   [4  : 0] RD_ADDRESS_DM1         ,
-        input   [4  : 0] RD_ADDRESS_DM2         ,
-        input   [4  : 0] RD_ADDRESS_DM3         ,
-        input   [4  : 0] RD_ADDRESS_WB          ,
-        output  [2  : 0] ALU_INPUT_MUX_1_SELECT ,
-        output  [2  : 0] ALU_INPUT_MUX_2_SELECT 
+        input   [4  : 0] RS1_ADDRESS_EXECUTION          ,
+        input   [31 : 0] RS1_DATA_EXECUTION             ,
+        input   [4  : 0] RS2_ADDRESS_EXECUTION          ,
+        input   [31 : 0] RS2_DATA_EXECUTION             ,
+        input   [4  : 0] RD_ADDRESS_DM1                 ,
+        input   [31 : 0] RD_DATA_DM1                    ,
+        input   [4  : 0] RD_ADDRESS_DM2                 ,
+        input   [31 : 0] RD_DATA_DM2                    ,
+        input   [4  : 0] RD_ADDRESS_DM3                 ,
+        input   [31 : 0] RD_DATA_DM3                    ,
+        input   [4  : 0] RD_ADDRESS_WB                  ,
+        input   [31 : 0] RD_DATA_WB                     ,
+        output  [31 : 0] RS1_DATA                       ,
+        output  [31 : 0] RS2_DATA
     );
     
-    reg  [2  : 0] alu_input_mux_1_select_reg    ;
-    reg  [2  : 0] alu_input_mux_2_select_reg    ;
+    reg   [1  : 0] rs1_forward_select                   ;
+    reg   [1  : 0] rs2_forward_select                   ;
+    reg            rs1_forward_or_default_select        ;
+    reg            rs2_forward_or_default_select        ;
+    
+    wire  [31 : 0] rs1_forwarded                        ;
+    wire  [31 : 0] rs2_forwarded                        ;
+    
+    MULTIPLEXER_4_TO_1 rs1_forward(
+        .IN1(RD_DATA_DM1),
+        .IN2(RD_DATA_DM2),
+        .IN3(RD_DATA_DM3),
+        .IN4(RD_DATA_WB),
+        .SELECT(rs1_forward_select),
+        .OUT(rs1_forwarded)
+        );
+    
+    MULTIPLEXER_2_TO_1 rs1_forward_or_default(
+        .IN1(RS1_DATA_EXECUTION),
+        .IN2(rs1_forwarded),
+        .SELECT(rs1_forward_or_default_select),
+        .OUT(RS1_DATA)
+        );
+        
+    MULTIPLEXER_4_TO_1 rs2_forward(
+        .IN1(RD_DATA_DM1),
+        .IN2(RD_DATA_DM2),
+        .IN3(RD_DATA_DM3),
+        .IN4(RD_DATA_WB),
+        .SELECT(rs2_forward_select),
+        .OUT(rs2_forwarded)
+        );
+        
+    MULTIPLEXER_2_TO_1 rs2_forward_or_default(
+        .IN1(RS2_DATA_EXECUTION),
+        .IN2(rs2_forwarded),
+        .SELECT(rs2_forward_or_default_select),
+        .OUT(RS2_DATA)
+        );
     
     always@(*) 
     begin 
-        if(ALU_INPUT_1_SELECT == SELECT_RS1)
+        if(RS1_ADDRESS_EXECUTION == RD_ADDRESS_WB)
         begin
-            if(RD_ADDRESS_WB == RS1_ADDRESS)
-            begin
-                alu_input_mux_1_select_reg = FORWARDING_RD_WB;
-            end
-            else if (RD_ADDRESS_DM3 == RS1_ADDRESS)
-            begin
-                alu_input_mux_1_select_reg = FORWARDING_RD_DM3;
-            end
-            else if (RD_ADDRESS_DM2 == RS1_ADDRESS)
-            begin
-                alu_input_mux_1_select_reg = FORWARDING_RD_DM2;
-            end
-            else if (RD_ADDRESS_DM1 == RS1_ADDRESS)
-            begin
-                alu_input_mux_1_select_reg = FORWARDING_RD_DM1;
-            end
-            else
-            begin
-                alu_input_mux_1_select_reg = DIRECT_RS1;
-            end
+            rs1_forward_select              = FORWARDING_RD_WB      ;
+            rs1_forward_or_default_select   = SELECT_RS1_FORWARDED  ; 
+        end
+        else if(RS1_ADDRESS_EXECUTION == RD_ADDRESS_DM3)
+        begin
+            rs1_forward_select              = FORWARDING_RD_DM3     ;
+            rs1_forward_or_default_select   = SELECT_RS1_FORWARDED  ; 
+        end
+        else if(RS1_ADDRESS_EXECUTION == RD_ADDRESS_DM2)
+        begin
+            rs1_forward_select              = FORWARDING_RD_DM2     ;
+            rs1_forward_or_default_select   = SELECT_RS1_FORWARDED  ; 
+        end
+        else if(RS1_ADDRESS_EXECUTION == RD_ADDRESS_DM1)
+        begin
+            rs1_forward_select              = FORWARDING_RD_DM1     ;
+            rs1_forward_or_default_select   = SELECT_RS1_FORWARDED  ; 
         end
         else
         begin
-            alu_input_mux_1_select_reg = ALU_IN1_PC;
-        end
-        
-        if(ALU_INPUT_2_SELECT == SELECT_RS2)
-        begin
-            if(RD_ADDRESS_WB == RS2_ADDRESS)
-            begin
-                alu_input_mux_2_select_reg = FORWARDING_RD_WB;
-            end
-            else if (RD_ADDRESS_DM3 == RS2_ADDRESS)
-            begin
-                alu_input_mux_2_select_reg = FORWARDING_RD_DM3;
-            end
-            else if (RD_ADDRESS_DM2 == RS2_ADDRESS)
-            begin
-                alu_input_mux_2_select_reg = FORWARDING_RD_DM2;
-            end
-            else if (RD_ADDRESS_DM1 == RS2_ADDRESS)
-            begin
-                alu_input_mux_2_select_reg = FORWARDING_RD_DM1;
-            end
-            else
-            begin
-                alu_input_mux_2_select_reg = DIRECT_RS2;
-            end
-        end
-        else
-        begin
-            alu_input_mux_2_select_reg = ALU_IN1_IMM;
+            rs1_forward_select              = FORWARDING_RD_DM1     ;
+            rs1_forward_or_default_select   = SELECT_DIRECT_RS1     ; 
         end
     end
     
-    assign ALU_INPUT_MUX_1_SELECT   = alu_input_mux_1_select_reg    ;
-    assign ALU_INPUT_MUX_2_SELECT   = alu_input_mux_2_select_reg    ;
+    always@(*) 
+    begin 
+        if(RS2_ADDRESS_EXECUTION == RD_ADDRESS_WB)
+        begin
+            rs2_forward_select              = FORWARDING_RD_WB      ;
+            rs2_forward_or_default_select   = SELECT_RS2_FORWARDED  ; 
+        end
+        else if(RS2_ADDRESS_EXECUTION == RD_ADDRESS_DM3)
+        begin
+            rs2_forward_select              = FORWARDING_RD_DM3     ;
+            rs2_forward_or_default_select   = SELECT_RS2_FORWARDED  ; 
+        end
+        else if(RS2_ADDRESS_EXECUTION == RD_ADDRESS_DM2)
+        begin
+            rs2_forward_select              = FORWARDING_RD_DM2     ;
+            rs2_forward_or_default_select   = SELECT_RS2_FORWARDED  ; 
+        end
+        else if(RS2_ADDRESS_EXECUTION == RD_ADDRESS_DM1)
+        begin
+            rs2_forward_select              = FORWARDING_RD_DM1     ;
+            rs2_forward_or_default_select   = SELECT_RS1_FORWARDED  ; 
+        end
+        else
+        begin
+            rs2_forward_select              = FORWARDING_RD_DM1     ;
+            rs2_forward_or_default_select   = SELECT_DIRECT_RS2     ; 
+        end
+    end
      
 endmodule
