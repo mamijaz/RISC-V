@@ -43,8 +43,36 @@ module HAZARD_CONTROL_UNIT #(
         output          STALL_DATA_MEMORY_STAGE                       
     );
     
+    reg            stall_programe_counter_stage_reg     ;
+    reg            stall_instruction_cache_reg          ;
+    reg            stall_instruction_fetch_stage_reg    ;
+    reg            stall_decoding_stage_reg             ;
+    reg            stall_execution_stage_reg            ;
+    reg            stall_data_cache_reg                 ;
+    reg            stall_data_memory_stage_reg          ;
+    
+    initial
+    begin
+        stall_programe_counter_stage_reg    = LOW       ;
+        stall_instruction_cache_reg         = LOW       ;
+        stall_instruction_fetch_stage_reg   = LOW       ;
+        stall_decoding_stage_reg            = LOW       ;
+        stall_execution_stage_reg           = LOW       ;
+        stall_data_cache_reg                = LOW       ;
+        stall_data_memory_stage_reg         = LOW       ;
+    end
+    
     always@(*) 
     begin
+    
     end
+    
+    assign STALL_PROGRAME_COUNTER_STAGE     = stall_programe_counter_stage_reg      ;
+    assign STALL_INSTRUCTION_CACHE          = stall_instruction_cache_reg           ;
+    assign STALL_INSTRUCTION_FETCH_STAGE    = stall_instruction_fetch_stage_reg     ;
+    assign STALL_DECODING_STAGE             = stall_decoding_stage_reg              ;
+    assign STALL_EXECUTION_STAGE            = stall_execution_stage_reg             ;
+    assign STALL_DATA_CACHE                 = stall_data_cache_reg                  ;
+    assign STALL_DATA_MEMORY_STAGE          = stall_data_memory_stage_reg           ;
     
 endmodule

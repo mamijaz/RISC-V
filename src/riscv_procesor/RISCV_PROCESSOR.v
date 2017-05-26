@@ -92,10 +92,10 @@ module RISCV_PROCESSOR #(
     wire          alu_input_2_select                            ; 
     
     // Forwarding Unit --> Programe Counter / Execution Stage 
-    wire [2  : 0] rs1_data                                      ;
+    wire [31 : 0] rs1_data                                      ;
     
     // Forwarding Unit --> Execution Stage
-    wire [2  : 0] rs2_data                                      ;
+    wire [31 : 0] rs2_data                                      ;
     
     // Execution Stage --> Programe Counter
     wire          branch_taken                                  ;
@@ -179,6 +179,8 @@ module RISCV_PROCESSOR #(
         );
         
     HAZARD_CONTROL_UNIT hazard_control_unit(
+        .INSTRUCTION_CACHE_READY(instruction_cache_ready),
+        .DATA_CACHE_READY(data_cache_ready),
         .RS1_ADDRESS_EXECUTION(rs1_address),
         .RS2_ADDRESS_EXECUTION(rs2_address),
         .DATA_CACHE_LOAD_DM1(data_cache_load_execution_to_dm1),         
@@ -256,7 +258,7 @@ module RISCV_PROCESSOR #(
         .ALU_INPUT_1_SELECT(alu_input_1_select),
         .ALU_INPUT_2_SELECT(alu_input_2_select),
         .DATA_CACHE_LOAD(data_cache_load_decoding_to_execution),
-        .DATA_CACHE_STORE(data_cache_store_data_decoding_to_execution),
+        .DATA_CACHE_STORE(data_cache_store_decoding_to_execution),
         .DATA_CACHE_STORE_DATA(data_cache_store_data_decoding_to_execution),
         .WRITE_BACK_MUX_SELECT(write_back_mux_select_decoding_to_execution),
         .RD_WRITE_ENABLE_OUT(rd_write_enable_out_decoding_to_execution)    
@@ -291,7 +293,7 @@ module RISCV_PROCESSOR #(
         .ALU_INPUT_1_SELECT(alu_input_1_select),
         .ALU_INPUT_2_SELECT(alu_input_2_select),
         .DATA_CACHE_LOAD_IN(data_cache_load_decoding_to_execution),
-        .DATA_CACHE_STORE_IN(data_cache_store_data_decoding_to_execution),
+        .DATA_CACHE_STORE_IN(data_cache_store_decoding_to_execution),
         .DATA_CACHE_STORE_DATA_IN(data_cache_store_data_decoding_to_execution),
         .WRITE_BACK_MUX_SELECT_IN(write_back_mux_select_decoding_to_execution),
         .RD_WRITE_ENABLE_IN(rd_write_enable_out_decoding_to_execution),
@@ -375,10 +377,10 @@ module RISCV_PROCESSOR #(
         );
       
     WRITE_BACK_STAGE write_back_stage(
-        .IN1(alu_out_dm3_to_write_back),
-        .IN2(data_cache_read_data),
-        .SELECT(write_back_mux_select_dm3_to_write_back),
-        .OUT(rd_data_write_back)
+        .ALU_OUT_IN(alu_out_dm3_to_write_back),
+        .DATA_CACHE_OUT_DATA(data_cache_read_data),
+        .WRITE_BACK_MUX_SELECT_IN(write_back_mux_select_dm3_to_write_back),
+        .WRITE_BACK_MUX_OUT(rd_data_write_back)
         );
     
     assign PC                       = pc_pc_to_if1                  ;

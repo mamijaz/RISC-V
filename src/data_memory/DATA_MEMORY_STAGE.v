@@ -54,13 +54,13 @@ module DATA_MEMORY_STAGE #(
     begin
         if(STALL_DATA_MEMORY_STAGE == LOW)
         begin
-            rd_address_reg              <= RD_ADDRESS_OUT               ;
+            rd_address_reg              <= RD_ADDRESS_IN                ;
             alu_out_reg                 <= ALU_OUT_IN                   ;
-            data_cache_load_reg         <= DATA_CACHE_LOAD_OUT          ;
-            data_cache_store_reg        <= DATA_CACHE_STORE_OUT         ;
-            data_cache_store_data_reg   <= DATA_CACHE_STORE_DATA_OUT    ;
-            write_back_mux_select_reg   <= WRITE_BACK_MUX_SELECT_OUT    ;
-            rd_write_enable_reg         <= RD_WRITE_ENABLE_OUT          ;
+            data_cache_load_reg         <= DATA_CACHE_LOAD_IN           ;
+            data_cache_store_reg        <= DATA_CACHE_STORE_IN          ;
+            data_cache_store_data_reg   <= DATA_CACHE_STORE_DATA_IN     ;
+            write_back_mux_select_reg   <= WRITE_BACK_MUX_SELECT_IN     ;
+            rd_write_enable_reg         <= RD_WRITE_ENABLE_IN           ;
         end
     end
     

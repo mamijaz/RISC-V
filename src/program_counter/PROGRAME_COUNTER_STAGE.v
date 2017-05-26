@@ -58,7 +58,8 @@ module PROGRAME_COUNTER_STAGE #(
 	
 	initial
 	begin
-        pc_reg = 32'b0;
+        pc_reg          = 32'b0         ;
+        pc_valid_reg    = 1'b0          ;
     end
     
     MULTIPLEXER_2_TO_1 pc_execution_or_rs_1_mux(
@@ -80,6 +81,16 @@ module PROGRAME_COUNTER_STAGE #(
         .IN2($signed(pc_execution_or_rs_1)+$signed(IMM_INPUT)),
         .SELECT(pc_mispredict_select_reg),
         .OUT(pc_next) 
+        );
+    
+    BRANCH_PREDICTOR branch_predictor(
+        .CLK(CLK),
+        .PC(pc_reg),
+        .PC_EXECUTION(PC_EXECUTION),
+        .PC_PREDICT_LEARN(pc_next),
+        .PC_PREDICT_LEARN_SELECT(pc_mispredict_select_reg),
+        .PC_PREDICTED(pc_predictor_out),
+        .PC_PREDICTOR_STATUS(pc_predictor_status)            
         );
     
     always@(*)
