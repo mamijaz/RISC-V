@@ -59,7 +59,7 @@ module PROGRAME_COUNTER_STAGE #(
 	initial
 	begin
         pc_reg          = 32'b0         ;
-        pc_valid_reg    = 1'b0          ;
+        pc_valid_reg    = HIGH          ;
     end
     
     MULTIPLEXER_2_TO_1 pc_execution_or_rs_1_mux(

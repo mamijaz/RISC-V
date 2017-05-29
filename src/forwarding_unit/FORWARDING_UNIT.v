@@ -21,39 +21,43 @@
 
 
 module FORWARDING_UNIT #(
-        parameter SELECT_DIRECT_RS1     = 1'b0          ,
-        parameter SELECT_RS1_FORWARDED  = 1'b1          ,
-        parameter SELECT_DIRECT_RS2     = 1'b0          ,
-        parameter SELECT_RS2_FORWARDED  = 1'b1          ,
+        parameter   DATA_WIDTH              = 32            ,
+        parameter   REG_ADD_WIDTH           = 5             ,
+        parameter   MUX_SEL_WIDTH           = 2             ,
         
-        parameter FORWARDING_RD_DM1     = 2'b00         ,
-        parameter FORWARDING_RD_DM2     = 2'b01         ,
-        parameter FORWARDING_RD_DM3     = 2'b10         ,
-        parameter FORWARDING_RD_WB      = 2'b11        
+        parameter   SELECT_DIRECT_RS1       = 1'b0          ,
+        parameter   SELECT_RS1_FORWARDED    = 1'b1          ,
+        parameter   SELECT_DIRECT_RS2       = 1'b0          ,
+        parameter   SELECT_RS2_FORWARDED    = 1'b1          ,
+        
+        parameter   FORWARDING_RD_DM1       = 2'b00         ,
+        parameter   FORWARDING_RD_DM2       = 2'b01         ,
+        parameter   FORWARDING_RD_DM3       = 2'b10         ,
+        parameter   FORWARDING_RD_WB        = 2'b11        
     ) (
-        input   [4  : 0] RS1_ADDRESS_EXECUTION          ,
-        input   [31 : 0] RS1_DATA_EXECUTION             ,
-        input   [4  : 0] RS2_ADDRESS_EXECUTION          ,
-        input   [31 : 0] RS2_DATA_EXECUTION             ,
-        input   [4  : 0] RD_ADDRESS_DM1                 ,
-        input   [31 : 0] RD_DATA_DM1                    ,
-        input   [4  : 0] RD_ADDRESS_DM2                 ,
-        input   [31 : 0] RD_DATA_DM2                    ,
-        input   [4  : 0] RD_ADDRESS_DM3                 ,
-        input   [31 : 0] RD_DATA_DM3                    ,
-        input   [4  : 0] RD_ADDRESS_WB                  ,
-        input   [31 : 0] RD_DATA_WB                     ,
-        output  [31 : 0] RS1_DATA                       ,
-        output  [31 : 0] RS2_DATA
+        input   [REG_ADD_WIDTH - 1  : 0]    RS1_ADDRESS_EXECUTION           ,
+        input   [DATA_WIDTH - 1     : 0]    RS1_DATA_EXECUTION              ,
+        input   [REG_ADD_WIDTH - 1  : 0]    RS2_ADDRESS_EXECUTION           ,
+        input   [DATA_WIDTH - 1     : 0]    RS2_DATA_EXECUTION              ,
+        input   [REG_ADD_WIDTH - 1  : 0]    RD_ADDRESS_DM1                  ,
+        input   [DATA_WIDTH - 1     : 0]    RD_DATA_DM1                     ,
+        input   [REG_ADD_WIDTH - 1  : 0]    RD_ADDRESS_DM2                  ,
+        input   [DATA_WIDTH - 1     : 0]    RD_DATA_DM2                     ,
+        input   [REG_ADD_WIDTH - 1  : 0]    RD_ADDRESS_DM3                  ,
+        input   [DATA_WIDTH - 1     : 0]    RD_DATA_DM3                     ,
+        input   [REG_ADD_WIDTH - 1  : 0]    RD_ADDRESS_WB                   ,
+        input   [DATA_WIDTH - 1     : 0]    RD_DATA_WB                      ,
+        output  [DATA_WIDTH - 1     : 0]    RS1_DATA                        ,
+        output  [DATA_WIDTH - 1     : 0]    RS2_DATA
     );
     
-    reg   [1  : 0] rs1_forward_select                   ;
-    reg   [1  : 0] rs2_forward_select                   ;
-    reg            rs1_forward_or_default_select        ;
-    reg            rs2_forward_or_default_select        ;
+    reg     [MUX_SEL_WIDTH - 1  : 0]    rs1_forward_select                   ;
+    reg     [MUX_SEL_WIDTH - 1  : 0]    rs2_forward_select                   ;
+    reg                                 rs1_forward_or_default_select        ;
+    reg                                 rs2_forward_or_default_select        ;
     
-    wire  [31 : 0] rs1_forwarded                        ;
-    wire  [31 : 0] rs2_forwarded                        ;
+    wire    [DATA_WIDTH - 1     : 0]    rs1_forwarded                        ;
+    wire    [DATA_WIDTH - 1     : 0]    rs2_forwarded                        ;
     
     MULTIPLEXER_4_TO_1 rs1_forward(
         .IN1(RD_DATA_DM1),

@@ -87,7 +87,7 @@ module DECODING_STAGE_SIMULATION;
         rd_address_in            = 5'b0 ;
         rd_data_in               = 32'b0 ;
         rd_write_enable_in       = 1'b0 ;
-        instruction              = 32'b00000000001000000000001000110011 ;
+        instruction              = 32'hfe010113 ;
         pc_in                    = 32'b00000000000000000000000000000001 ;
         pc_valid                 = 1'b1 ;
 

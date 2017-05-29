@@ -21,7 +21,7 @@
 
 
 module ALU #(
-        parameter INPUT_WIDTH           = 32            ,
+        parameter DATA_WIDTH            = 32            ,
         parameter HIGH                  = 1'b1          ,
         parameter LOW                   = 1'b0          ,
         
@@ -48,14 +48,14 @@ module ALU #(
         parameter ALU_BLTU              = 5'b10100      ,
         parameter ALU_BGEU              = 5'b10101      
     ) (
-        input   [INPUT_WIDTH - 1 : 0]   ALU_IN1           ,
-        input   [INPUT_WIDTH - 1 : 0]   ALU_IN2           ,
+        input   [DATA_WIDTH - 1  : 0]   ALU_IN1           ,
+        input   [DATA_WIDTH - 1  : 0]   ALU_IN2           ,
         input   [4               : 0]   ALU_INSTRUCTION   ,
-        output  [INPUT_WIDTH - 1 : 0]   ALU_OUT           ,
+        output  [DATA_WIDTH - 1  : 0]   ALU_OUT           ,
         output                          BRANCH_TAKEN
     );
    
-    reg  [INPUT_WIDTH - 1 : 0]  alu_out_reg         ;
+    reg  [DATA_WIDTH - 1  : 0]  alu_out_reg         ;
     reg                         branch_taken_reg    ;
     
     always@(*)
