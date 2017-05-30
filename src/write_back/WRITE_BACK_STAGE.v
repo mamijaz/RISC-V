@@ -21,12 +21,13 @@
 
 
 module WRITE_BACK_STAGE #(
-        parameter HIGH  = 1'b1  
+        parameter   DATA_WIDTH              = 32        ,
+        parameter   HIGH                    = 1'b1  
     ) (
-        input   [31 : 0] ALU_OUT_IN                 ,
-        input   [31 : 0] DATA_CACHE_OUT_DATA        ,
-        input            WRITE_BACK_MUX_SELECT_IN   ,
-        output  [31 : 0] WRITE_BACK_MUX_OUT         
+        input   [DATA_WIDTH - 1     : 0]    ALU_OUT_IN                  ,
+        input   [DATA_WIDTH - 1     : 0]    DATA_CACHE_OUT_DATA         ,
+        input                               WRITE_BACK_MUX_SELECT_IN    ,
+        output  [DATA_WIDTH - 1     : 0]    WRITE_BACK_MUX_OUT         
     );
     
     MULTIPLEXER_2_TO_1 write_back_mux(

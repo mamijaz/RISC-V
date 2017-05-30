@@ -21,40 +21,44 @@
 
 
 module PROGRAME_COUNTER_STAGE #(
-        parameter ALU_JAL               = 5'b01010      ,
-        parameter ALU_JALR              = 5'b01011      ,
+        parameter   ADDRESS_WIDTH           = 32                            ,
+        parameter   DATA_WIDTH              = 32                            ,
+        parameter   ALU_INS_WIDTH           = 5                             ,
+       
+        parameter   ALU_JAL                 = 5'b01010                      ,
+        parameter   ALU_JALR                = 5'b01011                      ,
         
-        parameter HIGH                  = 1'b1          ,
-        parameter LOW                   = 1'b0
+        parameter   HIGH                    = 1'b1                          ,
+        parameter   LOW                     = 1'b0
     ) (
-        input            CLK                            ,
-        input            STALL_PROGRAME_COUNTER_STAGE   ,
-        input  [4  : 0]  ALU_INSTRUCTION                ,
-        input            BRANCH_TAKEN                   ,
-        input  [31 : 0]  PC_EXECUTION                   ,
-        input  [31 : 0]  RS1_DATA                       ,
-        input  [31 : 0]  IMM_INPUT                      ,
-        input  [31 : 0]  PC_DECODING                    ,
-        output [31 : 0]  PC                             ,
-        output           PC_VALID                       ,
-		output           CLEAR_INSTRUCTION_FETCH_STAGE	,
-        output           CLEAR_DECODING_STAGE           		
+        input                               CLK                             ,
+        input                               STALL_PROGRAME_COUNTER_STAGE    ,
+        input  [ALU_INS_WIDTH - 1   : 0]    ALU_INSTRUCTION                 ,
+        input                               BRANCH_TAKEN                    ,
+        input  [ADDRESS_WIDTH - 1   : 0]    PC_EXECUTION                    ,
+        input  [DATA_WIDTH - 1      : 0]    RS1_DATA                        ,
+        input  [DATA_WIDTH - 1      : 0]    IMM_INPUT                       ,
+        input  [ADDRESS_WIDTH - 1   : 0]    PC_DECODING                     ,
+        output [ADDRESS_WIDTH - 1   : 0]    PC                              ,
+        output                              PC_VALID                        ,
+		output                              CLEAR_INSTRUCTION_FETCH_STAGE	,
+        output                              CLEAR_DECODING_STAGE           		
     );
     
-    reg  [31 : 0] pc_reg                            ;
-    reg           pc_valid_reg                      ;
-	reg 		  clear_instruction_fetch_stage_reg ;
-    reg           clear_decoding_stage_reg          ;
-    reg           pc_rs_1_select_reg                ;
-    reg           pc_predict_select_reg             ;
-    reg           pc_mispredict_select_reg          ;
+    reg     [ADDRESS_WIDTH - 1   : 0]   pc_reg                              ;
+    reg                                 pc_valid_reg                        ;
+	reg 		                        clear_instruction_fetch_stage_reg   ;
+    reg                                 clear_decoding_stage_reg            ;
+    reg                                 pc_rs_1_select_reg                  ;
+    reg                                 pc_predict_select_reg               ;
+    reg                                 pc_mispredict_select_reg            ;
     
-    wire          pc_predictor_status               ;
-    wire [31 : 0] pc_predictor_out                  ;
-    wire [31 : 0] pc_execution_or_rs_1              ;
-    wire [31 : 0] pc_current_plus_4_or_pc_predicted ;
-    wire [31 : 0] pc_mispredicted                   ;
-    wire [31 : 0] pc_next                           ;
+    wire                                pc_predictor_status                 ;
+    wire    [ADDRESS_WIDTH - 1   : 0]   pc_predictor_out                    ;
+    wire    [ADDRESS_WIDTH - 1   : 0]   pc_execution_or_rs_1                ;
+    wire    [ADDRESS_WIDTH - 1   : 0]   pc_current_plus_4_or_pc_predicted   ;
+    wire    [ADDRESS_WIDTH - 1   : 0]   pc_mispredicted                     ;
+    wire    [ADDRESS_WIDTH - 1   : 0]   pc_next                             ;
 	
 	initial
 	begin

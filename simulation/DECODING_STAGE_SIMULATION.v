@@ -96,8 +96,11 @@ module DECODING_STAGE_SIMULATION;
         
         // Add stimulus here
         clk                      = 1'b1 ;
-        
-        
+        #100;
+        clk                      = 1'b0 ;
+        instruction              = 32'hfef42623 ;
+        #100;
+        clk                      = 1'b1 ;
     end
     
 endmodule

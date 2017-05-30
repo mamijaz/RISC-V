@@ -86,8 +86,8 @@ module RISCV_PROCESSOR_SIMULATION();
         .RS2_DATA(rs2_data),
         .IMM_DATA(imm_data),
         .ALU_OUT(alu_out),
-        .DATA_CACHE_LOAD(),
-        .DATA_CACHE_STORE(),
+        .DATA_CACHE_LOAD(data_cache_load),
+        .DATA_CACHE_STORE(data_cache_store),
         .RD_DATA_WRITE_BACK(rd_data_write_back),
         .ADDRESS_TO_L2_READY_INS(address_to_l2_ready_ins),
         .ADDRESS_TO_L2_VALID_INS(address_to_l2_valid_ins),      
@@ -123,14 +123,29 @@ module RISCV_PROCESSOR_SIMULATION();
     reg                                     data_from_l2_valid_data_reg             ;
     reg    [L2_BUS_WIDTH   - 1      : 0]    data_from_l2_data_reg                   ;
     
+    
+    integer i;
     initial 
     begin
         // Initialize Inputs
         clk                             = 1'b0          ;
+        
         data_from_l2_ins_reg            = 32'b0         ;
         data_from_l2_valid_ins_reg      = 1'b0          ;
         
+        write_addr_to_l2_data_reg       = 30'b0         ;
+        data_to_l2_data_reg             = 32'b0         ;
+        
+        data_from_l2_valid_data_reg     = 1'b0          ;
+        data_from_l2_data_reg           = 32'b0         ;
+        
+        
         $readmemh("D:/Study/Verilog/RISC-V/verification programs/add/add.hex",ins_memory);
+      
+        for(i = 0 ;i < DAT_RAM_DEPTH ; i = i + 1)
+        begin
+            data_memory [i] <= 32'b0    ;
+        end
         
         #100    ;
         

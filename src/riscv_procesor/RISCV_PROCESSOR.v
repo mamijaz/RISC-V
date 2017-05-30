@@ -52,15 +52,15 @@ module RISCV_PROCESSOR #(
         // Read Data From L2 to L1 Cache
         input                                   READ_ADDR_TO_L2_READY_DATA              ,
         output                                  READ_ADDR_TO_L2_VALID_DATA              ,
-        output  [ADDRESS_WIDTH - 2 - 1  : 0]    READ_ADDR_TO_L2_DATA                    ,
+        output  [ADDRESS_WIDTH - 2 - 1 : 0]     READ_ADDR_TO_L2_DATA                    ,
         output                                  DATA_FROM_L2_READY_DATA                 ,
         input                                   DATA_FROM_L2_VALID_DATA                 ,
-        input   [L2_BUS_WIDTH   - 1     : 0]    DATA_FROM_L2_DATA                       ,
+        input   [L2_BUS_WIDTH   - 1    : 0]     DATA_FROM_L2_DATA                       ,
         
         // Test Outputs
         output  [ADDRESS_WIDTH - 1     : 0]     PC                                      ,
         output  [DATA_WIDTH - 1        : 0]     INSTRUCTION                             ,
-        output  [DATA_WIDTH - 1        : 0]     ALU_INSTRUCTION                         ,
+        output  [ALU_INS_WIDTH - 1     : 0]     ALU_INSTRUCTION                         ,
         output  [DATA_WIDTH - 1        : 0]     RS1_DATA                                ,
         output  [DATA_WIDTH - 1        : 0]     PC_EXECUTION                            ,
         output  [DATA_WIDTH - 1        : 0]     RS2_DATA                                ,

@@ -89,6 +89,13 @@ module DATA_CACHE #(
     
     always@(posedge CLK)
     begin
+        if(DATA_CACHE_STORE == DATA_CACHE_STORE_W)
+        begin
+            write_to_l2_valid_data_reg      <= HIGH                                                 ;
+            write_addr_to_l2_data_reg       <= DATA_CACHE_WRITE_ADDRESS[ADDRESS_WIDTH - 1     : 2]  ;
+            data_to_l2_data_reg             <= DATA_CACHE_WRITE_DATA                                ;
+        end
+        
         if(DATA_CACHE_LOAD == DATA_CACHE_LOAD_W)
         begin
            read_addr_to_l2_valid_data_reg   <= HIGH                                                 ;
@@ -98,16 +105,13 @@ module DATA_CACHE #(
         begin
             data_from_l2_data_reg           <= DATA_FROM_L2_DATA                                    ;
         end
-        if(DATA_CACHE_STORE == DATA_CACHE_STORE_W)
-        begin
-            write_to_l2_valid_data_reg      <= HIGH                                                 ;
-            write_addr_to_l2_data_reg       <= DATA_CACHE_WRITE_ADDRESS[ADDRESS_WIDTH - 1     : 2]  ;
-            data_to_l2_data_reg             <= DATA_CACHE_WRITE_DATA                                ;
-        end
     end
     
-    assign  READ_ADDR_TO_L2_DATA        = read_addr_to_l2_data_reg                                  ;
+    assign  WRITE_TO_L2_VALID_DATA      = write_to_l2_valid_data_reg                                ;
+    assign  WRITE_ADDR_TO_L2_DATA       = write_addr_to_l2_data_reg                                 ;
+    assign  DATA_TO_L2_DATA             = data_to_l2_data_reg                                       ;
     assign  READ_ADDR_TO_L2_VALID_DATA  = read_addr_to_l2_valid_data_reg                            ;
+    assign  READ_ADDR_TO_L2_DATA        = read_addr_to_l2_data_reg                                  ;
     assign  DATA_CACHE_READ_DATA        = data_from_l2_data_reg                                     ;
     
     //////////////////------ TEST CODE ------//////////////////
