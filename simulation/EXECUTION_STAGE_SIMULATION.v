@@ -35,7 +35,6 @@ module EXECUTION_STAGE_SIMULATION;
     reg            alu_input_2_select           ;
     reg   [2  : 0] data_cache_load_in           ;
     reg   [1  : 0] data_cache_store_in          ;
-    reg   [31 : 0] data_cache_store_data_in     ;
     reg            write_back_mux_select_in     ;
     reg            rd_write_enable_in           ;
     
@@ -45,7 +44,7 @@ module EXECUTION_STAGE_SIMULATION;
     wire           branch_taken                 ;
     wire  [2  : 0] data_cache_load_out          ;
     wire  [1  : 0] data_cache_store_out         ;
-    wire  [31 : 0] data_cache_store_data_out    ;
+    wire  [31 : 0] data_cache_store_data        ;
     wire           write_back_mux_select_out    ;
     wire           rd_write_enable_out          ;
     
@@ -63,7 +62,6 @@ module EXECUTION_STAGE_SIMULATION;
         .ALU_INPUT_2_SELECT(alu_input_2_select),
         .DATA_CACHE_LOAD_IN(data_cache_load_in),
         .DATA_CACHE_STORE_IN(data_cache_store_in),
-        .DATA_CACHE_STORE_DATA_IN(data_cache_store_data_in),
         .WRITE_BACK_MUX_SELECT_IN(write_back_mux_select_in),
         .RD_WRITE_ENABLE_IN(rd_write_enable_in),
         .RD_ADDRESS_OUT(rd_address_out),
@@ -71,7 +69,7 @@ module EXECUTION_STAGE_SIMULATION;
         .BRANCH_TAKEN(branch_taken),
         .DATA_CACHE_LOAD_OUT(data_cache_load_out),
         .DATA_CACHE_STORE_OUT(data_cache_store_out),
-        .DATA_CACHE_STORE_DATA_OUT(data_cache_store_data_out),
+        .DATA_CACHE_STORE_DATA(data_cache_store_data),
         .WRITE_BACK_MUX_SELECT_OUT(write_back_mux_select_out),
         .RD_WRITE_ENABLE_OUT(rd_write_enable_out)     
         );
@@ -91,7 +89,6 @@ module EXECUTION_STAGE_SIMULATION;
         alu_input_2_select          = 1'b0 ;
         data_cache_load_in          = 3'b0 ;
         data_cache_store_in         = 2'b0 ;
-        data_cache_store_data_in    = 32'b0 ;
         write_back_mux_select_in    = 1'b0 ;
         rd_write_enable_in          = 1'b0 ;
             

@@ -125,7 +125,6 @@ module RISCV_PROCESSOR #(
     wire    [REG_ADD_WIDTH -1      : 0]     rd_address_decoding_to_execution            ; 
     wire    [D_CACHE_LW_WIDTH - 1  : 0]     data_cache_load_decoding_to_execution       ;
     wire    [D_CACHE_SW_WIDTH - 1  : 0]     data_cache_store_decoding_to_execution      ;
-    wire    [DATA_WIDTH - 1        : 0]     data_cache_store_data_decoding_to_execution ;
     wire                                    write_back_mux_select_decoding_to_execution ;
     wire                                    rd_write_enable_out_decoding_to_execution   ;
     wire                                    alu_input_1_select                          ;
@@ -147,8 +146,8 @@ module RISCV_PROCESSOR #(
 	wire    [D_CACHE_LW_WIDTH - 1  : 0]     data_cache_load_execution_to_dm1            ;
 	wire    [D_CACHE_SW_WIDTH - 1  : 0]     data_cache_store_execution_to_dm1           ;
 	
-	// Execution Stage --> Data Cache
-	wire    [DATA_WIDTH - 1        : 0]     data_cache_store_data                       ;
+	 // Execution Stage --> Data Cache 
+    wire    [DATA_WIDTH - 1        : 0]     data_cache_store_data                       ;
     
     // Execution Stage --> Data Cache / Data Memory Stage 1
     wire    [DATA_WIDTH - 1        : 0]     alu_out_execution_to_dm1                    ;
@@ -308,7 +307,6 @@ module RISCV_PROCESSOR #(
         .ALU_INPUT_2_SELECT(alu_input_2_select),
         .DATA_CACHE_LOAD(data_cache_load_decoding_to_execution),
         .DATA_CACHE_STORE(data_cache_store_decoding_to_execution),
-        .DATA_CACHE_STORE_DATA(data_cache_store_data_decoding_to_execution),
         .WRITE_BACK_MUX_SELECT(write_back_mux_select_decoding_to_execution),
         .RD_WRITE_ENABLE_OUT(rd_write_enable_out_decoding_to_execution)    
         );
@@ -343,7 +341,6 @@ module RISCV_PROCESSOR #(
         .ALU_INPUT_2_SELECT(alu_input_2_select),
         .DATA_CACHE_LOAD_IN(data_cache_load_decoding_to_execution),
         .DATA_CACHE_STORE_IN(data_cache_store_decoding_to_execution),
-        .DATA_CACHE_STORE_DATA_IN(data_cache_store_data_decoding_to_execution),
         .WRITE_BACK_MUX_SELECT_IN(write_back_mux_select_decoding_to_execution),
         .RD_WRITE_ENABLE_IN(rd_write_enable_out_decoding_to_execution),
         .RD_ADDRESS_OUT(rd_address_execution_to_dm1),
@@ -351,7 +348,7 @@ module RISCV_PROCESSOR #(
         .BRANCH_TAKEN(branch_taken),
         .DATA_CACHE_LOAD_OUT(data_cache_load_execution_to_dm1),
         .DATA_CACHE_STORE_OUT(data_cache_store_execution_to_dm1),
-        .DATA_CACHE_STORE_DATA_OUT(data_cache_store_data),
+        .DATA_CACHE_STORE_DATA(data_cache_store_data),
         .WRITE_BACK_MUX_SELECT_OUT(write_back_mux_select_execution_to_dm1),
         .RD_WRITE_ENABLE_OUT(rd_write_enable_execution_to_dm1)   
         );

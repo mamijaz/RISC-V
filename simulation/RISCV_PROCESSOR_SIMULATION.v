@@ -24,6 +24,7 @@ module RISCV_PROCESSOR_SIMULATION();
 
     parameter   ADDRESS_WIDTH           = 32    ;
     parameter   DATA_WIDTH              = 32    ;
+    parameter   ALU_INS_WIDTH           = 5     ;
     parameter   D_CACHE_LW_WIDTH        = 3     ;
     parameter   D_CACHE_SW_WIDTH        = 2     ;
     parameter   L2_BUS_WIDTH            = 32    ;
@@ -65,7 +66,7 @@ module RISCV_PROCESSOR_SIMULATION();
     // Test Outputs
     wire    [ADDRESS_WIDTH - 1     : 0]     pc                                      ;
     wire    [DATA_WIDTH - 1        : 0]     instruction                             ;
-    wire    [DATA_WIDTH - 1        : 0]     alu_instruction                         ;
+    wire    [ALU_INS_WIDTH - 1     : 0]     alu_instruction                         ;
     wire    [DATA_WIDTH - 1        : 0]     rs1_data                                ;
     wire    [DATA_WIDTH - 1        : 0]     pc_execution                            ;
     wire    [DATA_WIDTH - 1        : 0]     rs2_data                                ;

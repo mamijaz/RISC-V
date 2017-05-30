@@ -46,7 +46,6 @@ module DECODING_STAGE_SIMULATION;
     wire           alu_input_2_select       ;
     wire  [2  : 0] data_cache_load          ;
     wire  [1  : 0] data_cache_store         ;
-    wire  [31 : 0] data_cache_store_data    ;
     wire           write_back_mux_select    ;
     wire           rd_write_enable_out      ;
     
@@ -73,7 +72,6 @@ module DECODING_STAGE_SIMULATION;
         .ALU_INPUT_2_SELECT(alu_input_2_select),
         .DATA_CACHE_LOAD(data_cache_load),
         .DATA_CACHE_STORE(data_cache_store),
-        .DATA_CACHE_STORE_DATA(data_cache_store_data),
         .WRITE_BACK_MUX_SELECT(write_back_mux_select),
         .RD_WRITE_ENABLE_OUT(rd_write_enable_out)     
         );  

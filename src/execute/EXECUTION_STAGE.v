@@ -43,7 +43,6 @@ module EXECUTION_STAGE #(
         input                                   ALU_INPUT_2_SELECT          ,
         input   [D_CACHE_LW_WIDTH - 1   : 0]    DATA_CACHE_LOAD_IN          ,
         input   [D_CACHE_SW_WIDTH - 1   : 0]    DATA_CACHE_STORE_IN         ,
-        input   [DATA_WIDTH - 1         : 0]    DATA_CACHE_STORE_DATA_IN    ,
         input                                   WRITE_BACK_MUX_SELECT_IN    ,
         input                                   RD_WRITE_ENABLE_IN          ,
         output  [REG_ADD_WIDTH - 1      : 0]    RD_ADDRESS_OUT              ,
@@ -51,7 +50,7 @@ module EXECUTION_STAGE #(
         output                                  BRANCH_TAKEN                ,
         output  [D_CACHE_LW_WIDTH - 1   : 0]    DATA_CACHE_LOAD_OUT         ,
         output  [D_CACHE_SW_WIDTH - 1   : 0]    DATA_CACHE_STORE_OUT        ,
-        output  [DATA_WIDTH - 1         : 0]    DATA_CACHE_STORE_DATA_OUT   ,
+        output  [DATA_WIDTH - 1         : 0]    DATA_CACHE_STORE_DATA       ,
         output                                  WRITE_BACK_MUX_SELECT_OUT   ,
         output                                  RD_WRITE_ENABLE_OUT           
     );
@@ -60,7 +59,7 @@ module EXECUTION_STAGE #(
     reg     [DATA_WIDTH - 1         : 0]    alu_out_reg                     ;
     reg     [D_CACHE_LW_WIDTH - 1   : 0]    data_cache_load_out_reg         ;
     reg     [D_CACHE_SW_WIDTH - 1   : 0]    data_cache_store_out_reg        ;
-    reg     [DATA_WIDTH - 1         : 0]    data_cache_store_data_out_reg   ;
+    reg     [DATA_WIDTH - 1         : 0]    data_cache_store_data_reg       ;
     reg                                     write_back_mux_select_out_reg   ;
     reg                                     rd_write_enable_out_reg         ;
     
@@ -94,13 +93,13 @@ module EXECUTION_STAGE #(
     begin
         if(STALL_EXECUTION_STAGE == LOW)
         begin
-            rd_address_out_reg             <= RD_ADDRESS_IN                 ;
-            alu_out_reg                    <= alu_out                       ;
-            data_cache_load_out_reg        <= DATA_CACHE_LOAD_IN            ;
-            data_cache_store_out_reg       <= DATA_CACHE_STORE_IN           ;
-            data_cache_store_data_out_reg  <= DATA_CACHE_STORE_DATA_IN      ;
-            write_back_mux_select_out_reg  <= WRITE_BACK_MUX_SELECT_IN      ;
-            rd_write_enable_out_reg        <= RD_WRITE_ENABLE_IN            ;
+            rd_address_out_reg              <= RD_ADDRESS_IN                ;
+            alu_out_reg                     <= alu_out                      ;
+            data_cache_load_out_reg         <= DATA_CACHE_LOAD_IN           ;
+            data_cache_store_out_reg        <= DATA_CACHE_STORE_IN          ;
+            data_cache_store_data_reg       <= RS2_DATA                     ;
+            write_back_mux_select_out_reg   <= WRITE_BACK_MUX_SELECT_IN     ;
+            rd_write_enable_out_reg         <= RD_WRITE_ENABLE_IN           ;
         end
     end
     
@@ -108,7 +107,7 @@ module EXECUTION_STAGE #(
     assign ALU_OUT                          = alu_out_reg                   ;
     assign DATA_CACHE_LOAD_OUT              = data_cache_load_out_reg       ;
     assign DATA_CACHE_STORE_OUT             = data_cache_store_out_reg      ;
-    assign DATA_CACHE_STORE_DATA_OUT        = data_cache_store_data_out_reg ;
+    assign DATA_CACHE_STORE_DATA            = data_cache_store_data_reg     ;
     assign WRITE_BACK_MUX_SELECT_OUT        = write_back_mux_select_out_reg ;
     assign RD_WRITE_ENABLE_OUT              = rd_write_enable_out_reg       ;
    
