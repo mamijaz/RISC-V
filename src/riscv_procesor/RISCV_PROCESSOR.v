@@ -66,6 +66,7 @@ module RISCV_PROCESSOR #(
         output  [DATA_WIDTH - 1        : 0]     RS2_DATA                                ,
         output  [DATA_WIDTH - 1        : 0]     IMM_DATA                                ,
         output  [DATA_WIDTH - 1        : 0]     ALU_OUT                                 ,
+        output  [REG_ADD_WIDTH - 1     : 0]     RD_ADDRESS                              ,
         output  [D_CACHE_LW_WIDTH - 1  : 0]     DATA_CACHE_LOAD                         ,
         output  [D_CACHE_SW_WIDTH - 1  : 0]     DATA_CACHE_STORE                        ,
         output  [DATA_WIDTH - 1        : 0]     RD_DATA_WRITE_BACK                                               
@@ -82,6 +83,7 @@ module RISCV_PROCESSOR #(
     wire                                    clear_decoding_stage                        ;
     
     // Hazard Control Unit --> All Stages
+    wire                                    clear_execution_stage                       ;
     wire                                    stall_programe_counter_stage                ;
     wire                                    stall_instruction_cache                     ;
     wire                                    stall_instruction_fetch_stage               ;
@@ -141,6 +143,7 @@ module RISCV_PROCESSOR #(
     
     // Execution Stage --> Hazard Control Unit / Forwarding Unit / Data Memory Stage 1
     wire    [REG_ADD_WIDTH -1      : 0]     rd_address_execution_to_dm1                 ;
+    wire                                    rd_write_enable_execution_to_dm1            ;
 	
 	// Execution Stage --> Hazard Control Unit / Data Cache / Data Memory Stage 1
 	wire    [D_CACHE_LW_WIDTH - 1  : 0]     data_cache_load_execution_to_dm1            ;
@@ -154,7 +157,6 @@ module RISCV_PROCESSOR #(
     
     // Execution Stage --> Data Memory Stage 1
     wire                                    write_back_mux_select_execution_to_dm1      ;
-    wire                                    rd_write_enable_execution_to_dm1            ;
     
     // Data Cache --> Hazard Control Unit
     wire                                    data_cache_ready                            ;
@@ -164,6 +166,7 @@ module RISCV_PROCESSOR #(
     
     // Data Memory Stage 1 --> Hazard Control Unit / Forwarding Unit / Data Memory Stage 2   
     wire    [REG_ADD_WIDTH -1      : 0]     rd_address_dm1_to_dm2                       ;
+    wire                                    rd_write_enable_dm1_to_dm2                  ;
     
 	// Data Memory Stage 1 --> Hazard Control Unit / Data Memory Stage 2
 	wire    [D_CACHE_LW_WIDTH - 1  : 0]     data_cache_load_dm1_to_dm2                  ;
@@ -172,10 +175,10 @@ module RISCV_PROCESSOR #(
     // Data Memory Stage 1 --> Data Memory Stage 2
     wire    [DATA_WIDTH - 1        : 0]     alu_out_dm1_to_dm2                          ;
     wire                                    write_back_mux_select_dm1_to_dm2            ;
-    wire                                    rd_write_enable_dm1_to_dm2                  ;
     
     // Data Memory Stage 2 --> Hazard Control Unit / Forwarding Unit / Data Memory Stage 3   
     wire    [REG_ADD_WIDTH -1      : 0]     rd_address_dm2_to_dm3                       ;
+    wire                                    rd_write_enable_dm2_to_dm3                  ;
 	
 	// Data Memory Stage 2 --> Hazard Control Unit / Data Memory Stage 3
 	wire    [D_CACHE_LW_WIDTH - 1  : 0]     data_cache_load_dm2_to_dm3                  ;
@@ -183,11 +186,11 @@ module RISCV_PROCESSOR #(
     
     // Data Memory Stage 2 --> Data Memory Stage 3
     wire    [DATA_WIDTH - 1        : 0]     alu_out_dm2_to_dm3                          ;
-    wire                                    write_back_mux_select_dm2_to_dm3            ;
-    wire                                    rd_write_enable_dm2_to_dm3                  ; 
+    wire                                    write_back_mux_select_dm2_to_dm3            ; 
     
     // Data Memory Stage 3 --> Hazard Control Unit / Forwarding Unit / Write Back Stage   
     wire    [REG_ADD_WIDTH -1      : 0]     rd_address_dm3_to_write_back                ;
+    wire                                    rd_write_enable_dm3_to_write_back           ;
     
     // Data Memory Stage 3 --> Hazard Control Unit / Write Back Stage
     wire    [D_CACHE_LW_WIDTH - 1  : 0]     data_cache_load_dm3_to_write_back           ;
@@ -196,7 +199,6 @@ module RISCV_PROCESSOR #(
     // Data Memory Stage 3 --> Write Back Stage
     wire    [DATA_WIDTH - 1        : 0]     alu_out_dm3_to_write_back                   ;
     wire                                    write_back_mux_select_dm3_to_write_back     ;
-    wire                                    rd_write_enable_dm3_to_write_back           ;
           
     // Write Back Stage 
     wire    [DATA_WIDTH - 1        : 0]     rd_data_write_back                          ;
@@ -231,6 +233,7 @@ module RISCV_PROCESSOR #(
         .DATA_CACHE_LOAD_DM3(data_cache_load_dm2_to_dm3),
         .DATA_CACHE_STORE_DM3(),
         .RD_ADDRESS_DM3(rd_address_dm2_to_dm3),
+        .CLEAR_EXECUTION_STAGE(clear_execution_stage),
         .STALL_PROGRAME_COUNTER_STAGE(stall_programe_counter_stage),
         .STALL_INSTRUCTION_CACHE(stall_instruction_cache),
         .STALL_INSTRUCTION_FETCH_STAGE(stall_instruction_fetch_stage),
@@ -312,17 +315,23 @@ module RISCV_PROCESSOR #(
         );
         
     FORWARDING_UNIT forwarding_unit(
+        .CLK(CLK),
+        .STALL_EXECUTION_STAGE(stall_execution_stage),
         .RS1_ADDRESS_EXECUTION(rs1_address),
         .RS1_DATA_EXECUTION(rs1_data_decoding_to_forwarding_unit),
         .RS2_ADDRESS_EXECUTION(rs2_address),
         .RS2_DATA_EXECUTION(rs2_data_decoding_to_forwarding_unit),
         .RD_ADDRESS_DM1(rd_address_execution_to_dm1),
+        .RD_WRITE_ENABLE_DM1(rd_write_enable_execution_to_dm1),
         .RD_DATA_DM1(alu_out_execution_to_dm1),
         .RD_ADDRESS_DM2(rd_address_dm1_to_dm2),
+        .RD_WRITE_ENABLE_DM2(rd_write_enable_dm1_to_dm2),
         .RD_DATA_DM2(alu_out_dm1_to_dm2),
         .RD_ADDRESS_DM3(rd_address_dm2_to_dm3),
+        .RD_WRITE_ENABLE_DM3(rd_write_enable_dm3_to_write_back),
         .RD_DATA_DM3(alu_out_dm2_to_dm3),
         .RD_ADDRESS_WB(rd_address_dm3_to_write_back),
+        .RD_WRITE_ENABLE_WB(rd_write_enable_dm3_to_write_back),
         .RD_DATA_WB(rd_data_write_back),
         .RS1_DATA(rs1_data),
         .RS2_DATA(rs2_data)
@@ -331,6 +340,7 @@ module RISCV_PROCESSOR #(
     EXECUTION_STAGE execution_stage(
         .CLK(CLK),
         .STALL_EXECUTION_STAGE(stall_execution_stage),
+        .CLEAR_EXECUTION_STAGE(clear_execution_stage),
         .PC_IN(pc_decoding_to_execution),
         .RD_ADDRESS_IN(rd_address_decoding_to_execution),
         .RS1_DATA(rs1_data),
@@ -443,8 +453,9 @@ module RISCV_PROCESSOR #(
     assign RS2_DATA                 = rs2_data                                  ;
     assign IMM_DATA                 = imm_data                                  ;
     assign ALU_OUT                  = alu_out_execution_to_dm1                  ;
-    assign DATA_CACHE_LOAD          = data_cache_load_execution_to_dm1          ;
-    assign DATA_CACHE_STORE         = data_cache_store_execution_to_dm1         ;
+    assign RD_ADDRESS               = rd_address_decoding_to_execution          ;
+    assign DATA_CACHE_LOAD          = data_cache_load_decoding_to_execution     ;
+    assign DATA_CACHE_STORE         = data_cache_store_decoding_to_execution    ;
     assign RD_DATA_WRITE_BACK       = rd_data_write_back                        ;
        
 endmodule

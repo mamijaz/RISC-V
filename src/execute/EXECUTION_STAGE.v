@@ -33,6 +33,7 @@ module EXECUTION_STAGE #(
     ) (
         input                                   CLK                         ,
         input                                   STALL_EXECUTION_STAGE       ,
+        input                                   CLEAR_EXECUTION_STAGE       ,
         input   [ADDRESS_WIDTH - 1     : 0]     PC_IN                       ,
         input   [REG_ADD_WIDTH - 1      : 0]    RD_ADDRESS_IN               ,
         input   [DATA_WIDTH - 1         : 0]    RS1_DATA                    ,
@@ -91,15 +92,28 @@ module EXECUTION_STAGE #(
         
     always@(posedge CLK) 
     begin
-        if(STALL_EXECUTION_STAGE == LOW)
+        if(CLEAR_EXECUTION_STAGE == LOW)
         begin
-            rd_address_out_reg              <= RD_ADDRESS_IN                ;
-            alu_out_reg                     <= alu_out                      ;
-            data_cache_load_out_reg         <= DATA_CACHE_LOAD_IN           ;
-            data_cache_store_out_reg        <= DATA_CACHE_STORE_IN          ;
-            data_cache_store_data_reg       <= RS2_DATA                     ;
-            write_back_mux_select_out_reg   <= WRITE_BACK_MUX_SELECT_IN     ;
-            rd_write_enable_out_reg         <= RD_WRITE_ENABLE_IN           ;
+            if(STALL_EXECUTION_STAGE == LOW)
+            begin
+                rd_address_out_reg              <= RD_ADDRESS_IN            ;
+                alu_out_reg                     <= alu_out                  ;
+                data_cache_load_out_reg         <= DATA_CACHE_LOAD_IN       ;
+                data_cache_store_out_reg        <= DATA_CACHE_STORE_IN      ;
+                data_cache_store_data_reg       <= RS2_DATA                 ;
+                write_back_mux_select_out_reg   <= WRITE_BACK_MUX_SELECT_IN ;
+                rd_write_enable_out_reg         <= RD_WRITE_ENABLE_IN       ;
+            end
+        end
+        else
+        begin
+            rd_address_out_reg              <= 5'b0                         ;
+            alu_out_reg                     <= 32'b0                        ;
+            data_cache_load_out_reg         <= 3'b0                         ;
+            data_cache_store_out_reg        <= 2'b0                         ;
+            data_cache_store_data_reg       <= 32'b0                        ;
+            write_back_mux_select_out_reg   <= 1'b0                         ;
+            rd_write_enable_out_reg         <= 1'b0                         ;
         end
     end
     

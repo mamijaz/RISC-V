@@ -24,12 +24,13 @@ module RISCV_PROCESSOR_SIMULATION();
 
     parameter   ADDRESS_WIDTH           = 32    ;
     parameter   DATA_WIDTH              = 32    ;
+    parameter   REG_ADD_WIDTH           = 5     ;
     parameter   ALU_INS_WIDTH           = 5     ;
     parameter   D_CACHE_LW_WIDTH        = 3     ;
     parameter   D_CACHE_SW_WIDTH        = 2     ;
     parameter   L2_BUS_WIDTH            = 32    ;
-    parameter   INS_RAM_DEPTH           = 14    ; 
-    parameter   DAT_RAM_DEPTH           = 4096  ; 
+    parameter   INS_RAM_DEPTH           = 13    ; 
+    parameter   DAT_RAM_DEPTH           = 2048  ; 
     
     parameter   HIGH                    = 1'b1  ;        
     parameter   LOW                     = 1'b0  ;
@@ -72,6 +73,7 @@ module RISCV_PROCESSOR_SIMULATION();
     wire    [DATA_WIDTH - 1        : 0]     rs2_data                                ;
     wire    [DATA_WIDTH - 1        : 0]     imm_data                                ;                    
     wire    [DATA_WIDTH - 1        : 0]     alu_out                                 ;
+    wire    [REG_ADD_WIDTH - 1     : 0]     rd_address                              ;
     wire    [D_CACHE_LW_WIDTH - 1  : 0]     data_cache_load                         ;
     wire    [D_CACHE_SW_WIDTH - 1  : 0]     data_cache_store                        ;
     wire    [DATA_WIDTH - 1        : 0]     rd_data_write_back                      ;
@@ -87,6 +89,7 @@ module RISCV_PROCESSOR_SIMULATION();
         .RS2_DATA(rs2_data),
         .IMM_DATA(imm_data),
         .ALU_OUT(alu_out),
+        .RD_ADDRESS(rd_address),
         .DATA_CACHE_LOAD(data_cache_load),
         .DATA_CACHE_STORE(data_cache_store),
         .RD_DATA_WRITE_BACK(rd_data_write_back),
@@ -148,7 +151,7 @@ module RISCV_PROCESSOR_SIMULATION();
             data_memory [i] <= 32'b0    ;
         end
         
-        #100    ;
+        #200    ;
         
         repeat(30)
         begin

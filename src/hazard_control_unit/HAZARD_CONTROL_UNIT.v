@@ -41,6 +41,7 @@ module HAZARD_CONTROL_UNIT #(
         input   [D_CACHE_LW_WIDTH - 1  : 0]     DATA_CACHE_LOAD_DM3             ,
         input   [D_CACHE_SW_WIDTH - 1  : 0]     DATA_CACHE_STORE_DM3            ,
         input   [REG_ADD_WIDTH -1      : 0]     RD_ADDRESS_DM3                  ,
+        output                                  CLEAR_EXECUTION_STAGE           ,
         output                                  STALL_PROGRAME_COUNTER_STAGE    ,
         output                                  STALL_INSTRUCTION_CACHE         ,
         output                                  STALL_INSTRUCTION_FETCH_STAGE   ,
@@ -50,6 +51,7 @@ module HAZARD_CONTROL_UNIT #(
         output                                  STALL_DATA_MEMORY_STAGE                       
     );
     
+    reg            clear_execution_stage_reg            ;
     reg            stall_programe_counter_stage_reg     ;
     reg            stall_instruction_cache_reg          ;
     reg            stall_instruction_fetch_stage_reg    ;
@@ -60,6 +62,7 @@ module HAZARD_CONTROL_UNIT #(
     
     initial
     begin
+        clear_execution_stage_reg           = LOW       ;
         stall_programe_counter_stage_reg    = LOW       ;
         stall_instruction_cache_reg         = LOW       ;
         stall_instruction_fetch_stage_reg   = LOW       ;
@@ -74,6 +77,7 @@ module HAZARD_CONTROL_UNIT #(
     
     end
     
+    assign CLEAR_EXECUTION_STAGE            = clear_execution_stage_reg             ;
     assign STALL_PROGRAME_COUNTER_STAGE     = stall_programe_counter_stage_reg      ;
     assign STALL_INSTRUCTION_CACHE          = stall_instruction_cache_reg           ;
     assign STALL_INSTRUCTION_FETCH_STAGE    = stall_instruction_fetch_stage_reg     ;

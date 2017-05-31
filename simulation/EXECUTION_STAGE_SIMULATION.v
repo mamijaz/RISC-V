@@ -24,7 +24,8 @@ module EXECUTION_STAGE_SIMULATION;
 
     // Inputs
     reg            clk                          ;
-    reg            stall_execution_stage        ;   
+    reg            stall_execution_stage        ; 
+    reg            clear_execution_stage        ;  
     reg   [31 : 0] pc_in                        ;
     reg   [4  : 0] rd_address_in                ;
     reg   [31 : 0] rs1_data                     ;
@@ -51,7 +52,8 @@ module EXECUTION_STAGE_SIMULATION;
     // Instantiate the Unit Under Test (UUT)
     EXECUTION_STAGE uut(
         .CLK(clk),
-        .STALL_EXECUTION_STAGE(stall_execution_stage),   
+        .STALL_EXECUTION_STAGE(stall_execution_stage),
+        .CLEAR_EXECUTION_STAGE(clear_execution_stage), 
         .PC_IN(pc_in),
         .RD_ADDRESS_IN(rd_address_in),
         .RS1_DATA(rs1_data),
@@ -79,6 +81,7 @@ module EXECUTION_STAGE_SIMULATION;
         // Initialize Inputs
         clk                         = 1'b0 ;
         stall_execution_stage       = 1'b0 ; 
+        clear_execution_stage       = 1'b0 ;
         pc_in                       = 32'b0 ;
         rd_address_in               = 5'b0 ;
         rs1_data                    = 32'b00000000000000000000000000000010 ;
