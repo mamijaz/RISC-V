@@ -42,7 +42,6 @@ module DATA_CACHE #(
         parameter LOW                   = 1'b0
     ) (
         input                                   CLK                             ,
-        input                                   STALL_DATA_CACHE                ,
         input   [ADDRESS_WIDTH - 1      : 0]    DATA_CACHE_READ_ADDRESS         ,
         input   [D_CACHE_LW_WIDTH - 1   : 0]    DATA_CACHE_LOAD                 ,
         input   [ADDRESS_WIDTH - 1      : 0]    DATA_CACHE_WRITE_ADDRESS        ,
@@ -69,6 +68,8 @@ module DATA_CACHE #(
     );
     
     //////////////////------ TEST CODE ------//////////////////
+    
+    reg                                     data_cache_ready_reg                ;
     reg                                     write_to_l2_valid_data_reg          ;
     reg     [ADDRESS_WIDTH - 2 - 1   : 0]   write_addr_to_l2_data_reg           ; 
     reg     [DATA_WIDTH - 1          : 0]   data_to_l2_data_reg                 ;
@@ -79,6 +80,7 @@ module DATA_CACHE #(
     
     initial
     begin
+        data_cache_ready_reg            = HIGH                                  ;
         write_to_l2_valid_data_reg      = LOW                                   ;
         write_addr_to_l2_data_reg       = 30'b0                                 ;
         data_to_l2_data_reg             = 32'b0                                 ;
@@ -95,18 +97,35 @@ module DATA_CACHE #(
             write_addr_to_l2_data_reg       <= DATA_CACHE_WRITE_ADDRESS[ADDRESS_WIDTH - 1     : 2]  ;
             data_to_l2_data_reg             <= DATA_CACHE_WRITE_DATA                                ;
         end
+        else
+        begin
+            write_to_l2_valid_data_reg      <= LOW                                                  ;
+            write_addr_to_l2_data_reg       <= 30'b0                                                ;
+            data_to_l2_data_reg             <= 32'b0                                                ;
+        end
         
         if(DATA_CACHE_LOAD == DATA_CACHE_LOAD_W)
         begin
-           read_addr_to_l2_valid_data_reg   <= HIGH                                                 ;
-           read_addr_to_l2_data_reg         <= DATA_CACHE_READ_ADDRESS[ADDRESS_WIDTH - 1      : 2]  ;             ;
+            read_addr_to_l2_valid_data_reg  <= HIGH                                                 ;
+            read_addr_to_l2_data_reg        <= DATA_CACHE_READ_ADDRESS[ADDRESS_WIDTH - 1      : 2]  ;             
         end
+        else
+        begin
+            read_addr_to_l2_valid_data_reg  <= LOW                                                  ;
+            read_addr_to_l2_data_reg        <= 30'b0                                                ;
+        end
+        
         if(DATA_FROM_L2_VALID_DATA == HIGH)
         begin
             data_from_l2_data_reg           <= DATA_FROM_L2_DATA                                    ;
         end
+        else
+        begin
+            data_from_l2_data_reg           <= 32'b0                                                ;
+        end
     end
     
+    assign  DATA_CACHE_READY            = data_cache_ready_reg                                      ;
     assign  WRITE_TO_L2_VALID_DATA      = write_to_l2_valid_data_reg                                ;
     assign  WRITE_ADDR_TO_L2_DATA       = write_addr_to_l2_data_reg                                 ;
     assign  DATA_TO_L2_DATA             = data_to_l2_data_reg                                       ;

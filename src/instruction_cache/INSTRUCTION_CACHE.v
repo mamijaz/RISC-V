@@ -48,12 +48,14 @@ module INSTRUCTION_CACHE #(
    
     //////////////////------ TEST CODE ------//////////////////
     
+    reg                                     instruction_cache_ready_reg     ;
     reg                                     address_to_l2_valid_ins_reg     ;
     reg     [ADDRESS_WIDTH - 2 - 1   : 0]   address_to_l2_ins_reg           ;
     reg     [DATA_WIDTH - 1          : 0]   instruction_reg                 ; 
     
     initial
     begin
+        instruction_cache_ready_reg     = HIGH                              ;
         address_to_l2_valid_ins_reg     = LOW                               ;
         address_to_l2_ins_reg           = 30'b0                             ;
         instruction_reg                 = 32'b0                             ;
@@ -72,6 +74,7 @@ module INSTRUCTION_CACHE #(
         end
     end
     
+    assign  INSTRUCTION_CACHE_READY     = instruction_cache_ready_reg       ;
     assign  ADDRESS_TO_L2_INS           = address_to_l2_ins_reg             ;
     assign  ADDRESS_TO_L2_VALID_INS     = address_to_l2_valid_ins_reg       ;
     assign  INSTRUCTION                 = instruction_reg                   ;

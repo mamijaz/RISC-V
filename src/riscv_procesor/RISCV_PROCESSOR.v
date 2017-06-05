@@ -89,7 +89,6 @@ module RISCV_PROCESSOR #(
     wire                                    stall_instruction_fetch_stage               ;
     wire                                    stall_decoding_stage                        ;
     wire                                    stall_execution_stage                       ;
-    wire                                    stall_data_cache                            ;
     wire                                    stall_data_memory_stage                     ;
     
     // Instruction Cache --> Decoding Stage 
@@ -147,10 +146,10 @@ module RISCV_PROCESSOR #(
 	
 	// Execution Stage --> Hazard Control Unit / Data Cache / Data Memory Stage 1
 	wire    [D_CACHE_LW_WIDTH - 1  : 0]     data_cache_load_execution_to_dm1            ;
-	wire    [D_CACHE_SW_WIDTH - 1  : 0]     data_cache_store_execution_to_dm1           ;
 	
 	 // Execution Stage --> Data Cache 
     wire    [DATA_WIDTH - 1        : 0]     data_cache_store_data                       ;
+    wire    [D_CACHE_SW_WIDTH - 1  : 0]     data_cache_store_select                     ;
     
     // Execution Stage --> Data Cache / Data Memory Stage 1
     wire    [DATA_WIDTH - 1        : 0]     alu_out_execution_to_dm1                    ;
@@ -170,7 +169,6 @@ module RISCV_PROCESSOR #(
     
 	// Data Memory Stage 1 --> Hazard Control Unit / Data Memory Stage 2
 	wire    [D_CACHE_LW_WIDTH - 1  : 0]     data_cache_load_dm1_to_dm2                  ;
-	wire    [D_CACHE_SW_WIDTH - 1  : 0]     data_cache_store_dm1_to_dm2                 ;
 	
     // Data Memory Stage 1 --> Data Memory Stage 2
     wire    [DATA_WIDTH - 1        : 0]     alu_out_dm1_to_dm2                          ;
@@ -182,7 +180,6 @@ module RISCV_PROCESSOR #(
 	
 	// Data Memory Stage 2 --> Hazard Control Unit / Data Memory Stage 3
 	wire    [D_CACHE_LW_WIDTH - 1  : 0]     data_cache_load_dm2_to_dm3                  ;
-	wire    [D_CACHE_SW_WIDTH - 1  : 0]     data_cache_store_dm2_to_dm3                 ;
     
     // Data Memory Stage 2 --> Data Memory Stage 3
     wire    [DATA_WIDTH - 1        : 0]     alu_out_dm2_to_dm3                          ;
@@ -224,14 +221,11 @@ module RISCV_PROCESSOR #(
         .DATA_CACHE_READY(data_cache_ready),
         .RS1_ADDRESS_EXECUTION(rs1_address),
         .RS2_ADDRESS_EXECUTION(rs2_address),
-        .DATA_CACHE_LOAD_DM1(data_cache_load_execution_to_dm1),
-        .DATA_CACHE_STORE_DM1(),         
+        .DATA_CACHE_LOAD_DM1(data_cache_load_execution_to_dm1),        
         .RD_ADDRESS_DM1(rd_address_execution_to_dm1),
         .DATA_CACHE_LOAD_DM2(data_cache_load_dm1_to_dm2),
-        .DATA_CACHE_STORE_DM2(),
         .RD_ADDRESS_DM2(rd_address_dm1_to_dm2),
         .DATA_CACHE_LOAD_DM3(data_cache_load_dm2_to_dm3),
-        .DATA_CACHE_STORE_DM3(),
         .RD_ADDRESS_DM3(rd_address_dm2_to_dm3),
         .CLEAR_EXECUTION_STAGE(clear_execution_stage),
         .STALL_PROGRAME_COUNTER_STAGE(stall_programe_counter_stage),
@@ -239,7 +233,6 @@ module RISCV_PROCESSOR #(
         .STALL_INSTRUCTION_FETCH_STAGE(stall_instruction_fetch_stage),
         .STALL_DECODING_STAGE(stall_decoding_stage),
         .STALL_EXECUTION_STAGE(stall_execution_stage),
-        .STALL_DATA_CACHE(stall_data_cache),
         .STALL_DATA_MEMORY_STAGE(stall_data_memory_stage)                    
         );
         
@@ -357,7 +350,7 @@ module RISCV_PROCESSOR #(
         .ALU_OUT(alu_out_execution_to_dm1),
         .BRANCH_TAKEN(branch_taken),
         .DATA_CACHE_LOAD_OUT(data_cache_load_execution_to_dm1),
-        .DATA_CACHE_STORE_OUT(data_cache_store_execution_to_dm1),
+        .DATA_CACHE_STORE_OUT(data_cache_store_select),
         .DATA_CACHE_STORE_DATA(data_cache_store_data),
         .WRITE_BACK_MUX_SELECT_OUT(write_back_mux_select_execution_to_dm1),
         .RD_WRITE_ENABLE_OUT(rd_write_enable_execution_to_dm1)   
@@ -365,12 +358,11 @@ module RISCV_PROCESSOR #(
     
     DATA_CACHE data_cache(
         .CLK(CLK),
-        .STALL_DATA_CACHE(stall_data_cache),
         .DATA_CACHE_READ_ADDRESS(alu_out_execution_to_dm1),
         .DATA_CACHE_LOAD(data_cache_load_execution_to_dm1),
         .DATA_CACHE_WRITE_ADDRESS(alu_out_execution_to_dm1),
         .DATA_CACHE_WRITE_DATA(data_cache_store_data),
-        .DATA_CACHE_STORE(data_cache_store_execution_to_dm1),
+        .DATA_CACHE_STORE(data_cache_store_select),
         .DATA_CACHE_READY(data_cache_ready),
         .DATA_CACHE_READ_DATA(data_cache_read_data),
         .WRITE_TO_L2_READY_DATA(WRITE_TO_L2_READY_DATA),
@@ -393,13 +385,11 @@ module RISCV_PROCESSOR #(
         .RD_ADDRESS_IN(rd_address_execution_to_dm1),
         .ALU_OUT_IN(alu_out_execution_to_dm1),
         .DATA_CACHE_LOAD_IN(data_cache_load_execution_to_dm1),
-        .DATA_CACHE_STORE_IN(data_cache_store_execution_to_dm1),
         .WRITE_BACK_MUX_SELECT_IN(write_back_mux_select_execution_to_dm1),
         .RD_WRITE_ENABLE_IN(rd_write_enable_execution_to_dm1),
         .RD_ADDRESS_OUT(rd_address_dm1_to_dm2),
         .ALU_OUT_OUT(alu_out_dm1_to_dm2),
         .DATA_CACHE_LOAD_OUT(data_cache_load_dm1_to_dm2),
-        .DATA_CACHE_STORE_OUT(data_cache_store_dm1_to_dm2),
         .WRITE_BACK_MUX_SELECT_OUT(write_back_mux_select_dm1_to_dm2),
         .RD_WRITE_ENABLE_OUT(rd_write_enable_dm1_to_dm2) 
         );
@@ -410,13 +400,11 @@ module RISCV_PROCESSOR #(
         .RD_ADDRESS_IN(rd_address_dm1_to_dm2),
         .ALU_OUT_IN(alu_out_dm1_to_dm2),
         .DATA_CACHE_LOAD_IN(data_cache_load_dm1_to_dm2),
-        .DATA_CACHE_STORE_IN(data_cache_store_dm1_to_dm2),
         .WRITE_BACK_MUX_SELECT_IN(write_back_mux_select_dm1_to_dm2),
         .RD_WRITE_ENABLE_IN(rd_write_enable_dm1_to_dm2),
         .RD_ADDRESS_OUT(rd_address_dm2_to_dm3),
         .ALU_OUT_OUT(alu_out_dm2_to_dm3),
         .DATA_CACHE_LOAD_OUT(data_cache_load_dm2_to_dm3),
-        .DATA_CACHE_STORE_OUT(data_cache_store_dm2_to_dm3),
         .WRITE_BACK_MUX_SELECT_OUT(write_back_mux_select_dm2_to_dm3),
         .RD_WRITE_ENABLE_OUT(rd_write_enable_dm2_to_dm3)
         );
@@ -427,13 +415,11 @@ module RISCV_PROCESSOR #(
         .RD_ADDRESS_IN(rd_address_dm2_to_dm3),
         .ALU_OUT_IN(alu_out_dm2_to_dm3),
         .DATA_CACHE_LOAD_IN(data_cache_load_dm2_to_dm3),
-        .DATA_CACHE_STORE_IN(data_cache_store_dm2_to_dm3),
         .WRITE_BACK_MUX_SELECT_IN(write_back_mux_select_dm2_to_dm3),
         .RD_WRITE_ENABLE_IN(rd_write_enable_dm2_to_dm3),
         .RD_ADDRESS_OUT(rd_address_dm3_to_write_back),
         .ALU_OUT_OUT(alu_out_dm3_to_write_back),
         .DATA_CACHE_LOAD_OUT(data_cache_load_dm3_to_write_back),
-        .DATA_CACHE_STORE_OUT(data_cache_store_dm3_to_write_back),
         .WRITE_BACK_MUX_SELECT_OUT(write_back_mux_select_dm3_to_write_back),
         .RD_WRITE_ENABLE_OUT(rd_write_enable_dm3_to_write_back)
         );

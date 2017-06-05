@@ -30,7 +30,7 @@ module RISCV_PROCESSOR_SIMULATION();
     parameter   D_CACHE_SW_WIDTH        = 2     ;
     parameter   L2_BUS_WIDTH            = 32    ;
     parameter   INS_RAM_DEPTH           = 13    ; 
-    parameter   DAT_RAM_DEPTH           = 2048  ; 
+    parameter   DAT_RAM_DEPTH           = 512   ; 
     
     parameter   HIGH                    = 1'b1  ;        
     parameter   LOW                     = 1'b0  ;
@@ -153,13 +153,15 @@ module RISCV_PROCESSOR_SIMULATION();
         
         #200    ;
         
-        repeat(30)
+        repeat(50)
         begin
             clk = ~ clk;
             #100;
         end
             
     end
+    
+    
     
     always@(posedge clk)
     begin
@@ -169,16 +171,21 @@ module RISCV_PROCESSOR_SIMULATION();
             data_from_l2_ins_reg        <= ins_memory [address_to_l2_ins]       ;
         end
         
-        if(write_to_l2_valid_data == HIGH)
-        begin
-            write_addr_to_l2_data_reg   <= write_addr_to_l2_data                ;
-            data_to_l2_data_reg         <= data_to_l2_data                      ;             
-        end
-        
         if(read_addr_to_l2_valid_data == HIGH)
         begin
             data_from_l2_valid_data_reg <= HIGH                                 ;
             data_from_l2_data_reg       <= data_memory [read_addr_to_l2_data]   ;
+        end
+        else
+        begin
+            data_from_l2_valid_data_reg <= LOW                                  ;
+            data_from_l2_data_reg       <= 32'b0                                ;
+        end
+        
+        if(write_to_l2_valid_data == HIGH)
+        begin
+            write_addr_to_l2_data_reg   <= write_addr_to_l2_data                ;
+            data_to_l2_data_reg         <= data_to_l2_data                      ;             
         end
         
         data_memory [write_addr_to_l2_data_reg] <= data_to_l2_data_reg          ;
