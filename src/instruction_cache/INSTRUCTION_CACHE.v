@@ -65,16 +65,21 @@ module INSTRUCTION_CACHE #(
     
     always@(posedge CLK)
     begin
-        if(PC_VALID == HIGH)
+        if(STALL_INSTRUCTION_CACHE == LOW)
         begin
-            address_to_l2_valid_ins_reg <= HIGH                             ;
-            address_to_l2_ins_reg       <= PC[ADDRESS_WIDTH - 1      : 2]   ; 
-        end
-        if(DATA_FROM_L2_VALID_INS == HIGH)
-        begin
-            instruction_reg    <= DATA_FROM_L2_INS                          ;   
+            if(PC_VALID == HIGH)
+            begin
+                address_to_l2_valid_ins_reg <= HIGH                             ;
+                address_to_l2_ins_reg       <= PC[ADDRESS_WIDTH - 1      : 2]   ; 
+            end
+            if(DATA_FROM_L2_VALID_INS == HIGH)
+            begin
+                instruction_reg    <= DATA_FROM_L2_INS                          ;   
+            end
         end
     end
+    
+    assign  DATA_FROM_L2_READY_INS      = ~STALL_INSTRUCTION_CACHE          ;
     
     //////////////////------ TEST CODE ------//////////////////
     

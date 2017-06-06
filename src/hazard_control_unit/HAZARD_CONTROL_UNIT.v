@@ -31,6 +31,7 @@ module HAZARD_CONTROL_UNIT #(
     ) (
         input                                   INSTRUCTION_CACHE_READY         ,
         input                                   DATA_CACHE_READY                ,
+        input                                   PC_MISPREDICTED                 ,
         input   [REG_ADD_WIDTH -1      : 0]     RS1_ADDRESS_EXECUTION           ,
         input   [REG_ADD_WIDTH -1      : 0]     RS2_ADDRESS_EXECUTION           ,
         input   [D_CACHE_LW_WIDTH - 1  : 0]     DATA_CACHE_LOAD_DM1             ,
@@ -39,6 +40,8 @@ module HAZARD_CONTROL_UNIT #(
         input   [REG_ADD_WIDTH -1      : 0]     RD_ADDRESS_DM2                  ,
         input   [D_CACHE_LW_WIDTH - 1  : 0]     DATA_CACHE_LOAD_DM3             ,
         input   [REG_ADD_WIDTH -1      : 0]     RD_ADDRESS_DM3                  ,
+        output                                  CLEAR_INSTRUCTION_FETCH_STAGE   ,
+        output                                  CLEAR_DECODING_STAGE            ,
         output                                  CLEAR_EXECUTION_STAGE           ,
         output                                  STALL_PROGRAME_COUNTER_STAGE    ,
         output                                  STALL_INSTRUCTION_CACHE         ,
@@ -48,16 +51,20 @@ module HAZARD_CONTROL_UNIT #(
         output                                  STALL_DATA_MEMORY_STAGE                       
     );
     
-    reg            clear_execution_stage_reg            ;
-    reg            stall_programe_counter_stage_reg     ;
-    reg            stall_instruction_cache_reg          ;
-    reg            stall_instruction_fetch_stage_reg    ;
-    reg            stall_decoding_stage_reg             ;
-    reg            stall_execution_stage_reg            ;
-    reg            stall_data_memory_stage_reg          ;
+    reg             clear_instruction_fetch_stage_reg       ;
+    reg             clear_decoding_stage_reg                ;
+    reg             clear_execution_stage_reg               ;
+    reg             stall_programe_counter_stage_reg        ;
+    reg             stall_instruction_cache_reg             ;
+    reg             stall_instruction_fetch_stage_reg       ;
+    reg             stall_decoding_stage_reg                ;
+    reg             stall_execution_stage_reg               ;
+    reg             stall_data_memory_stage_reg             ;
     
     initial
     begin
+        clear_instruction_fetch_stage_reg   = LOW       ;
+        clear_decoding_stage_reg            = LOW       ;
         clear_execution_stage_reg           = LOW       ;
         stall_programe_counter_stage_reg    = LOW       ;
         stall_instruction_cache_reg         = LOW       ;
@@ -91,6 +98,8 @@ module HAZARD_CONTROL_UNIT #(
         end
     end
     
+    assign CLEAR_INSTRUCTION_FETCH_STAGE    = clear_instruction_fetch_stage_reg     ;
+    assign CLEAR_DECODING_STAGE             = clear_decoding_stage_reg              ;
     assign CLEAR_EXECUTION_STAGE            = clear_execution_stage_reg             ;
     assign STALL_PROGRAME_COUNTER_STAGE     = stall_programe_counter_stage_reg      ;
     assign STALL_INSTRUCTION_CACHE          = stall_instruction_cache_reg           ;

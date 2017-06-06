@@ -165,10 +165,13 @@ module RISCV_PROCESSOR_SIMULATION();
     
     always@(posedge clk)
     begin
-        if(address_to_l2_valid_ins == HIGH)
+        if(data_from_l2_ready_ins == HIGH)
         begin
-            data_from_l2_valid_ins_reg  <= HIGH                                 ;
-            data_from_l2_ins_reg        <= ins_memory [address_to_l2_ins]       ;
+            if(address_to_l2_valid_ins == HIGH)
+            begin
+                data_from_l2_valid_ins_reg  <= HIGH                                 ;
+                data_from_l2_ins_reg        <= ins_memory [address_to_l2_ins]       ;
+            end
         end
         
         if(read_addr_to_l2_valid_data == HIGH)

@@ -76,13 +76,12 @@ module RISCV_PROCESSOR #(
     wire    [ADDRESS_WIDTH - 1     : 0]     pc_pc_to_if1                                ;
     wire                                    pc_valid_pc_to_if1                          ; 
     
-    // Programe Counter --> Instruction Fetch 1 , 2 , 3 
-    wire                                    clear_instruction_fetch_stage               ;
-    
-    // Programe Counter --> Decoding Stage
-    wire                                    clear_decoding_stage                        ;
+    // Programe Counter --> Hazard Control Unit 
+    wire                                    pc_mispredicted                             ;
     
     // Hazard Control Unit --> All Stages
+    wire                                    clear_instruction_fetch_stage               ;
+    wire                                    clear_decoding_stage                        ;
     wire                                    clear_execution_stage                       ;
     wire                                    stall_programe_counter_stage                ;
     wire                                    stall_instruction_cache                     ;
@@ -212,13 +211,13 @@ module RISCV_PROCESSOR #(
         .PC_DECODING(pc_if3_to_decoding_stage),
         .PC(pc_pc_to_if1),
         .PC_VALID(pc_valid_pc_to_if1),
-        .CLEAR_INSTRUCTION_FETCH_STAGE(clear_instruction_fetch_stage),
-        .CLEAR_DECODING_STAGE(clear_decoding_stage)   
+        .PC_MISPREDICT_SELECT(pc_mispredicted)   
         );
         
     HAZARD_CONTROL_UNIT hazard_control_unit(
         .INSTRUCTION_CACHE_READY(instruction_cache_ready),
         .DATA_CACHE_READY(data_cache_ready),
+        .PC_MISPREDICTED(pc_mispredicted),
         .RS1_ADDRESS_EXECUTION(rs1_address),
         .RS2_ADDRESS_EXECUTION(rs2_address),
         .DATA_CACHE_LOAD_DM1(data_cache_load_execution_to_dm1),        
@@ -227,6 +226,8 @@ module RISCV_PROCESSOR #(
         .RD_ADDRESS_DM2(rd_address_dm1_to_dm2),
         .DATA_CACHE_LOAD_DM3(data_cache_load_dm2_to_dm3),
         .RD_ADDRESS_DM3(rd_address_dm2_to_dm3),
+        .CLEAR_INSTRUCTION_FETCH_STAGE(clear_instruction_fetch_stage),
+        .CLEAR_DECODING_STAGE(clear_decoding_stage),
         .CLEAR_EXECUTION_STAGE(clear_execution_stage),
         .STALL_PROGRAME_COUNTER_STAGE(stall_programe_counter_stage),
         .STALL_INSTRUCTION_CACHE(stall_instruction_cache),

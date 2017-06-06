@@ -41,14 +41,11 @@ module PROGRAME_COUNTER_STAGE #(
         input  [ADDRESS_WIDTH - 1   : 0]    PC_DECODING                     ,
         output [ADDRESS_WIDTH - 1   : 0]    PC                              ,
         output                              PC_VALID                        ,
-		output                              CLEAR_INSTRUCTION_FETCH_STAGE	,
-        output                              CLEAR_DECODING_STAGE           		
+		output                              PC_MISPREDICT_SELECT	           		
     );
     
     reg     [ADDRESS_WIDTH - 1   : 0]   pc_reg                              ;
     reg                                 pc_valid_reg                        ;
-	reg 		                        clear_instruction_fetch_stage_reg   ;
-    reg                                 clear_decoding_stage_reg            ;
     reg                                 pc_rs_1_select_reg                  ;
     reg                                 pc_predict_select_reg               ;
     reg                                 pc_mispredict_select_reg            ;
@@ -122,21 +119,15 @@ module PROGRAME_COUNTER_STAGE #(
             if(($signed(pc_execution_or_rs_1) + $signed(IMM_INPUT)) != PC_DECODING)
             begin
                 pc_mispredict_select_reg            = HIGH;
-				clear_instruction_fetch_stage_reg   = HIGH;
-                clear_decoding_stage_reg            = HIGH;
             end
             else
             begin
                 pc_mispredict_select_reg            = LOW;
-                clear_instruction_fetch_stage_reg   = LOW;
-                clear_decoding_stage_reg            = LOW;
             end
         end
         else
         begin
             pc_mispredict_select_reg            = LOW;
-            clear_instruction_fetch_stage_reg   = LOW;
-            clear_decoding_stage_reg            = LOW;
         end
     end
     
@@ -151,7 +142,6 @@ module PROGRAME_COUNTER_STAGE #(
     
     assign PC                               = pc_reg                            ;
     assign PC_VALID                         = pc_valid_reg                      ;
-	assign CLEAR_INSTRUCTION_FETCH_STAGE    = clear_instruction_fetch_stage_reg ;
-    assign CLEAR_DECODING_STAGE             = clear_decoding_stage_reg          ;
+	assign PC_MISPREDICT_SELECT             = pc_mispredict_select_reg          ;
             
 endmodule
