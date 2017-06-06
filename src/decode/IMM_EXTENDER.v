@@ -21,19 +21,23 @@
 
 
 module IMM_EXTENDER #(
-        parameter R_FORMAT      = 3'b000 ,
-        parameter I_FORMAT      = 3'b001 ,
-        parameter S_FORMAT      = 3'b010 ,
-        parameter U_FORMAT      = 3'b011 ,
-        parameter SB_FORMAT     = 3'b100 ,
-        parameter UJ_FORMAT     = 3'b101 
+        parameter   IMM_MAX_IN_WIDTH        = 25                ,
+        parameter   DATA_WIDTH              = 32                ,
+        parameter   IMM_FORMAT_SELECT       = 3                 ,
+    
+        parameter   R_FORMAT                = 3'b000            ,
+        parameter   I_FORMAT                = 3'b001            ,
+        parameter   S_FORMAT                = 3'b010            ,
+        parameter   U_FORMAT                = 3'b011            ,
+        parameter   SB_FORMAT               = 3'b100            ,
+        parameter   UJ_FORMAT               = 3'b101 
     ) (
-        input   [24 : 0] IMM_INPUT  ,
-        input   [2  : 0] IMM_FORMAT ,
-        output  [31 : 0] IMM_OUTPUT  
+        input   [IMM_MAX_IN_WIDTH - 1   : 0]    IMM_INPUT       ,
+        input   [IMM_FORMAT_SELECT - 1  : 0]    IMM_FORMAT      ,
+        output  [DATA_WIDTH - 1         : 0]    IMM_OUTPUT  
     );
     
-    reg [31 : 0] imm_output_reg;
+    reg     [DATA_WIDTH - 1     : 0]    imm_output_reg          ;
     
     always@(*)
     begin

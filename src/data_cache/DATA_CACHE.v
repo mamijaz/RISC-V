@@ -73,10 +73,12 @@ module DATA_CACHE #(
     reg                                     write_to_l2_valid_data_reg          ;
     reg     [ADDRESS_WIDTH - 2 - 1   : 0]   write_addr_to_l2_data_reg           ; 
     reg     [DATA_WIDTH - 1          : 0]   data_to_l2_data_reg                 ;
+    reg                                     write_control_to_l2_data_reg        ;
     
     reg                                     read_addr_to_l2_valid_data_reg      ;
     reg     [ADDRESS_WIDTH - 2 - 1   : 0]   read_addr_to_l2_data_reg            ; 
-    reg     [DATA_WIDTH - 1          : 0]   data_from_l2_data_reg               ; 
+    reg     [DATA_WIDTH - 1          : 0]   data_from_l2_data_reg               ;
+    reg                                     data_from_l2_ready_data_reg         ;
     
     initial
     begin
@@ -84,9 +86,11 @@ module DATA_CACHE #(
         write_to_l2_valid_data_reg      = LOW                                   ;
         write_addr_to_l2_data_reg       = 30'b0                                 ;
         data_to_l2_data_reg             = 32'b0                                 ;
+        write_control_to_l2_data_reg    = LOW                                   ;
         read_addr_to_l2_valid_data_reg  = LOW                                   ;
         read_addr_to_l2_data_reg        = 30'b0                                 ;
         data_from_l2_data_reg           = 32'b0                                 ;
+        data_from_l2_ready_data_reg     = HIGH                                  ;
     end                                  
     
     always@(posedge CLK)
@@ -125,14 +129,16 @@ module DATA_CACHE #(
         end
     end
     
+    //////////////////------ TEST CODE ------//////////////////
+    
     assign  DATA_CACHE_READY            = data_cache_ready_reg                                      ;
     assign  WRITE_TO_L2_VALID_DATA      = write_to_l2_valid_data_reg                                ;
     assign  WRITE_ADDR_TO_L2_DATA       = write_addr_to_l2_data_reg                                 ;
     assign  DATA_TO_L2_DATA             = data_to_l2_data_reg                                       ;
+    assign  WRITE_CONTROL_TO_L2_DATA    = write_control_to_l2_data_reg                              ;
     assign  READ_ADDR_TO_L2_VALID_DATA  = read_addr_to_l2_valid_data_reg                            ;
     assign  READ_ADDR_TO_L2_DATA        = read_addr_to_l2_data_reg                                  ;
     assign  DATA_CACHE_READ_DATA        = data_from_l2_data_reg                                     ;
-    
-    //////////////////------ TEST CODE ------//////////////////
+    assign  DATA_FROM_L2_READY_DATA     = data_from_l2_ready_data_reg                               ;
     
 endmodule

@@ -71,13 +71,13 @@ module HAZARD_CONTROL_UNIT #(
     begin
         if((((RS1_ADDRESS_EXECUTION == RD_ADDRESS_DM1) | (RS2_ADDRESS_EXECUTION == RD_ADDRESS_DM1))& DATA_CACHE_LOAD_DM1 != DATA_CACHE_LOAD_NONE) | (((RS1_ADDRESS_EXECUTION == RD_ADDRESS_DM2) | (RS2_ADDRESS_EXECUTION == RD_ADDRESS_DM2))& DATA_CACHE_LOAD_DM2 != DATA_CACHE_LOAD_NONE) | (((RS1_ADDRESS_EXECUTION == RD_ADDRESS_DM3) | (RS2_ADDRESS_EXECUTION == RD_ADDRESS_DM3))& DATA_CACHE_LOAD_DM3 != DATA_CACHE_LOAD_NONE)) 
         begin
-           /* clear_execution_stage_reg           = HIGH      ;
+            clear_execution_stage_reg           = HIGH      ;
             stall_programe_counter_stage_reg    = HIGH      ;
             stall_instruction_cache_reg         = HIGH      ;
             stall_instruction_fetch_stage_reg   = HIGH      ;
             stall_decoding_stage_reg            = HIGH      ;
             stall_execution_stage_reg           = HIGH      ;
-            stall_data_memory_stage_reg         = LOW       ; */
+            stall_data_memory_stage_reg         = LOW       ; 
         end
         else
         begin
@@ -89,7 +89,6 @@ module HAZARD_CONTROL_UNIT #(
             stall_execution_stage_reg           = LOW       ;
             stall_data_memory_stage_reg         = LOW       ;
         end
-    
     end
     
     assign CLEAR_EXECUTION_STAGE            = clear_execution_stage_reg             ;

@@ -21,63 +21,71 @@
 
 
 module DECODING_STAGE #(
-            parameter HIGH  = 1'b1  ,
-            parameter LOW   = 1'b0
+            parameter   ADDRESS_WIDTH           = 32                        ,
+            parameter   DATA_WIDTH              = 32                        ,
+            parameter   REG_ADD_WIDTH           = 5                         ,
+            parameter   ALU_INS_WIDTH           = 5                         ,
+            parameter   D_CACHE_LW_WIDTH        = 3                         ,
+            parameter   D_CACHE_SW_WIDTH        = 2                         ,
+            parameter   IMM_FORMAT_SELECT       = 3                         ,
+            
+            parameter   HIGH                    = 1'b1                      ,
+            parameter   LOW                     = 1'b0
         ) (
-            input            CLK                    ,
-            input            STALL_DECODING_STAGE   ,
-            input            CLEAR_DECODING_STAGE   ,
-            input   [4  : 0] RD_ADDRESS_IN          ,
-            input   [31 : 0] RD_DATA_IN             ,
-            input            RD_WRITE_ENABLE_IN     ,
-            input   [31 : 0] INSTRUCTION            ,
-            input   [31 : 0] PC_IN                  ,
-            input            PC_VALID               ,
-            output  [31 : 0] PC_OUT                 ,
-            output  [4  : 0] RS1_ADDRESS            ,
-            output  [4  : 0] RS2_ADDRESS            ,
-            output  [4  : 0] RD_ADDRESS_OUT         ,
-            output  [31 : 0] RS1_DATA               ,
-            output  [31 : 0] RS2_DATA               ,                       
-            output  [31 : 0] IMM_OUTPUT             , 
-            output  [4  : 0] ALU_INSTRUCTION        ,
-            output           ALU_INPUT_1_SELECT     ,
-            output           ALU_INPUT_2_SELECT     ,
-            output  [2  : 0] DATA_CACHE_LOAD        ,
-            output  [1  : 0] DATA_CACHE_STORE       ,
-            output           WRITE_BACK_MUX_SELECT  ,
-            output           RD_WRITE_ENABLE_OUT        
+            input                                   CLK                     ,
+            input                                   STALL_DECODING_STAGE    ,
+            input                                   CLEAR_DECODING_STAGE    ,
+            input   [REG_ADD_WIDTH - 1      : 0]    RD_ADDRESS_IN           ,
+            input   [DATA_WIDTH - 1         : 0]    RD_DATA_IN              ,
+            input                                   RD_WRITE_ENABLE_IN      ,
+            input   [DATA_WIDTH - 1         : 0]    INSTRUCTION             ,
+            input   [ADDRESS_WIDTH - 1      : 0]    PC_IN                   ,
+            input                                   PC_VALID                ,
+            output  [ADDRESS_WIDTH - 1      : 0]    PC_OUT                  ,
+            output  [REG_ADD_WIDTH - 1      : 0]    RS1_ADDRESS             ,
+            output  [REG_ADD_WIDTH - 1      : 0]    RS2_ADDRESS             ,
+            output  [REG_ADD_WIDTH - 1      : 0]    RD_ADDRESS_OUT          ,
+            output  [DATA_WIDTH - 1         : 0]    RS1_DATA                ,
+            output  [DATA_WIDTH - 1         : 0]    RS2_DATA                ,                       
+            output  [DATA_WIDTH - 1         : 0]    IMM_OUTPUT              , 
+            output  [ALU_INS_WIDTH - 1      : 0]    ALU_INSTRUCTION         ,
+            output                                  ALU_INPUT_1_SELECT      ,    
+            output                                  ALU_INPUT_2_SELECT      ,
+            output  [D_CACHE_LW_WIDTH - 1   : 0]    DATA_CACHE_LOAD         ,
+            output  [D_CACHE_SW_WIDTH - 1   : 0]    DATA_CACHE_STORE        ,
+            output                                  WRITE_BACK_MUX_SELECT   ,
+            output                                  RD_WRITE_ENABLE_OUT        
     );
     
-    reg  [31 : 0]   pc_reg                      ;
-    reg  [4  : 0]   rs1_address_reg             ;
-    reg  [4  : 0]   rs2_address_reg             ;
-    reg  [4  : 0]   rd_address_reg              ;
-    reg  [31 : 0]   rs1_data_reg                ;
-    reg  [31 : 0]   rs2_data_reg                ;                       
-    reg  [31 : 0]   imm_output_reg              ;
-    reg  [4  : 0]   alu_instruction_reg         ;
-    reg             alu_input_1_select_reg      ;
-    reg             alu_input_2_select_reg      ;
-    reg  [2  : 0]   data_cache_load_reg         ;
-    reg  [1  : 0]   data_cache_store_reg        ;
-    reg             write_back_mux_select_reg   ;
-    reg             rd_write_enable_reg         ;
+    reg     [ADDRESS_WIDTH - 1      : 0]    pc_reg                          ;
+    reg     [REG_ADD_WIDTH - 1      : 0]    rs1_address_reg                 ;
+    reg     [REG_ADD_WIDTH - 1      : 0]    rs2_address_reg                 ;
+    reg     [REG_ADD_WIDTH - 1      : 0]    rd_address_reg                  ;
+    reg     [DATA_WIDTH - 1         : 0]    rs1_data_reg                    ;
+    reg     [DATA_WIDTH - 1         : 0]    rs2_data_reg                    ;                       
+    reg     [DATA_WIDTH - 1         : 0]    imm_output_reg                  ;
+    reg     [ALU_INS_WIDTH - 1      : 0]    alu_instruction_reg             ;
+    reg                                     alu_input_1_select_reg          ;
+    reg                                     alu_input_2_select_reg          ;
+    reg     [D_CACHE_LW_WIDTH - 1   : 0]    data_cache_load_reg             ;
+    reg     [D_CACHE_SW_WIDTH - 1   : 0]    data_cache_store_reg            ;
+    reg                                     write_back_mux_select_reg       ;
+    reg                                     rd_write_enable_reg             ;
     
-    wire [4  : 0]   rs1_address                 ;
-    wire [4  : 0]   rs2_address                 ;
-    wire [4  : 0]   rd_address_out              ;
-    wire [31 : 0]   rs1_data                    ;
-    wire [31 : 0]   rs2_data                    ;  
-    wire [2  : 0]   imm_format                  ;                    
-    wire [31 : 0]   imm_output                  ;
-    wire [4  : 0]   alu_instruction             ;
-    wire            alu_input_1_select          ;
-    wire            alu_input_2_select          ;
-    wire [2  : 0]   data_cache_load             ;
-    wire [1  : 0]   data_cache_store            ;
-    wire            write_back_mux_select       ;
-    wire            rd_write_enable_out         ;
+    wire    [REG_ADD_WIDTH - 1      : 0]    rs1_address                     ;
+    wire    [REG_ADD_WIDTH - 1      : 0]    rs2_address                     ;
+    wire    [REG_ADD_WIDTH - 1      : 0]    rd_address_out                  ;
+    wire    [DATA_WIDTH - 1         : 0]    rs1_data                        ;
+    wire    [DATA_WIDTH - 1         : 0]    rs2_data                        ;  
+    wire    [IMM_FORMAT_SELECT - 1  : 0]    imm_format                      ;                    
+    wire    [DATA_WIDTH - 1         : 0]    imm_output                      ;
+    wire    [ALU_INS_WIDTH - 1      : 0]    alu_instruction                 ;
+    wire                                    alu_input_1_select              ;
+    wire                                    alu_input_2_select              ;
+    wire    [D_CACHE_LW_WIDTH - 1   : 0]    data_cache_load                 ;
+    wire    [D_CACHE_SW_WIDTH - 1   : 0]    data_cache_store                ;
+    wire                                    write_back_mux_select           ;
+    wire                                    rd_write_enable_out             ;
 
     INS_DECODER ins_decoder(
         .INSTRUCTION(INSTRUCTION),
@@ -155,36 +163,36 @@ module DECODING_STAGE #(
         end
         else
         begin
-            pc_reg                      <= 32'b0                    ;
-            rs1_address_reg             <= 5'b0                     ;
-            rs2_address_reg             <= 5'b0                     ;
-            rd_address_reg              <= 5'b0                     ;
-            rs1_data_reg                <= 32'b0                    ;
-            rs2_data_reg                <= 32'b0                    ;             
-            imm_output_reg              <= 32'b0                    ;
-            alu_instruction_reg         <= 5'b0                     ;
-            alu_input_1_select_reg      <= LOW                      ;
-            alu_input_2_select_reg      <= LOW                      ;
-            data_cache_load_reg         <= 3'b0                     ;
-            data_cache_store_reg        <= 2'b0                     ;
-            write_back_mux_select_reg   <= LOW                      ;
-            rd_write_enable_reg         <= LOW                      ;
+            pc_reg                      <= 32'b0                            ;
+            rs1_address_reg             <= 5'b0                             ;
+            rs2_address_reg             <= 5'b0                             ;
+            rd_address_reg              <= 5'b0                             ;
+            rs1_data_reg                <= 32'b0                            ;
+            rs2_data_reg                <= 32'b0                            ;             
+            imm_output_reg              <= 32'b0                            ;
+            alu_instruction_reg         <= 5'b0                             ;
+            alu_input_1_select_reg      <= LOW                              ;
+            alu_input_2_select_reg      <= LOW                              ;
+            data_cache_load_reg         <= 3'b0                             ;
+            data_cache_store_reg        <= 2'b0                             ;
+            write_back_mux_select_reg   <= LOW                              ;
+            rd_write_enable_reg         <= LOW                              ;
         end
     end
     
-    assign PC_OUT                   = pc_reg                    ;
-    assign RS1_ADDRESS              = rs1_address_reg           ;        
-    assign RS2_ADDRESS              = rs2_address_reg           ;
-    assign RD_ADDRESS_OUT           = rd_address_reg            ;
-    assign RS1_DATA                 = rs1_data_reg              ;
-    assign RS2_DATA                 = rs2_data_reg              ;        
-    assign IMM_OUTPUT               = imm_output_reg            ;
-    assign ALU_INSTRUCTION          = alu_instruction_reg       ;
-    assign ALU_INPUT_1_SELECT       = alu_input_1_select_reg    ;
-    assign ALU_INPUT_2_SELECT       = alu_input_2_select_reg    ;
-    assign DATA_CACHE_LOAD          = data_cache_load_reg       ;
-    assign DATA_CACHE_STORE         = data_cache_store_reg      ;
-    assign WRITE_BACK_MUX_SELECT    = write_back_mux_select_reg ;
-    assign RD_WRITE_ENABLE_OUT      = rd_write_enable_reg       ;
+    assign PC_OUT                   = pc_reg                                ;
+    assign RS1_ADDRESS              = rs1_address_reg                       ;        
+    assign RS2_ADDRESS              = rs2_address_reg                       ;
+    assign RD_ADDRESS_OUT           = rd_address_reg                        ;
+    assign RS1_DATA                 = rs1_data_reg                          ;
+    assign RS2_DATA                 = rs2_data_reg                          ;        
+    assign IMM_OUTPUT               = imm_output_reg                        ;
+    assign ALU_INSTRUCTION          = alu_instruction_reg                   ;
+    assign ALU_INPUT_1_SELECT       = alu_input_1_select_reg                ;
+    assign ALU_INPUT_2_SELECT       = alu_input_2_select_reg                ;
+    assign DATA_CACHE_LOAD          = data_cache_load_reg                   ;
+    assign DATA_CACHE_STORE         = data_cache_store_reg                  ;
+    assign WRITE_BACK_MUX_SELECT    = write_back_mux_select_reg             ;
+    assign RD_WRITE_ENABLE_OUT      = rd_write_enable_reg                   ;
     
 endmodule

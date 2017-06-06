@@ -34,7 +34,7 @@ module EXECUTION_STAGE #(
         input                                   CLK                         ,
         input                                   STALL_EXECUTION_STAGE       ,
         input                                   CLEAR_EXECUTION_STAGE       ,
-        input   [ADDRESS_WIDTH - 1     : 0]     PC_IN                       ,
+        input   [ADDRESS_WIDTH - 1      : 0]    PC_IN                       ,
         input   [REG_ADD_WIDTH - 1      : 0]    RD_ADDRESS_IN               ,
         input   [DATA_WIDTH - 1         : 0]    RS1_DATA                    ,
         input   [DATA_WIDTH - 1         : 0]    RS2_DATA                    ,                       

@@ -153,7 +153,7 @@ module RISCV_PROCESSOR_SIMULATION();
         
         #200    ;
         
-        repeat(50)
+        while(1)
         begin
             clk = ~ clk;
             #100;
