@@ -322,7 +322,7 @@ module RISCV_PROCESSOR #(
         .RD_WRITE_ENABLE_DM2(rd_write_enable_dm1_to_dm2),
         .RD_DATA_DM2(alu_out_dm1_to_dm2),
         .RD_ADDRESS_DM3(rd_address_dm2_to_dm3),
-        .RD_WRITE_ENABLE_DM3(rd_write_enable_dm3_to_write_back),
+        .RD_WRITE_ENABLE_DM3(rd_write_enable_dm2_to_dm3),
         .RD_DATA_DM3(alu_out_dm2_to_dm3),
         .RD_ADDRESS_WB(rd_address_dm3_to_write_back),
         .RD_WRITE_ENABLE_WB(rd_write_enable_dm3_to_write_back),

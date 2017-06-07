@@ -21,20 +21,22 @@
 
 
 module BRANCH_PREDICTOR #(
-        parameter HIGH                  = 1'b1          ,
+        parameter   ADDRESS_WIDTH       = 32                                ,
+        
+        parameter HIGH                  = 1'b1                              ,
         parameter LOW                   = 1'b0
     ) (
-        input            CLK                            ,
-        input  [31 : 0]  PC                             ,
-        input  [31 : 0]  PC_EXECUTION                   ,
-        input  [31 : 0]  PC_PREDICT_LEARN               ,
-        input            PC_PREDICT_LEARN_SELECT        ,
-        output [31 : 0]  PC_PREDICTED                   ,
-        output           PC_PREDICTOR_STATUS                   
+        input                               CLK                             ,
+        input   [ADDRESS_WIDTH - 1  : 0]    PC                              ,
+        input   [ADDRESS_WIDTH - 1  : 0]    PC_EXECUTION                    ,
+        input   [ADDRESS_WIDTH - 1  : 0]    PC_PREDICT_LEARN                ,
+        input                               PC_PREDICT_LEARN_SELECT         ,
+        output  [ADDRESS_WIDTH - 1  : 0]    PC_PREDICTED                    ,
+        output                              PC_PREDICTOR_STATUS                   
     );
     
-    reg  [31 : 0]  pc_predicted_reg                     ;
-    reg            pc_predictor_status_reg              ;
+    reg     [ADDRESS_WIDTH - 1  : 0]    pc_predicted_reg                    ;
+    reg                                 pc_predictor_status_reg             ;
             
     initial
     begin

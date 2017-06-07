@@ -22,6 +22,7 @@
 
 module INSTRUCTION_FETCH_STAGE #(
         parameter   ADDRESS_WIDTH           = 32                            ,
+        
         parameter   HIGH                    = 1'b1                          ,
         parameter   LOW                     = 1'b0
     ) (

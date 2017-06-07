@@ -61,7 +61,12 @@ module INSTRUCTION_CACHE #(
         address_to_l2_ins_reg           = 30'b0                             ;
         data_from_l2_ready_ins_reg      = HIGH                              ;
         instruction_reg                 = 32'b0                             ;
-    end                                  
+    end    
+    
+    always@(*)
+    begin 
+        instruction_cache_ready_reg     = ~STALL_INSTRUCTION_CACHE          ;
+    end                              
     
     always@(posedge CLK)
     begin
@@ -78,9 +83,7 @@ module INSTRUCTION_CACHE #(
             end
         end
     end
-    
-    assign  DATA_FROM_L2_READY_INS      = ~STALL_INSTRUCTION_CACHE          ;
-    
+  
     //////////////////------ TEST CODE ------//////////////////
     
     assign  INSTRUCTION_CACHE_READY     = instruction_cache_ready_reg       ;
