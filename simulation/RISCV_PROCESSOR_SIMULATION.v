@@ -77,6 +77,7 @@ module RISCV_PROCESSOR_SIMULATION();
     wire    [D_CACHE_LW_WIDTH - 1  : 0]     data_cache_load                         ;
     wire    [D_CACHE_SW_WIDTH - 1  : 0]     data_cache_store                        ;
     wire    [DATA_WIDTH - 1        : 0]     rd_data_write_back                      ;
+    wire                                    pc_mispredicted                         ;
    
     // Instantiate the Unit Under Test (UUT)
     RISCV_PROCESSOR uut(
@@ -93,6 +94,7 @@ module RISCV_PROCESSOR_SIMULATION();
         .DATA_CACHE_LOAD(data_cache_load),
         .DATA_CACHE_STORE(data_cache_store),
         .RD_DATA_WRITE_BACK(rd_data_write_back),
+        .PC_MISPREDICTED(pc_mispredicted),
         .ADDRESS_TO_L2_READY_INS(address_to_l2_ready_ins),
         .ADDRESS_TO_L2_VALID_INS(address_to_l2_valid_ins),      
         .ADDRESS_TO_L2_INS(address_to_l2_ins),    

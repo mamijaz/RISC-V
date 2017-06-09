@@ -69,7 +69,8 @@ module RISCV_PROCESSOR #(
         output  [REG_ADD_WIDTH - 1     : 0]     RD_ADDRESS                              ,
         output  [D_CACHE_LW_WIDTH - 1  : 0]     DATA_CACHE_LOAD                         ,
         output  [D_CACHE_SW_WIDTH - 1  : 0]     DATA_CACHE_STORE                        ,
-        output  [DATA_WIDTH - 1        : 0]     RD_DATA_WRITE_BACK                                               
+        output  [DATA_WIDTH - 1        : 0]     RD_DATA_WRITE_BACK                      ,
+        output                                  PC_MISPREDICTED                         
     );
     
     // Programe Counter --> Instruction Cache / Instruction Fetch 1  
@@ -444,5 +445,6 @@ module RISCV_PROCESSOR #(
     assign DATA_CACHE_LOAD          = data_cache_load_decoding_to_execution     ;
     assign DATA_CACHE_STORE         = data_cache_store_decoding_to_execution    ;
     assign RD_DATA_WRITE_BACK       = rd_data_write_back                        ;
+    assign PC_MISPREDICTED          = pc_mispredicted                           ;
        
 endmodule

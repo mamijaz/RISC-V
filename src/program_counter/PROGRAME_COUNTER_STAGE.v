@@ -25,8 +25,8 @@ module PROGRAME_COUNTER_STAGE #(
         parameter   DATA_WIDTH              = 32                            ,
         parameter   ALU_INS_WIDTH           = 5                             ,
        
-        parameter   ALU_JAL                 = 5'b01010                      ,
-        parameter   ALU_JALR                = 5'b01011                      ,
+        parameter   ALU_JAL                 = 5'b01110                      ,
+        parameter   ALU_JALR                = 5'b01111                      ,
         
         parameter   HIGH                    = 1'b1                          ,
         parameter   LOW                     = 1'b0
@@ -113,10 +113,10 @@ module PROGRAME_COUNTER_STAGE #(
         begin
             pc_rs_1_select_reg = LOW;
         end
-            
+        
         if((ALU_INSTRUCTION == ALU_JAL)|(ALU_INSTRUCTION == ALU_JALR)|(BRANCH_TAKEN == HIGH))
         begin
-            if(($signed(pc_execution_or_rs_1) + $signed(IMM_INPUT)) != PC_DECODING)
+            if($signed(pc_execution_or_rs_1) + $signed(IMM_INPUT) != $signed(PC_DECODING))
             begin
                 pc_mispredict_select_reg            = HIGH;
             end

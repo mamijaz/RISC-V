@@ -65,7 +65,7 @@ module INSTRUCTION_CACHE #(
     
     always@(*)
     begin 
-        instruction_cache_ready_reg     = ~STALL_INSTRUCTION_CACHE          ;
+        data_from_l2_ready_ins_reg      = ~STALL_INSTRUCTION_CACHE          ;
     end                              
     
     always@(posedge CLK)
