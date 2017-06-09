@@ -1,0 +1,32 @@
+count.o:     file format elf32-littleriscv
+
+
+Disassembly of section .text:
+
+00000000 <main>:
+   0:	fe010113          	addi	sp,sp,-32
+   4:	00812e23          	sw	s0,28(sp)
+   8:	02010413          	addi	s0,sp,32
+   c:	fe042623          	sw	zero,-20(s0)
+  10:	fe042423          	sw	zero,-24(s0)
+  14:	fe042623          	sw	zero,-20(s0)
+  18:	0240006f          	j	3c <.L2>
+
+0000001c <.L3>:
+  1c:	fec42783          	lw	a5,-20(s0)
+  20:	fef42423          	sw	a5,-24(s0)
+  24:	7fc00793          	li	a5,2044
+  28:	fe842703          	lw	a4,-24(s0)
+  2c:	00e7a023          	sw	a4,0(a5)
+  30:	fec42783          	lw	a5,-20(s0)
+  34:	00178793          	addi	a5,a5,1
+  38:	fef42623          	sw	a5,-20(s0)
+
+0000003c <.L2>:
+  3c:	fec42703          	lw	a4,-20(s0)
+  40:	00900793          	li	a5,9
+  44:	fce7dce3          	ble	a4,a5,1c <.L3>
+
+00000048 <.L4>:
+  48:	0000006f          	j	48 <.L4>
+

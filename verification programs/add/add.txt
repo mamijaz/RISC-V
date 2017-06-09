@@ -1,4 +1,4 @@
-add.o:     file format elf64-littleriscv
+add.o:     file format elf32-littleriscv
 
 
 Disassembly of section .text:
