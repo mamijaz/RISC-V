@@ -154,7 +154,7 @@ module FORWARDING_UNIT #(
         if((RS2_ADDRESS_EXECUTION == RD_ADDRESS_DM1) & (RD_WRITE_ENABLE_DM1 == HIGH))
         begin
             rs2_forward_select              = FORWARDING_RD_DM1     ;
-            rs2_forward_or_default_select   = SELECT_RS1_FORWARDED  ; 
+            rs2_forward_or_default_select   = SELECT_RS2_FORWARDED  ; 
         end
         else if((RS2_ADDRESS_EXECUTION == RD_ADDRESS_DM2) & (RD_WRITE_ENABLE_DM2 == HIGH))
         begin
@@ -182,12 +182,12 @@ module FORWARDING_UNIT #(
     begin
         if(STALL_EXECUTION_STAGE == HIGH)
         begin
-            if((RS1_ADDRESS_EXECUTION == RD_ADDRESS_WB) & (RD_WRITE_ENABLE_WB == HIGH))
+            if(((RS1_ADDRESS_EXECUTION == RD_ADDRESS_WB) & (RD_WRITE_ENABLE_WB == HIGH)) & (RS1_ADDRESS_EXECUTION != RD_ADDRESS_DM1) & (RS1_ADDRESS_EXECUTION != RD_ADDRESS_DM2) & (RS1_ADDRESS_EXECUTION != RD_ADDRESS_DM3))
             begin
                 rs1_stall_forwarded         <= RD_DATA_WB           ;
                 rs1_stall_forwarded_select  <= HIGH                 ;
             end
-            if((RS2_ADDRESS_EXECUTION == RD_ADDRESS_WB) & (RD_WRITE_ENABLE_WB == HIGH))
+            if(((RS2_ADDRESS_EXECUTION == RD_ADDRESS_WB) & (RD_WRITE_ENABLE_WB == HIGH)) & (RS2_ADDRESS_EXECUTION != RD_ADDRESS_DM1) & (RS2_ADDRESS_EXECUTION != RD_ADDRESS_DM2) & (RS2_ADDRESS_EXECUTION != RD_ADDRESS_DM3))
             begin
                 rs2_stall_forwarded         <= RD_DATA_WB           ;
                 rs2_stall_forwarded_select  <= HIGH                 ;

@@ -45,7 +45,6 @@ module PROGRAME_COUNTER_STAGE #(
     );
     
     reg     [ADDRESS_WIDTH - 1   : 0]   pc_reg                              ;
-    reg                                 pc_valid_reg                        ;
     reg                                 pc_rs_1_select_reg                  ;
     reg                                 pc_predict_select_reg               ;
     reg                                 pc_mispredict_select_reg            ;
@@ -54,13 +53,11 @@ module PROGRAME_COUNTER_STAGE #(
     wire    [ADDRESS_WIDTH - 1   : 0]   pc_predictor_out                    ;
     wire    [ADDRESS_WIDTH - 1   : 0]   pc_execution_or_rs_1                ;
     wire    [ADDRESS_WIDTH - 1   : 0]   pc_current_plus_4_or_pc_predicted   ;
-    wire    [ADDRESS_WIDTH - 1   : 0]   pc_mispredicted                     ;
     wire    [ADDRESS_WIDTH - 1   : 0]   pc_next                             ;
 	
 	initial
 	begin
         pc_reg          = 32'b0         ;
-        pc_valid_reg    = HIGH          ;
     end
     
     MULTIPLEXER_2_TO_1 pc_execution_or_rs_1_mux(
@@ -105,7 +102,7 @@ module PROGRAME_COUNTER_STAGE #(
             pc_predict_select_reg = LOW;
         end
     
-        if(ALU_INSTRUCTION == ALU_JAL)
+        if(ALU_INSTRUCTION == ALU_JALR)
         begin
             pc_rs_1_select_reg = HIGH;
         end
@@ -136,12 +133,11 @@ module PROGRAME_COUNTER_STAGE #(
         if(STALL_PROGRAME_COUNTER_STAGE == LOW)
         begin
             pc_reg          <= pc_next  ;
-            pc_valid_reg    <= HIGH     ;
         end
     end
     
     assign PC                               = pc_reg                            ;
-    assign PC_VALID                         = pc_valid_reg                      ;
+    assign PC_VALID                         = HIGH                              ;
 	assign PC_MISPREDICT_SELECT             = pc_mispredict_select_reg          ;
             
 endmodule

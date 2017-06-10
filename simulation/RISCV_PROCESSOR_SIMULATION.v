@@ -29,7 +29,7 @@ module RISCV_PROCESSOR_SIMULATION();
     parameter   D_CACHE_LW_WIDTH        = 3     ;
     parameter   D_CACHE_SW_WIDTH        = 2     ;
     parameter   L2_BUS_WIDTH            = 32    ;
-    parameter   INS_RAM_DEPTH           = 13    ; 
+    parameter   INS_RAM_DEPTH           = 64    ; 
     parameter   DAT_RAM_DEPTH           = 512   ; 
     
     parameter   HIGH                    = 1'b1  ;        
@@ -145,9 +145,12 @@ module RISCV_PROCESSOR_SIMULATION();
         data_from_l2_valid_data_reg     = 1'b0          ;
         data_from_l2_data_reg           = 32'b0         ;
         
+        //add
+        //$readmemh("D:/Study/Verilog/RISC-V/verification programs/add/add.hex",ins_memory);
         
-        $readmemh("D:/Study/Verilog/RISC-V/verification programs/add/add.hex",ins_memory);
-      
+        //count
+        $readmemh("D:/Study/Verilog/RISC-V/verification programs/count/count.hex",ins_memory);
+        
         for(i = 0 ;i < DAT_RAM_DEPTH ; i = i + 1)
         begin
             data_memory [i] <= 32'b0    ;
@@ -193,6 +196,11 @@ module RISCV_PROCESSOR_SIMULATION();
             data_to_l2_data_reg         <= data_to_l2_data                      ;             
         end
         
+        //data_memory [write_addr_to_l2_data_reg] <= data_to_l2_data_reg          ;
+    end
+    
+    always@(negedge clk)
+    begin
         data_memory [write_addr_to_l2_data_reg] <= data_to_l2_data_reg          ;
     end
     
