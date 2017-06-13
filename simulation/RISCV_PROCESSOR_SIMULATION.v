@@ -146,10 +146,13 @@ module RISCV_PROCESSOR_SIMULATION();
         data_from_l2_data_reg           = 32'b0         ;
         
         //add
-        //$readmemh("D:/Study/Verilog/RISC-V/verification programs/add/add.hex",ins_memory);
+        //$readmemh("D:/Study/Verilog/RISC-V/verification programs/add/add.hex",ins_memory);			//Success
         
         //count
-        $readmemh("D:/Study/Verilog/RISC-V/verification programs/count/count.hex",ins_memory);
+        //$readmemh("D:/Study/Verilog/RISC-V/verification programs/count/count.hex",ins_memory);		//Success
+        
+        //fibonacci
+        $readmemh("D:/Study/Verilog/RISC-V/verification programs/fibonacci/fibonacci.hex",ins_memory);   // There are some problem with this code
         
         for(i = 0 ;i < DAT_RAM_DEPTH ; i = i + 1)
         begin
@@ -192,16 +195,12 @@ module RISCV_PROCESSOR_SIMULATION();
         
         if(write_to_l2_valid_data == HIGH)
         begin
-            write_addr_to_l2_data_reg   <= write_addr_to_l2_data                ;
-            data_to_l2_data_reg         <= data_to_l2_data                      ;             
+            data_memory [write_addr_to_l2_data] <= data_to_l2_data              ;
+            //write_addr_to_l2_data_reg   <= write_addr_to_l2_data                ;
+            //data_to_l2_data_reg         <= data_to_l2_data                      ;             
         end
         
         //data_memory [write_addr_to_l2_data_reg] <= data_to_l2_data_reg          ;
-    end
-    
-    always@(negedge clk)
-    begin
-        data_memory [write_addr_to_l2_data_reg] <= data_to_l2_data_reg          ;
     end
     
     assign data_from_l2_valid_ins   = data_from_l2_valid_ins_reg                ;

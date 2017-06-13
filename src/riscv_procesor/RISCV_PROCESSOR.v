@@ -143,8 +143,6 @@ module RISCV_PROCESSOR #(
     // Execution Stage --> Hazard Control Unit / Forwarding Unit / Data Memory Stage 1
     wire    [REG_ADD_WIDTH -1      : 0]     rd_address_execution_to_dm1                 ;
     wire                                    rd_write_enable_execution_to_dm1            ;
-	
-	// Execution Stage --> Hazard Control Unit / Data Cache / Data Memory Stage 1
 	wire    [D_CACHE_LW_WIDTH - 1  : 0]     data_cache_load_execution_to_dm1            ;
 	
 	 // Execution Stage --> Data Cache 
@@ -166,8 +164,6 @@ module RISCV_PROCESSOR #(
     // Data Memory Stage 1 --> Hazard Control Unit / Forwarding Unit / Data Memory Stage 2   
     wire    [REG_ADD_WIDTH -1      : 0]     rd_address_dm1_to_dm2                       ;
     wire                                    rd_write_enable_dm1_to_dm2                  ;
-    
-	// Data Memory Stage 1 --> Hazard Control Unit / Data Memory Stage 2
 	wire    [D_CACHE_LW_WIDTH - 1  : 0]     data_cache_load_dm1_to_dm2                  ;
 	
     // Data Memory Stage 1 --> Data Memory Stage 2
@@ -177,8 +173,6 @@ module RISCV_PROCESSOR #(
     // Data Memory Stage 2 --> Hazard Control Unit / Forwarding Unit / Data Memory Stage 3   
     wire    [REG_ADD_WIDTH -1      : 0]     rd_address_dm2_to_dm3                       ;
     wire                                    rd_write_enable_dm2_to_dm3                  ;
-	
-	// Data Memory Stage 2 --> Hazard Control Unit / Data Memory Stage 3
 	wire    [D_CACHE_LW_WIDTH - 1  : 0]     data_cache_load_dm2_to_dm3                  ;
     
     // Data Memory Stage 2 --> Data Memory Stage 3
@@ -318,12 +312,15 @@ module RISCV_PROCESSOR #(
         .RS2_DATA_EXECUTION(rs2_data_decoding_to_forwarding_unit),
         .RD_ADDRESS_DM1(rd_address_execution_to_dm1),
         .RD_WRITE_ENABLE_DM1(rd_write_enable_execution_to_dm1),
+        .DATA_CACHE_LOAD_DM1(data_cache_load_execution_to_dm1),
         .RD_DATA_DM1(alu_out_execution_to_dm1),
         .RD_ADDRESS_DM2(rd_address_dm1_to_dm2),
         .RD_WRITE_ENABLE_DM2(rd_write_enable_dm1_to_dm2),
+        .DATA_CACHE_LOAD_DM2(data_cache_load_dm1_to_dm2),
         .RD_DATA_DM2(alu_out_dm1_to_dm2),
         .RD_ADDRESS_DM3(rd_address_dm2_to_dm3),
         .RD_WRITE_ENABLE_DM3(rd_write_enable_dm2_to_dm3),
+        .DATA_CACHE_LOAD_DM3(data_cache_load_dm2_to_dm3),
         .RD_DATA_DM3(alu_out_dm2_to_dm3),
         .RD_ADDRESS_WB(rd_address_dm3_to_write_back),
         .RD_WRITE_ENABLE_WB(rd_write_enable_dm3_to_write_back),

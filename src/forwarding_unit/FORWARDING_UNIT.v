@@ -24,6 +24,9 @@ module FORWARDING_UNIT #(
         parameter   DATA_WIDTH              = 32            ,
         parameter   REG_ADD_WIDTH           = 5             ,
         parameter   MUX_SEL_WIDTH           = 2             ,
+        parameter   D_CACHE_LW_WIDTH        = 3             ,
+                
+        parameter   DATA_CACHE_LOAD_NONE    = 3'b000        ,
         
         parameter   SELECT_DIRECT_RS1       = 1'b0          ,
         parameter   SELECT_RS1_FORWARDED    = 1'b1          ,
@@ -38,41 +41,44 @@ module FORWARDING_UNIT #(
         parameter   HIGH                    = 1'b1          ,
         parameter   LOW                     = 1'b0
     ) (
-        input                               CLK                             ,
-        input                               STALL_EXECUTION_STAGE           ,
-        input   [REG_ADD_WIDTH - 1  : 0]    RS1_ADDRESS_EXECUTION           ,
-        input   [DATA_WIDTH - 1     : 0]    RS1_DATA_EXECUTION              ,
-        input   [REG_ADD_WIDTH - 1  : 0]    RS2_ADDRESS_EXECUTION           ,
-        input   [DATA_WIDTH - 1     : 0]    RS2_DATA_EXECUTION              ,
-        input   [REG_ADD_WIDTH - 1  : 0]    RD_ADDRESS_DM1                  ,
-        input                               RD_WRITE_ENABLE_DM1             ,
-        input   [DATA_WIDTH - 1     : 0]    RD_DATA_DM1                     ,
-        input   [REG_ADD_WIDTH - 1  : 0]    RD_ADDRESS_DM2                  ,
-        input                               RD_WRITE_ENABLE_DM2             ,
-        input   [DATA_WIDTH - 1     : 0]    RD_DATA_DM2                     ,
-        input   [REG_ADD_WIDTH - 1  : 0]    RD_ADDRESS_DM3                  ,
-        input                               RD_WRITE_ENABLE_DM3             ,
-        input   [DATA_WIDTH - 1     : 0]    RD_DATA_DM3                     ,
-        input   [REG_ADD_WIDTH - 1  : 0]    RD_ADDRESS_WB                   ,
-        input                               RD_WRITE_ENABLE_WB              ,
-        input   [DATA_WIDTH - 1     : 0]    RD_DATA_WB                      ,
-        output  [DATA_WIDTH - 1     : 0]    RS1_DATA                        ,
-        output  [DATA_WIDTH - 1     : 0]    RS2_DATA
+        input                                   CLK                             ,
+        input                                   STALL_EXECUTION_STAGE           ,
+        input   [REG_ADD_WIDTH - 1      : 0]    RS1_ADDRESS_EXECUTION           ,
+        input   [DATA_WIDTH - 1         : 0]    RS1_DATA_EXECUTION              ,
+        input   [REG_ADD_WIDTH - 1      : 0]    RS2_ADDRESS_EXECUTION           ,
+        input   [DATA_WIDTH - 1         : 0]    RS2_DATA_EXECUTION              ,
+        input   [REG_ADD_WIDTH - 1      : 0]    RD_ADDRESS_DM1                  ,
+        input                                   RD_WRITE_ENABLE_DM1             ,
+        input   [D_CACHE_LW_WIDTH - 1   : 0]    DATA_CACHE_LOAD_DM1             ,
+        input   [DATA_WIDTH - 1         : 0]    RD_DATA_DM1                     ,
+        input   [REG_ADD_WIDTH - 1      : 0]    RD_ADDRESS_DM2                  ,
+        input                                   RD_WRITE_ENABLE_DM2             ,
+        input   [D_CACHE_LW_WIDTH - 1   : 0]    DATA_CACHE_LOAD_DM2             ,
+        input   [DATA_WIDTH - 1         : 0]    RD_DATA_DM2                     ,
+        input   [REG_ADD_WIDTH - 1      : 0]    RD_ADDRESS_DM3                  ,
+        input                                   RD_WRITE_ENABLE_DM3             ,
+        input   [D_CACHE_LW_WIDTH - 1   : 0]    DATA_CACHE_LOAD_DM3             ,
+        input   [DATA_WIDTH - 1         : 0]    RD_DATA_DM3                     ,
+        input   [REG_ADD_WIDTH - 1      : 0]    RD_ADDRESS_WB                   ,
+        input                                   RD_WRITE_ENABLE_WB              ,
+        input   [DATA_WIDTH - 1         : 0]    RD_DATA_WB                      ,
+        output  [DATA_WIDTH - 1         : 0]    RS1_DATA                        ,
+        output  [DATA_WIDTH - 1         : 0]    RS2_DATA
     );
     
-    reg     [MUX_SEL_WIDTH - 1  : 0]    rs1_forward_select                  ;
-    reg     [MUX_SEL_WIDTH - 1  : 0]    rs2_forward_select                  ;
-    reg                                 rs1_forward_or_default_select       ;
-    reg                                 rs2_forward_or_default_select       ;
-    reg     [DATA_WIDTH - 1     : 0]    rs1_stall_forwarded                 ;
-    reg     [DATA_WIDTH - 1     : 0]    rs2_stall_forwarded                 ;
-    reg                                 rs1_stall_forwarded_select          ;
-    reg                                 rs2_stall_forwarded_select          ;    
+    reg     [MUX_SEL_WIDTH - 1  : 0]    rs1_forward_select                      ;
+    reg     [MUX_SEL_WIDTH - 1  : 0]    rs2_forward_select                      ;
+    reg                                 rs1_forward_or_default_select           ;
+    reg                                 rs2_forward_or_default_select           ;
+    reg     [DATA_WIDTH - 1     : 0]    rs1_stall_forwarded                     ;
+    reg     [DATA_WIDTH - 1     : 0]    rs2_stall_forwarded                     ;
+    reg                                 rs1_stall_forwarded_select              ;
+    reg                                 rs2_stall_forwarded_select              ;    
     
-    wire    [DATA_WIDTH - 1     : 0]    rs1_forwarded                       ;
-    wire    [DATA_WIDTH - 1     : 0]    rs2_forwarded                       ;
-    wire    [DATA_WIDTH - 1     : 0]    rs1_none_stalled_condition          ;
-    wire    [DATA_WIDTH - 1     : 0]    rs2_none_stalled_condition          ;
+    wire    [DATA_WIDTH - 1     : 0]    rs1_forwarded                           ;
+    wire    [DATA_WIDTH - 1     : 0]    rs2_forwarded                           ;
+    wire    [DATA_WIDTH - 1     : 0]    rs1_none_stalled_condition              ;
+    wire    [DATA_WIDTH - 1     : 0]    rs2_none_stalled_condition              ;
     
     MULTIPLEXER_4_TO_1 rs1_forward(
         .IN1(RD_DATA_DM1),
@@ -122,17 +128,17 @@ module FORWARDING_UNIT #(
     
     always@(*) 
     begin 
-        if((RS1_ADDRESS_EXECUTION == RD_ADDRESS_DM1) & (RD_WRITE_ENABLE_DM1 == HIGH))
+        if((RS1_ADDRESS_EXECUTION == RD_ADDRESS_DM1) & (RD_WRITE_ENABLE_DM1 == HIGH) & (DATA_CACHE_LOAD_DM1 == DATA_CACHE_LOAD_NONE))
         begin
             rs1_forward_select              = FORWARDING_RD_DM1     ;
             rs1_forward_or_default_select   = SELECT_RS1_FORWARDED  ; 
         end
-        else if((RS1_ADDRESS_EXECUTION == RD_ADDRESS_DM2) & (RD_WRITE_ENABLE_DM2 == HIGH))
+        else if((RS1_ADDRESS_EXECUTION == RD_ADDRESS_DM2) & (RD_WRITE_ENABLE_DM2 == HIGH) & (DATA_CACHE_LOAD_DM2 == DATA_CACHE_LOAD_NONE))
         begin
             rs1_forward_select              = FORWARDING_RD_DM2     ;
             rs1_forward_or_default_select   = SELECT_RS1_FORWARDED  ; 
         end
-        else if((RS1_ADDRESS_EXECUTION == RD_ADDRESS_DM3) & (RD_WRITE_ENABLE_DM3 == HIGH))
+        else if((RS1_ADDRESS_EXECUTION == RD_ADDRESS_DM3) & (RD_WRITE_ENABLE_DM3 == HIGH) & (DATA_CACHE_LOAD_DM3 == DATA_CACHE_LOAD_NONE))
         begin
             rs1_forward_select              = FORWARDING_RD_DM3     ;
             rs1_forward_or_default_select   = SELECT_RS1_FORWARDED  ; 

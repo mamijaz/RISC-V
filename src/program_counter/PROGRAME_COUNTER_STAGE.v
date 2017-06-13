@@ -24,6 +24,8 @@ module PROGRAME_COUNTER_STAGE #(
         parameter   ADDRESS_WIDTH           = 32                            ,
         parameter   DATA_WIDTH              = 32                            ,
         parameter   ALU_INS_WIDTH           = 5                             ,
+        
+        parameter   PC_INITIAL              = 32'b0	                        ,
        
         parameter   ALU_JAL                 = 5'b01110                      ,
         parameter   ALU_JALR                = 5'b01111                      ,
@@ -57,7 +59,7 @@ module PROGRAME_COUNTER_STAGE #(
 	
 	initial
 	begin
-        pc_reg          = 32'b0         ;
+        pc_reg          = PC_INITIAL                                        ;
     end
     
     MULTIPLEXER_2_TO_1 pc_execution_or_rs_1_mux(
@@ -93,38 +95,41 @@ module PROGRAME_COUNTER_STAGE #(
     
     always@(*)
     begin
-        if(pc_predictor_status == HIGH)
+        if(STALL_PROGRAME_COUNTER_STAGE == LOW)
         begin
-            pc_predict_select_reg = HIGH;
-        end
-        else
-        begin
-            pc_predict_select_reg = LOW;
-        end
-    
-        if(ALU_INSTRUCTION == ALU_JALR)
-        begin
-            pc_rs_1_select_reg = HIGH;
-        end
-        else
-        begin
-            pc_rs_1_select_reg = LOW;
-        end
-        
-        if((ALU_INSTRUCTION == ALU_JAL)|(ALU_INSTRUCTION == ALU_JALR)|(BRANCH_TAKEN == HIGH))
-        begin
-            if($signed(pc_execution_or_rs_1) + $signed(IMM_INPUT) != $signed(PC_DECODING))
+            if(pc_predictor_status == HIGH)
             begin
-                pc_mispredict_select_reg            = HIGH;
+                pc_predict_select_reg = HIGH;
+            end
+            else
+            begin
+                pc_predict_select_reg = LOW;
+            end
+        
+            if(ALU_INSTRUCTION == ALU_JALR)
+            begin
+                pc_rs_1_select_reg = HIGH;
+            end
+            else
+            begin
+                pc_rs_1_select_reg = LOW;
+            end
+            
+            if((ALU_INSTRUCTION == ALU_JAL)|(ALU_INSTRUCTION == ALU_JALR)|(BRANCH_TAKEN == HIGH))
+            begin
+                if($signed(pc_execution_or_rs_1) + $signed(IMM_INPUT) != $signed(PC_DECODING))
+                begin
+                    pc_mispredict_select_reg            = HIGH;
+                end
+                else
+                begin
+                    pc_mispredict_select_reg            = LOW;
+                end
             end
             else
             begin
                 pc_mispredict_select_reg            = LOW;
             end
-        end
-        else
-        begin
-            pc_mispredict_select_reg            = LOW;
         end
     end
     
