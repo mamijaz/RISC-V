@@ -50,6 +50,7 @@ module ALU #(
     ) (
         input   [DATA_WIDTH - 1  : 0]   ALU_IN1           ,
         input   [DATA_WIDTH - 1  : 0]   ALU_IN2           ,
+        input   [DATA_WIDTH - 1  : 0]   PC_IN             ,
         input   [4               : 0]   ALU_INSTRUCTION   ,
         output  [DATA_WIDTH - 1  : 0]   ALU_OUT           ,
         output                          BRANCH_TAKEN
@@ -152,7 +153,7 @@ module ALU #(
             end
             ALU_JALR:
             begin
-                alu_out_reg         = ALU_IN1 + 4;
+                alu_out_reg         = PC_IN + 4;
                 branch_taken_reg    = LOW;
             end
             ALU_BEQ:

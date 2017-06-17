@@ -151,8 +151,11 @@ module RISCV_PROCESSOR_SIMULATION();
         //count
         //$readmemh("D:/Study/Verilog/RISC-V/verification programs/count/count.hex",ins_memory);		//Success
         
+        //sum
+        //$readmemh("D:/Study/Verilog/RISC-V/verification programs/sum/sum.hex",ins_memory);            //Success
+        
         //fibonacci
-        $readmemh("D:/Study/Verilog/RISC-V/verification programs/fibonacci/fibonacci.hex",ins_memory);   // There are some problem with this code
+        $readmemh("D:/Study/Verilog/RISC-V/verification programs/fibonacci/fibonacci.hex",ins_memory);   // Need to be tested
         
         for(i = 0 ;i < DAT_RAM_DEPTH ; i = i + 1)
         begin

@@ -85,6 +85,7 @@ module EXECUTION_STAGE #(
     ALU alu(
         .ALU_IN1(alu_in1),
         .ALU_IN2(alu_in2),
+        .PC_IN(PC_IN),
         .ALU_INSTRUCTION(ALU_INSTRUCTION),
         .ALU_OUT(alu_out),
         .BRANCH_TAKEN(BRANCH_TAKEN)
