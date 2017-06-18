@@ -38,13 +38,13 @@ Disassembly of section .text:
   64:	fec42783          	lw	a5,-20(s0)
   68:	fff78793          	addi	a5,a5,-1
   6c:	00078513          	mv	a0,a5
-  70:	00000317          	auipc	t1,0x0
+  70:	03800313  			li	t1,38
   74:	000300e7          	jalr	t1
   78:	00050493          	mv	s1,a0
   7c:	fec42783          	lw	a5,-20(s0)
   80:	ffe78793          	addi	a5,a5,-2
   84:	00078513          	mv	a0,a5
-  88:	00000317          	auipc	t1,0x0
+  88:	03800313  			li	t1,38
   8c:	000300e7          	jalr	t1
   90:	00050793          	mv	a5,a0
   94:	00f487b3          	add	a5,s1,a5
