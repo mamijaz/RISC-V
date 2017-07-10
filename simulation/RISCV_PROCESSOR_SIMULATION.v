@@ -146,16 +146,16 @@ module RISCV_PROCESSOR_SIMULATION();
         data_from_l2_data_reg           = 32'b0         ;
         
         //add
-        //$readmemh("D:/Study/Verilog/RISC-V/verification programs/add/add.hex",ins_memory);				//Success
+        //$readmemh("D:/Study/Verilog/RISC-V/verification programs/add/add.hex",ins_memory);				//Success-30
         
         //count
         //$readmemh("D:/Study/Verilog/RISC-V/verification programs/count/count.hex",ins_memory);			//Success
         
         //sum
-        //$readmemh("D:/Study/Verilog/RISC-V/verification programs/sum/sum.hex",ins_memory);            	//Success
+        //$readmemh("D:/Study/Verilog/RISC-V/verification programs/sum/sum.hex",ins_memory);            	//Success-45
         
         //fibonacci
-        $readmemh("D:/Study/Verilog/RISC-V/verification programs/fibonacci/fibonacci.hex",ins_memory); 	//Success
+        $readmemh("D:/Study/Verilog/RISC-V/verification programs/fibonacci/fibonacci.hex",ins_memory); 	//Success-34
         
         for(i = 0 ;i < DAT_RAM_DEPTH ; i = i + 1)
         begin
