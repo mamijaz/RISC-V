@@ -57,19 +57,14 @@ module REGISTER_FILE #(
     begin
         rs1_data_reg = register [ RS1_ADDRESS ];
         rs2_data_reg = register [ RS2_ADDRESS ];
-        
-        if((RD_WRITE_EN == HIGH) & (RD_ADDRESS != 5'b0))
-        begin
-           register [RD_ADDRESS] <= RD_DATA;
-        end
     end
     
     always@(negedge CLK)
     begin
-       /* if((RD_WRITE_EN == HIGH) & (RD_ADDRESS != 5'b0))
+        if((RD_WRITE_EN == HIGH) & (RD_ADDRESS != 5'b0))
         begin
            register [RD_ADDRESS] <= RD_DATA;
-        end*/
+        end
     end
     
     assign RS1_DATA = rs1_data_reg;

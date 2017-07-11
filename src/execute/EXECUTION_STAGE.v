@@ -93,18 +93,15 @@ module EXECUTION_STAGE #(
         
     always@(posedge CLK) 
     begin
-        if(CLEAR_EXECUTION_STAGE == LOW)
+        if((CLEAR_EXECUTION_STAGE == LOW) & (STALL_EXECUTION_STAGE == LOW))
         begin
-            if(STALL_EXECUTION_STAGE == LOW)
-            begin
-                rd_address_out_reg              <= RD_ADDRESS_IN            ;
-                alu_out_reg                     <= alu_out                  ;
-                data_cache_load_out_reg         <= DATA_CACHE_LOAD_IN       ;
-                data_cache_store_out_reg        <= DATA_CACHE_STORE_IN      ;
-                data_cache_store_data_reg       <= RS2_DATA                 ;
-                write_back_mux_select_out_reg   <= WRITE_BACK_MUX_SELECT_IN ;
-                rd_write_enable_out_reg         <= RD_WRITE_ENABLE_IN       ;
-            end
+            rd_address_out_reg              <= RD_ADDRESS_IN                ;
+            alu_out_reg                     <= alu_out                      ;
+            data_cache_load_out_reg         <= DATA_CACHE_LOAD_IN           ;
+            data_cache_store_out_reg        <= DATA_CACHE_STORE_IN          ;
+            data_cache_store_data_reg       <= RS2_DATA                     ;
+            write_back_mux_select_out_reg   <= WRITE_BACK_MUX_SELECT_IN     ;
+            rd_write_enable_out_reg         <= RD_WRITE_ENABLE_IN           ;
         end
         else
         begin
