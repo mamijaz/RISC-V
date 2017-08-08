@@ -45,8 +45,6 @@ module INSTRUCTION_CACHE #(
         input                                   DATA_FROM_L2_VALID_INS      ,
         input    [L2_BUS_WIDTH   - 1    : 0]    DATA_FROM_L2_INS
     );
-   
-    //////////////////------ TEST CODE ------//////////////////
     
     reg                                     instruction_cache_ready_reg     ;
     reg                                     address_to_l2_valid_ins_reg     ;
@@ -61,30 +59,69 @@ module INSTRUCTION_CACHE #(
         address_to_l2_ins_reg           = 30'b0                             ;
         data_from_l2_ready_ins_reg      = HIGH                              ;
         instruction_reg                 = 32'b0                             ;
-    end    
+    end  
     
-    always@(*)
-    begin 
-        data_from_l2_ready_ins_reg      = ~STALL_INSTRUCTION_CACHE          ;
-    end                              
+    DUAL_PORT_MEMORY #(
+        .MEMORY_WIDTH(),                       
+        .MEMORY_DEPTH(),                      
+        .MEMORY_LATENCY("LOW_LATENCY")
+    ) tag_ram_bank_0(
+        .CLK(CLK),
+        .WRITE_ADDRESS(),   
+        .DATA_IN(),
+        .WRITE_ENABLE(),
+        .READ_ADDRESS(),                                         
+        .READ_ENBLE(),                                                     
+        .DATA_OUT()
+        );
+    
+    DUAL_PORT_MEMORY #(
+        .MEMORY_WIDTH(),                       
+        .MEMORY_DEPTH(),                      
+        .MEMORY_LATENCY("LOW_LATENCY")
+    ) tag_ram_bank_1(
+        .CLK(CLK),
+        .WRITE_ADDRESS(),   
+        .DATA_IN(),
+        .WRITE_ENABLE(),
+        .READ_ADDRESS(),                                         
+        .READ_ENBLE(),                                                     
+        .DATA_OUT()
+        ); 
+    
+    DUAL_PORT_MEMORY #(
+        .MEMORY_WIDTH(),                       
+        .MEMORY_DEPTH(),                      
+        .MEMORY_LATENCY("HIGH_LATENCY")
+    ) data_ram_bank_0(
+        .CLK(CLK),
+        .WRITE_ADDRESS(),   
+        .DATA_IN(),
+        .WRITE_ENABLE(),
+        .READ_ADDRESS(),                                         
+        .READ_ENBLE(),                                                     
+        .DATA_OUT()
+        ); 
+       
+    DUAL_PORT_MEMORY #(
+        .MEMORY_WIDTH(),                       
+        .MEMORY_DEPTH(),                      
+        .MEMORY_LATENCY("HIGH_LATENCY")
+    ) data_ram_bank_1(
+        .CLK(CLK),
+        .WRITE_ADDRESS(),   
+        .DATA_IN(),
+        .WRITE_ENABLE(),
+        .READ_ADDRESS(),                                         
+        .READ_ENBLE(),                                                     
+        .DATA_OUT()
+        ); 
+                                  
     
     always@(posedge CLK)
     begin
-        if(STALL_INSTRUCTION_CACHE == LOW)
-        begin
-            if(PC_VALID == HIGH)
-            begin
-                address_to_l2_valid_ins_reg <= HIGH                             ;
-                address_to_l2_ins_reg       <= PC[ADDRESS_WIDTH - 1      : 2]   ; 
-            end
-            if(DATA_FROM_L2_VALID_INS == HIGH)
-            begin
-                instruction_reg    <= DATA_FROM_L2_INS                          ;   
-            end
-        end
+    
     end
-  
-    //////////////////------ TEST CODE ------//////////////////
     
     assign  INSTRUCTION_CACHE_READY     = instruction_cache_ready_reg       ;
     assign  ADDRESS_TO_L2_INS           = address_to_l2_ins_reg             ;
