@@ -23,7 +23,7 @@
 module DUAL_PORT_MEMORY #(
         parameter MEMORY_WIDTH          = 512                               ,                       
         parameter MEMORY_DEPTH          = 512                               ,                      
-        parameter MEMORY_PERFORMANCE    = "HIGH_PERFORMANCE"                , 
+        parameter MEMORY_LATENCY    	= "LOW_LATENCY"                	    , 
         parameter INIT_FILE             = ""                        
     ) (
         input                                       CLK                     ,
@@ -60,7 +60,7 @@ module DUAL_PORT_MEMORY #(
     end
    
     generate
-        if (MEMORY_PERFORMANCE == "LOW_LATENCY") 
+        if (MEMORY_LATENCY == "LOW_LATENCY") 
         begin
             assign DATA_OUT = data_out_reg;  
         end 
