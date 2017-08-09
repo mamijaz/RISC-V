@@ -21,12 +21,23 @@
 
 
 module INSTRUCTION_CACHE #(
-        parameter   ADDRESS_WIDTH           = 32        ,
-        parameter   DATA_WIDTH              = 32        ,
-        parameter   L2_BUS_WIDTH            = 32        ,
+        parameter   ADDRESS_WIDTH           = 32                            ,
+        parameter   DATA_WIDTH              = 32                            ,
         
-        parameter   HIGH                    = 1'b1      ,
-        parameter   LOW                     = 1'b0
+        parameter   CACHE_SIZE              = 64*1024                       ,
+        parameter   WORD_SIZE               = 4                             ,
+        parameter   WORD_PER_BLOCK          = 16                            ,
+               
+        parameter   HIGH                    = 1'b1                          ,
+        parameter   LOW                     = 1'b0                          ,
+        
+        localparam  L2_BUS_WIDTH            = WORD_PER_BLOCK * 8            ,
+        localparam  BLOCK_SIZE              = WORD_PER_BLOCK * WORD_SIZE    ,
+        localparam  MEMORY_DEPTH            = CACHE_SIZE / (2 * BLOCK_SIZE) ,
+        localparam  BYTE_SELECT             = $clog2(WORD_SIZE-1)           ,
+        localparam  WORD_SELECT             = $clog2(WORD_PER_BLOCK-1)      ,
+        localparam  LINE_SELECT             = $clog2(MEMORY_DEPTH-1)        ,
+        localparam  TAG_WIDTH               = ADDRESS_WIDTH - ( LINE_SELECT + WORD_SELECT + BYTE_SELECT )
     ) (
         input                                   CLK                         ,
         input                                   STALL_INSTRUCTION_CACHE     ,
@@ -62,8 +73,8 @@ module INSTRUCTION_CACHE #(
     end  
     
     DUAL_PORT_MEMORY #(
-        .MEMORY_WIDTH(),                       
-        .MEMORY_DEPTH(),                      
+        .MEMORY_WIDTH(TAG_WIDTH),                       
+        .MEMORY_DEPTH(MEMORY_DEPTH),                      
         .MEMORY_LATENCY("LOW_LATENCY")
     ) tag_ram_bank_0(
         .CLK(CLK),
@@ -76,8 +87,8 @@ module INSTRUCTION_CACHE #(
         );
     
     DUAL_PORT_MEMORY #(
-        .MEMORY_WIDTH(),                       
-        .MEMORY_DEPTH(),                      
+        .MEMORY_WIDTH(TAG_WIDTH),                       
+        .MEMORY_DEPTH(MEMORY_DEPTH),                      
         .MEMORY_LATENCY("LOW_LATENCY")
     ) tag_ram_bank_1(
         .CLK(CLK),
@@ -90,8 +101,8 @@ module INSTRUCTION_CACHE #(
         ); 
     
     DUAL_PORT_MEMORY #(
-        .MEMORY_WIDTH(),                       
-        .MEMORY_DEPTH(),                      
+        .MEMORY_WIDTH(BLOCK_SIZE),                       
+        .MEMORY_DEPTH(MEMORY_DEPTH),                      
         .MEMORY_LATENCY("HIGH_LATENCY")
     ) data_ram_bank_0(
         .CLK(CLK),
@@ -104,10 +115,24 @@ module INSTRUCTION_CACHE #(
         ); 
        
     DUAL_PORT_MEMORY #(
-        .MEMORY_WIDTH(),                       
-        .MEMORY_DEPTH(),                      
+        .MEMORY_WIDTH(BLOCK_SIZE),                       
+        .MEMORY_DEPTH(MEMORY_DEPTH),                      
         .MEMORY_LATENCY("HIGH_LATENCY")
     ) data_ram_bank_1(
+        .CLK(CLK),
+        .WRITE_ADDRESS(),   
+        .DATA_IN(),
+        .WRITE_ENABLE(),
+        .READ_ADDRESS(),                                         
+        .READ_ENBLE(),                                                     
+        .DATA_OUT()
+        ); 
+        
+    DUAL_PORT_MEMORY #(
+        .MEMORY_WIDTH(1),                       
+        .MEMORY_DEPTH(MEMORY_DEPTH),                      
+        .MEMORY_LATENCY("LOW_LATENCY")
+    ) lru(
         .CLK(CLK),
         .WRITE_ADDRESS(),   
         .DATA_IN(),
