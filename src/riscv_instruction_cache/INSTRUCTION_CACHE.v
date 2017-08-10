@@ -127,7 +127,19 @@ module INSTRUCTION_CACHE #(
         .READ_ENBLE(),                                                     
         .DATA_OUT()
         ); 
+    
+    ENCODER_FOR_2_WAY_ASSOCIATIVE_CACHE encoder_for_2_way_associative_cache(
+        .IN1(),
+        .IN2(),
+        .OUT()
+        );
         
+    MULTIPLEXER_2_TO_1 select_set(
+        );
+    
+    MULTIPLEXER_16_TO_1 select_word(
+        );
+    
     DUAL_PORT_MEMORY #(
         .MEMORY_WIDTH(1),                       
         .MEMORY_DEPTH(MEMORY_DEPTH),                      
