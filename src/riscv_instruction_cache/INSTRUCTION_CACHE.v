@@ -31,8 +31,8 @@ module INSTRUCTION_CACHE #(
         parameter   HIGH                    = 1'b1                          ,
         parameter   LOW                     = 1'b0                          ,
         
-        localparam  L2_BUS_WIDTH            = WORD_PER_BLOCK * 8            ,
         localparam  BLOCK_SIZE              = WORD_PER_BLOCK * WORD_SIZE    ,
+        localparam  BLOCK_WIDTH             = BLOCK_SIZE * 8                ,
         localparam  MEMORY_DEPTH            = CACHE_SIZE / (2 * BLOCK_SIZE) ,
         localparam  BYTE_SELECT             = $clog2(WORD_SIZE-1)           ,
         localparam  WORD_SELECT             = $clog2(WORD_PER_BLOCK-1)      ,
@@ -54,22 +54,47 @@ module INSTRUCTION_CACHE #(
         // Transfer Data From L2 to L1 Cache   
         output                                  DATA_FROM_L2_READY_INS      ,
         input                                   DATA_FROM_L2_VALID_INS      ,
-        input    [L2_BUS_WIDTH   - 1    : 0]    DATA_FROM_L2_INS
+        input    [BLOCK_WIDTH - 1       : 0]    DATA_FROM_L2_INS
     );
     
+    // Status Registers
     reg                                     instruction_cache_ready_reg     ;
+    
+    // Pipeline Registers
+    reg     [ADDRESS_WIDTH - 1      : 0]    pc_if2                          ;
+    reg     [ADDRESS_WIDTH - 1      : 0]    pc_if3                          ;
+    reg                                     hit_bank_0                      ;
+    reg                                     hit_bank_1                      ;
+    
+    // Registers for L2
     reg                                     address_to_l2_valid_ins_reg     ;
     reg     [ADDRESS_WIDTH - 2 - 1   : 0]   address_to_l2_ins_reg           ;
     reg                                     data_from_l2_ready_ins_reg      ;
-    reg     [DATA_WIDTH - 1          : 0]   instruction_reg                 ; 
+       
+    wire    [LINE_SELECT - 1         : 0]   line_if1                        ;
+    wire    [TAG_WIDTH - 1           : 0]   tag_if2                         ;
+    wire    [TAG_WIDTH - 1           : 0]   tag_out_bank_0                  ;
+    wire    [TAG_WIDTH - 1           : 0]   tag_out_bank_1                  ;
+    wire    [BLOCK_WIDTH - 1         : 0]   block_out_bank_0                ;
+    wire    [BLOCK_WIDTH - 1         : 0]   block_out_bank_1                ;
+    wire                                    select_bank                     ;
+    wire    [BLOCK_WIDTH - 1         : 0]   block_out                       ;
+    wire    [WORD_SELECT - 1         : 0]   word_if3                        ;
+    
+    assign  line_if1    = PC[ADDRESS_WIDTH - TAG_WIDTH - 1  : ADDRESS_WIDTH - TAG_WIDTH - LINE_SELECT - 1 ]                                 ;
+    assign  tag_if2     = pc_if2[ADDRESS_WIDTH - 1  : ADDRESS_WIDTH - TAG_WIDTH - 1 ]                                                       ;
+    assign  word_if3    = pc_if3[ADDRESS_WIDTH - TAG_WIDTH - LINE_SELECT - 1  : ADDRESS_WIDTH - TAG_WIDTH - LINE_SELECT - WORD_SELECT - 1 ] ;
     
     initial
     begin
         instruction_cache_ready_reg     = HIGH                              ;
+        pc_if2                          = {ADDRESS_WIDTH {1'b0}}            ;
+        pc_if3                          = {ADDRESS_WIDTH {1'b0}}            ;
+        hit_bank_0                      = LOW                               ;
+        hit_bank_1                      = LOW                               ;
         address_to_l2_valid_ins_reg     = LOW                               ;
         address_to_l2_ins_reg           = 30'b0                             ;
         data_from_l2_ready_ins_reg      = HIGH                              ;
-        instruction_reg                 = 32'b0                             ;
     end  
     
     DUAL_PORT_MEMORY #(
@@ -81,9 +106,9 @@ module INSTRUCTION_CACHE #(
         .WRITE_ADDRESS(),   
         .DATA_IN(),
         .WRITE_ENABLE(),
-        .READ_ADDRESS(),                                         
-        .READ_ENBLE(),                                                     
-        .DATA_OUT()
+        .READ_ADDRESS(line_if1),                                         
+        .READ_ENBLE(PC_VALID),                                                     
+        .DATA_OUT(tag_out_bank_0)
         );
     
     DUAL_PORT_MEMORY #(
@@ -95,13 +120,13 @@ module INSTRUCTION_CACHE #(
         .WRITE_ADDRESS(),   
         .DATA_IN(),
         .WRITE_ENABLE(),
-        .READ_ADDRESS(),                                         
-        .READ_ENBLE(),                                                     
-        .DATA_OUT()
+        .READ_ADDRESS(line_if1),                                         
+        .READ_ENBLE(PC_VALID),                                                     
+        .DATA_OUT(tag_out_bank_1)
         ); 
     
     DUAL_PORT_MEMORY #(
-        .MEMORY_WIDTH(BLOCK_SIZE),                       
+        .MEMORY_WIDTH(BLOCK_WIDTH),                       
         .MEMORY_DEPTH(MEMORY_DEPTH),                      
         .MEMORY_LATENCY("HIGH_LATENCY")
     ) data_ram_bank_0(
@@ -109,13 +134,13 @@ module INSTRUCTION_CACHE #(
         .WRITE_ADDRESS(),   
         .DATA_IN(),
         .WRITE_ENABLE(),
-        .READ_ADDRESS(),                                         
-        .READ_ENBLE(),                                                     
-        .DATA_OUT()
+        .READ_ADDRESS(line_if1),                                         
+        .READ_ENBLE(PC_VALID),                                                     
+        .DATA_OUT(block_out_bank_0)
         ); 
        
     DUAL_PORT_MEMORY #(
-        .MEMORY_WIDTH(BLOCK_SIZE),                       
+        .MEMORY_WIDTH(BLOCK_WIDTH),                       
         .MEMORY_DEPTH(MEMORY_DEPTH),                      
         .MEMORY_LATENCY("HIGH_LATENCY")
     ) data_ram_bank_1(
@@ -123,21 +148,47 @@ module INSTRUCTION_CACHE #(
         .WRITE_ADDRESS(),   
         .DATA_IN(),
         .WRITE_ENABLE(),
-        .READ_ADDRESS(),                                         
-        .READ_ENBLE(),                                                     
-        .DATA_OUT()
+        .READ_ADDRESS(line_if1),                                         
+        .READ_ENBLE(PC_VALID),                                                     
+        .DATA_OUT(block_out_bank_1)
         ); 
     
     ENCODER_FOR_2_WAY_ASSOCIATIVE_CACHE encoder_for_2_way_associative_cache(
-        .IN1(),
-        .IN2(),
-        .OUT()
+        .IN1(hit_bank_0),
+        .IN2(hit_bank_1),
+        .OUT(select_bank)
         );
         
-    MULTIPLEXER_2_TO_1 select_set(
+    MULTIPLEXER_2_TO_1 #(
+        .BUS_WIDTH(BLOCK_WIDTH)
+        ) select_set(
+        .IN1(block_out_bank_0),
+        .IN2(block_out_bank_1),
+        .SELECT(select_bank),
+        .OUT(block_out)  
         );
     
-    MULTIPLEXER_16_TO_1 select_word(
+    MULTIPLEXER_16_TO_1 #(
+        .BUS_WIDTH(DATA_WIDTH)
+        ) select_word(
+        .IN1( block_out [ BLOCK_WIDTH - 15*DATA_WIDTH - 1 : BLOCK_WIDTH - 16*DATA_WIDTH ] ),
+        .IN2( block_out [ BLOCK_WIDTH - 14*DATA_WIDTH - 1 : BLOCK_WIDTH - 15*DATA_WIDTH ] ),
+        .IN3( block_out [ BLOCK_WIDTH - 13*DATA_WIDTH - 1 : BLOCK_WIDTH - 14*DATA_WIDTH ] ),
+        .IN4( block_out [ BLOCK_WIDTH - 12*DATA_WIDTH - 1 : BLOCK_WIDTH - 13*DATA_WIDTH ] ),
+        .IN5( block_out [ BLOCK_WIDTH - 11*DATA_WIDTH - 1 : BLOCK_WIDTH - 12*DATA_WIDTH ] ),
+        .IN6( block_out [ BLOCK_WIDTH - 10*DATA_WIDTH - 1 : BLOCK_WIDTH - 11*DATA_WIDTH ] ),
+        .IN7( block_out [ BLOCK_WIDTH - 9*DATA_WIDTH - 1 : BLOCK_WIDTH - 10*DATA_WIDTH ] ),
+        .IN8( block_out [ BLOCK_WIDTH - 8*DATA_WIDTH - 1 : BLOCK_WIDTH - 9*DATA_WIDTH ] ),
+        .IN9( block_out [ BLOCK_WIDTH - 7*DATA_WIDTH - 1 : BLOCK_WIDTH - 8*DATA_WIDTH ] ),
+        .IN10( block_out [ BLOCK_WIDTH - 6*DATA_WIDTH - 1 : BLOCK_WIDTH - 7*DATA_WIDTH ] ),
+        .IN11( block_out [ BLOCK_WIDTH - 5*DATA_WIDTH - 1 : BLOCK_WIDTH - 6*DATA_WIDTH ] ),
+        .IN12( block_out [ BLOCK_WIDTH - 4*DATA_WIDTH - 1 : BLOCK_WIDTH - 5*DATA_WIDTH ] ),
+        .IN13( block_out [ BLOCK_WIDTH - 3*DATA_WIDTH - 1 : BLOCK_WIDTH - 4*DATA_WIDTH ] ),
+        .IN14( block_out [ BLOCK_WIDTH - 2*DATA_WIDTH - 1 : BLOCK_WIDTH - 3*DATA_WIDTH ] ),
+        .IN15( block_out [ BLOCK_WIDTH - DATA_WIDTH - 1 : BLOCK_WIDTH - 2*DATA_WIDTH ] ),
+        .IN16( block_out [ BLOCK_WIDTH - 1 : BLOCK_WIDTH - DATA_WIDTH ] ),
+        .SELECT(word_if3),
+        .OUT(INSTRUCTION)  
         );
     
     DUAL_PORT_MEMORY #(
@@ -157,6 +208,27 @@ module INSTRUCTION_CACHE #(
     
     always@(posedge CLK)
     begin
+        //IF1
+        
+        //IF2
+        if(tag_out_bank_0 == tag_if2)
+        begin
+            hit_bank_0 = HIGH ;
+        end
+        else
+        begin
+            hit_bank_0 = LOW ;
+        end
+        if(tag_out_bank_1 == tag_if2)
+        begin
+            hit_bank_0 = HIGH ;
+        end
+        else
+        begin
+            hit_bank_0 = LOW ;
+        end
+        
+        //IF3
     
     end
     
@@ -164,6 +236,5 @@ module INSTRUCTION_CACHE #(
     assign  ADDRESS_TO_L2_INS           = address_to_l2_ins_reg             ;
     assign  ADDRESS_TO_L2_VALID_INS     = address_to_l2_valid_ins_reg       ;
     assign  DATA_FROM_L2_READY_INS      = data_from_l2_ready_ins_reg        ;
-    assign  INSTRUCTION                 = instruction_reg                   ;
    
 endmodule
