@@ -61,12 +61,21 @@ module INSTRUCTION_CACHE_SIMULATION();
     begin
         // Initialize Inputs
         clk                      = 1'b0 ;
-       
+        pc                       = 32'b0 ;
+        pc_valid                 = 1'b1 ;
 
         // Wait 100 ns for global reset to finish
         #100;
         
         // Add stimulus here
+        clk                      = 1'b1 ;
+        #100;
+        clk                      = 1'b0 ;
+        #100;
+        clk                      = 1'b1 ;
+        #100;
+        clk                      = 1'b0 ;
+        #100;
         clk                      = 1'b1 ;
         #100;
         clk                      = 1'b0 ;
