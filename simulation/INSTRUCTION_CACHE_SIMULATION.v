@@ -71,6 +71,7 @@ module INSTRUCTION_CACHE_SIMULATION();
         clk                      = 1'b1 ;
         #100;
         clk                      = 1'b0 ;
+        pc_valid                 = 1'b0 ;
         #100;
         clk                      = 1'b1 ;
         #100;

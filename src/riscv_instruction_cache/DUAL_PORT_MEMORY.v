@@ -68,8 +68,11 @@ module DUAL_PORT_MEMORY #(
         begin
             reg [MEMORY_WIDTH - 1  :0] data_out_temp_reg = {MEMORY_WIDTH{1'b0}}  ;
             always @(posedge CLK) 
-        begin
-            data_out_temp_reg <= data_out_reg;
+            begin
+                if (READ_ENBLE)
+                begin
+                    data_out_temp_reg <= data_out_reg;
+                end
             end    
             assign DATA_OUT = data_out_temp_reg;
         end

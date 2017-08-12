@@ -173,6 +173,15 @@ module INSTRUCTION_CACHE #(
         .SELECT(select_bank),
         .OUT(block_out)  
         );
+        
+    MULTIPLEXER_2_TO_1 #(
+        .BUS_WIDTH(BLOCK_WIDTH)
+        ) cache_miss_select(
+        .IN1(),
+        .IN2(),
+        .SELECT(),
+        .OUT()  
+        );
     
     MULTIPLEXER_16_TO_1 #(
         .BUS_WIDTH(DATA_WIDTH)
@@ -204,12 +213,15 @@ module INSTRUCTION_CACHE #(
     ) lru(
         .CLK(CLK),
         .WRITE_ADDRESS(line_if2),   
-        .DATA_IN(select_bank),
+        .DATA_IN(!select_bank),
         .WRITE_ENABLE(cache_hit),
         .READ_ADDRESS(),                                         
         .READ_ENBLE(),                                                     
         .DATA_OUT()
         ); 
+        
+    CACHE_REPLACEMENT_CONTROLLER cache_replacement_controller(    
+        );
                                   
     always@(*)
     begin
