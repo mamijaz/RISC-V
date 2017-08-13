@@ -36,7 +36,7 @@ module DUAL_PORT_MEMORY #(
     );
     
     reg [MEMORY_WIDTH - 1   : 0]    memory          [MEMORY_DEPTH - 1 : 0]  ;
-    reg [MEMORY_WIDTH - 1   : 0]    data_out_reg                            ;
+    reg [MEMORY_WIDTH - 1   : 0]    data_out_reg_1                          ;
     
     integer i;
     initial
@@ -45,36 +45,37 @@ module DUAL_PORT_MEMORY #(
             $readmemh(INIT_FILE, memory, 0, MEMORY_DEPTH-1);
         else
             for (i = 0; i < MEMORY_DEPTH; i = i + 1)
-                memory [ i ] = {MEMORY_DEPTH{1'b0}};
+                memory [ i ] = {MEMORY_WIDTH{1'b0}};
     end
         
-    always @(posedge CLK) begin
+    always @(posedge CLK) 
+    begin
         if (WRITE_ENABLE)
         begin
             memory [WRITE_ADDRESS]  <= DATA_IN                              ;
         end
         if (READ_ENBLE)
         begin
-            data_out_reg            <= memory [READ_ADDRESS]                ;
+            data_out_reg_1          <= memory [READ_ADDRESS]                ;
         end
     end
    
     generate
         if (MEMORY_LATENCY == "LOW_LATENCY") 
         begin
-            assign DATA_OUT = data_out_reg;  
+            assign DATA_OUT = data_out_reg_1;  
         end 
         else 
         begin
-            reg [MEMORY_WIDTH - 1  :0] data_out_temp_reg = {MEMORY_WIDTH{1'b0}}  ;
+            reg [MEMORY_WIDTH - 1  :0] data_out_reg_2 = {MEMORY_WIDTH{1'b0}}  ;
             always @(posedge CLK) 
             begin
                 if (READ_ENBLE)
                 begin
-                    data_out_temp_reg <= data_out_reg;
+                    data_out_reg_2 <= data_out_reg_1;
                 end
             end    
-            assign DATA_OUT = data_out_temp_reg;
+            assign DATA_OUT = data_out_reg_2;
         end
     endgenerate
     

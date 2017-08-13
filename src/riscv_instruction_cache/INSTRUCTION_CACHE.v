@@ -34,9 +34,9 @@ module INSTRUCTION_CACHE #(
         localparam  BLOCK_SIZE              = WORD_PER_BLOCK * WORD_SIZE    ,
         localparam  BLOCK_WIDTH             = BLOCK_SIZE * 8                ,
         localparam  MEMORY_DEPTH            = CACHE_SIZE / (2 * BLOCK_SIZE) ,
-        localparam  BYTE_SELECT             = $clog2(WORD_SIZE-1)           ,
-        localparam  WORD_SELECT             = $clog2(WORD_PER_BLOCK-1)      ,
-        localparam  LINE_SELECT             = $clog2(MEMORY_DEPTH-1)        ,
+        localparam  BYTE_SELECT             = clog2(WORD_SIZE-1)            ,
+        localparam  WORD_SELECT             = clog2(WORD_PER_BLOCK-1)       ,
+        localparam  LINE_SELECT             = clog2(MEMORY_DEPTH-1)         ,
         localparam  TAG_WIDTH               = ADDRESS_WIDTH - ( LINE_SELECT + WORD_SELECT + BYTE_SELECT )
     ) (
         input                                   CLK                         ,
@@ -259,4 +259,10 @@ module INSTRUCTION_CACHE #(
     assign  INSTRUCTION_CACHE_READY     = instruction_cache_ready_reg       ;
     assign  INSTRUCTION                 = instruction_reg                   ;
    
+    function integer clog2;
+        input integer depth;
+        for (clog2 = 0; depth > 0; clog2 = clog2 + 1)
+            depth = depth >> 1;
+    endfunction
+        
 endmodule
