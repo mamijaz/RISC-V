@@ -87,7 +87,7 @@ module DECODING_STAGE #(
     wire                                    write_back_mux_select           ;
     wire                                    rd_write_enable_out             ;
 
-    INS_DECODER ins_decoder(
+    INSTRUCTION_DECODER instruction_decoder(
         .INSTRUCTION(INSTRUCTION),
         .IMM_FORMAT(imm_format),
         .RS1_ADDRESS(rs1_address),

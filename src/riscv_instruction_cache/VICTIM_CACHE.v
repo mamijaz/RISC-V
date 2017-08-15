@@ -40,6 +40,7 @@ module VICTIM_CACHE #(
     
     reg [TAG_WIDTH - 1      : 0]    tag                 [MEMORY_DEPTH - 1   : 0]    ;
     reg [BLOCK_WIDTH - 1    : 0]    memory              [MEMORY_DEPTH - 1   : 0]    ;
+    reg                             valid               [MEMORY_DEPTH - 1   : 0]    ;
     
     reg                             read_hit_out_reg_1                              ;
     reg [BLOCK_WIDTH - 1    : 0]    data_out_reg_1                                  ;
@@ -59,6 +60,8 @@ module VICTIM_CACHE #(
             tag [ i ] = {TAG_WIDTH{1'b0}};
         for (i = 0; i < MEMORY_DEPTH; i = i + 1)
             memory [ i ] = {BLOCK_WIDTH{1'b0}};
+        for (i = 0; i < MEMORY_DEPTH; i = i + 1)
+            valid [ i ] = 1'b0;
         record_counter  = {ADDRESS_WIDTH{1'b0}};
     end
     
@@ -68,6 +71,7 @@ module VICTIM_CACHE #(
         begin
             tag [ record_counter ]      <= WRITE_TAG_ADDRESS    ;
             memory [ record_counter ]   <= WRITE_DATA           ;
+            valid [ record_counter ]    <= 1'b1                 ;
             record_counter              <= record_counter + 1   ;   
         end
         if (WRITE_ENABLE & full)
@@ -76,14 +80,16 @@ module VICTIM_CACHE #(
             begin
                 tag [ i ]       <= tag [ i + 1 ]    ;
                 memory [ i ]    <= memory [ i + 1 ] ;
+                valid [ i ]     <= valid [ i + 1 ]  ;
             end
             tag [ record_counter ]      <= WRITE_TAG_ADDRESS    ;
             memory [ record_counter ]   <= WRITE_DATA           ;
+            valid [ record_counter ]    <= 1'b1                 ;
         end
         
         if (READ_ENBLE & !empty)
         begin
-            if( tag [ 0 ] == READ_TAG_ADDRESS) 
+            if( (tag [ 0 ] == READ_TAG_ADDRESS) & valid [ 0 ] ) 
             begin
                 read_hit_out_reg_1  <= 1'b1                     ;
                 data_out_reg_1      <= memory [ 0 ]             ;
@@ -94,7 +100,7 @@ module VICTIM_CACHE #(
                     memory [ i ]    <= memory [ i + 1 ] ;
                 end
             end
-            else if( tag [ 1 ] == READ_TAG_ADDRESS) 
+            else if( (tag [ 1 ] == READ_TAG_ADDRESS) & valid [ 1 ] ) 
             begin
                 read_hit_out_reg_1  <= 1'b1                     ;
                 data_out_reg_1      <= memory [ 1 ]             ;
@@ -105,7 +111,7 @@ module VICTIM_CACHE #(
                     memory [ i ]    <= memory [ i + 1 ] ;
                 end
             end
-            else if( tag [ 2 ] == READ_TAG_ADDRESS) 
+            else if( (tag [ 2 ] == READ_TAG_ADDRESS) & valid [ 2 ] ) 
             begin
                 read_hit_out_reg_1  <= 1'b1                     ;
                 data_out_reg_1      <= memory [ 2 ]             ;
@@ -116,7 +122,7 @@ module VICTIM_CACHE #(
                     memory [ i ]    <= memory [ i + 1 ] ;
                 end
             end
-            else if( tag [ 3 ] == READ_TAG_ADDRESS) 
+            else if( (tag [ 3 ] == READ_TAG_ADDRESS) & valid [ 3 ] ) 
             begin
                 read_hit_out_reg_1  <= 1'b1                     ;
                 data_out_reg_1      <= memory [ 3 ]             ;

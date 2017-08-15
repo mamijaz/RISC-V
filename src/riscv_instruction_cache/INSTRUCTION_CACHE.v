@@ -67,16 +67,18 @@ module INSTRUCTION_CACHE #(
     reg     [TAG_WIDTH - 1           : 0]   tag_out_bank_1_if3              ;
     reg                                     hit_bank_0                      ;
     reg                                     hit_bank_1                      ;
-    reg                                     cache_hit                       ;
     reg     [DATA_WIDTH - 1          : 0]   instruction_reg                 ;
        
     wire    [LINE_SELECT - 1         : 0]   line_if1                        ;
     wire    [TAG_WIDTH - 1           : 0]   tag_if2                         ;
     wire    [LINE_SELECT - 1         : 0]   line_if2                        ;
-    wire    [TAG_WIDTH - 1           : 0]   tag_out_bank_0                  ;
-    wire    [TAG_WIDTH - 1           : 0]   tag_out_bank_1                  ;
+    wire    [TAG_WIDTH - 1           : 0]   tag_out_bank_0_if2              ;
+    wire    [TAG_WIDTH - 1           : 0]   tag_out_bank_1_if2              ;
+    wire                                    valid_out_bank_0_if2            ;
+    wire                                    valid_out_bank_1_if2            ;
     wire    [BLOCK_WIDTH - 1         : 0]   block_out_bank_0                ;
     wire    [BLOCK_WIDTH - 1         : 0]   block_out_bank_1                ;
+    wire                                    cache_hit                       ;
     wire                                    select_bank                     ;
     wire    [BLOCK_WIDTH - 1         : 0]   block_out                       ;
     wire    [WORD_SELECT - 1         : 0]   word_if3                        ;
@@ -85,6 +87,7 @@ module INSTRUCTION_CACHE #(
     assign  line_if1    = PC[ADDRESS_WIDTH - TAG_WIDTH - 1  : ADDRESS_WIDTH - TAG_WIDTH - LINE_SELECT - 1 ]                                 ;
     assign  tag_if2     = pc_if2[ADDRESS_WIDTH - 1  : ADDRESS_WIDTH - TAG_WIDTH - 1 ]                                                       ;
     assign  line_if2    = pc_if2[ADDRESS_WIDTH - TAG_WIDTH - 1  : ADDRESS_WIDTH - TAG_WIDTH - LINE_SELECT - 1 ]                             ;
+    assign  cache_hit   = hit_bank_0 | hit_bank_1                                                                                           ;
     assign  word_if3    = pc_if3[ADDRESS_WIDTH - TAG_WIDTH - LINE_SELECT - 1  : ADDRESS_WIDTH - TAG_WIDTH - LINE_SELECT - WORD_SELECT - 1 ] ;
     
     initial
@@ -92,8 +95,8 @@ module INSTRUCTION_CACHE #(
         instruction_cache_ready_reg     = HIGH                              ;
         pc_if2                          = {ADDRESS_WIDTH {1'b0}}            ;
         pc_if3                          = {ADDRESS_WIDTH {1'b0}}            ;
-        hit_bank_0                      = LOW                               ;
-        hit_bank_1                      = LOW                               ;
+        hit_bank_0                      = HIGH                              ;
+        hit_bank_1                      = HIGH                              ;
     end  
     
     DUAL_PORT_MEMORY #(
@@ -106,8 +109,8 @@ module INSTRUCTION_CACHE #(
         .DATA_IN(),
         .WRITE_ENABLE(),
         .READ_ADDRESS(line_if1),                                         
-        .READ_ENBLE(PC_VALID),                                                     
-        .DATA_OUT(tag_out_bank_0)
+        .READ_ENBLE(PC_VALID & instruction_cache_ready_reg),                                                     
+        .DATA_OUT(tag_out_bank_0_if2)
         );
     
     DUAL_PORT_MEMORY #(
@@ -120,9 +123,37 @@ module INSTRUCTION_CACHE #(
         .DATA_IN(),
         .WRITE_ENABLE(),
         .READ_ADDRESS(line_if1),                                         
-        .READ_ENBLE(PC_VALID),                                                     
-        .DATA_OUT(tag_out_bank_1)
+        .READ_ENBLE(PC_VALID & instruction_cache_ready_reg),                                                     
+        .DATA_OUT(tag_out_bank_1_if2)
+        );
+    
+    DUAL_PORT_MEMORY #(
+        .MEMORY_WIDTH(1),                       
+        .MEMORY_DEPTH(MEMORY_DEPTH),                      
+        .MEMORY_LATENCY("LOW_LATENCY")
+    ) valid_bank_0(
+        .CLK(CLK),
+        .WRITE_ADDRESS(),   
+        .DATA_IN(),
+        .WRITE_ENABLE(),
+        .READ_ADDRESS(line_if1),                                         
+        .READ_ENBLE(PC_VALID & instruction_cache_ready_reg),                                                     
+        .DATA_OUT(valid_out_bank_0_if2)
         ); 
+        
+    DUAL_PORT_MEMORY #(
+        .MEMORY_WIDTH(1),                       
+        .MEMORY_DEPTH(MEMORY_DEPTH),                      
+        .MEMORY_LATENCY("LOW_LATENCY")
+    ) valid_bank_1(
+        .CLK(CLK),
+        .WRITE_ADDRESS(),   
+        .DATA_IN(),
+        .WRITE_ENABLE(),
+        .READ_ADDRESS(line_if1),                                         
+        .READ_ENBLE(PC_VALID & instruction_cache_ready_reg),                                                     
+        .DATA_OUT(valid_out_bank_1_if2)
+        );
     
     DUAL_PORT_MEMORY #(
         .MEMORY_WIDTH(BLOCK_WIDTH),                       
@@ -134,7 +165,7 @@ module INSTRUCTION_CACHE #(
         .DATA_IN(),
         .WRITE_ENABLE(),
         .READ_ADDRESS(line_if1),                                         
-        .READ_ENBLE(PC_VALID),                                                     
+        .READ_ENBLE(PC_VALID & instruction_cache_ready_reg),                                                     
         .DATA_OUT(block_out_bank_0)
         ); 
        
@@ -148,7 +179,7 @@ module INSTRUCTION_CACHE #(
         .DATA_IN(),
         .WRITE_ENABLE(),
         .READ_ADDRESS(line_if1),                                         
-        .READ_ENBLE(PC_VALID),                                                     
+        .READ_ENBLE(PC_VALID & instruction_cache_ready_reg),                                                     
         .DATA_OUT(block_out_bank_1)
         ); 
     
@@ -169,7 +200,16 @@ module INSTRUCTION_CACHE #(
         
     MULTIPLEXER_2_TO_1 #(
         .BUS_WIDTH(BLOCK_WIDTH)
-    ) cache_miss_select(
+    ) victim_cache_select(
+        .IN1(),
+        .IN2(),
+        .SELECT(),
+        .OUT()  
+        );
+        
+    MULTIPLEXER_2_TO_1 #(
+        .BUS_WIDTH(BLOCK_WIDTH)
+    ) l1_cache_miss_select(
         .IN1(),
         .IN2(),
         .SELECT(),
@@ -199,6 +239,30 @@ module INSTRUCTION_CACHE #(
         .OUT(word_out)  
         );
         
+    MULTIPLEXER_2_TO_1 #(
+        .BUS_WIDTH(BLOCK_WIDTH)
+    ) read_l2_or_victim_cache_select(
+        .IN1(),
+        .IN2(),
+        .SELECT(),
+        .OUT()  
+        );
+        
+    VICTIM_CACHE #(
+        .BLOCK_WIDTH(BLOCK_WIDTH),
+        .TAG_WIDTH(TAG_WIDTH + LINE_SELECT),
+        .MEMORY_LATENCY("HIGH_LATENCY")
+    ) victim_cache(
+        .CLK(CLK),
+        .WRITE_TAG_ADDRESS(),   
+        .WRITE_DATA(),
+        .WRITE_ENABLE(),
+        .READ_TAG_ADDRESS(),                                         
+        .READ_ENBLE(), 
+        .READ_HIT(),                                                    
+        .READ_DATA()
+        );
+        
     CACHE_REPLACEMENT_CONTROLLER #(
         .ADDRESS_WIDTH(ADDRESS_WIDTH),
         .BLOCK_WIDTH(BLOCK_WIDTH),
@@ -206,8 +270,8 @@ module INSTRUCTION_CACHE #(
     ) cache_replacement_controller(
         .CLK(CLK),
         .PC_IF2(pc_if2),
-        .TAG_OUT_BANK_0_IF2(tag_out_bank_0),
-        .TAG_OUT_BANK_1_IF2(tag_out_bank_1),
+        .TAG_OUT_BANK_0_IF2(tag_out_bank_0_if2),
+        .TAG_OUT_BANK_1_IF2(tag_out_bank_1_if2),
         .PC_IF3(pc_if3),
         .TAG_OUT_BANK_0_IF3(tag_out_bank_0_if3),
         .TAG_OUT_BANK_1_IF3(tag_out_bank_1_if3),
@@ -219,22 +283,17 @@ module INSTRUCTION_CACHE #(
         .DATA_FROM_L2_READY_INS(DATA_FROM_L2_READY_INS),
         .DATA_FROM_L2_VALID_INS(DATA_FROM_L2_VALID_INS),
         .DATA_FROM_L2_INS(DATA_FROM_L2_INS)
-        );
-                                  
-    always@(*)
-    begin
-        cache_hit = hit_bank_0 | hit_bank_1 ;
-    end
+        );                           
     
     always@(posedge CLK)
     begin
         //IF1
         
         //IF2
-        tag_out_bank_0_if3  <= tag_out_bank_0   ;
-        tag_out_bank_1_if3  <= tag_out_bank_1   ;
+        tag_out_bank_0_if3  <= tag_out_bank_0_if2   ;
+        tag_out_bank_1_if3  <= tag_out_bank_1_if2   ;
         
-        if(tag_out_bank_0 == tag_if2)
+        if((tag_out_bank_0_if2 == tag_if2) & valid_out_bank_0_if2)
         begin
             hit_bank_0 <= HIGH ;
         end
@@ -242,7 +301,7 @@ module INSTRUCTION_CACHE #(
         begin
             hit_bank_0 <= LOW ;
         end
-        if(tag_out_bank_1 == tag_if2)
+        if((tag_out_bank_1_if2 == tag_if2) & valid_out_bank_1_if2)
         begin
             hit_bank_0 <= HIGH ;
         end

@@ -5,7 +5,7 @@
 // 
 // Create Date:     05/08/2017 10:48:13 AM
 // Design Name: 
-// Module Name:     INS_DECODER
+// Module Name:     INSTRUCTION_DECODER
 // Project Name:    RISC-V
 // Target Devices: 
 // Tool Versions: 
@@ -20,7 +20,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module INS_DECODER #(
+module INSTRUCTION_DECODER #(
         parameter   ADDRESS_WIDTH           = 32                            ,
         parameter   DATA_WIDTH              = 32                            ,
         parameter   REG_ADD_WIDTH           = 5                             ,

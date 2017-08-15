@@ -61,6 +61,9 @@ module VICTIM_CACHE_SIMULATION();
     begin
         // Initialize Inputs
         clk                      = 1'b0 ;
+        write_tag_address        = 26'b1 ;
+        write_data               = 512'b1 ;
+        write_enable             = 1'b1 ;
 
         // Wait 100 ns for global reset to finish
         #100;
@@ -68,7 +71,12 @@ module VICTIM_CACHE_SIMULATION();
         // Add stimulus here
         clk                      = 1'b1 ;
         #100;
+        write_tag_address        = 26'b0 ;
+        write_data               = 512'b0 ;
+        write_enable             = 1'b0 ;
         clk                      = 1'b0 ;
+        read_tag_address         = 26'b1 ;
+        read_enble               = 1'b1 ;
         #100;
         clk                      = 1'b1 ;
         #100;
