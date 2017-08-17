@@ -37,9 +37,12 @@ module CACHE_REPLACEMENT_CONTROLLER #(
         input    [ADDRESS_WIDTH - 1     : 0]    PC_IF2                      ,
         input    [TAG_WIDTH - 1         : 0]    TAG_OUT_BANK_0_IF2          ,
         input    [TAG_WIDTH - 1         : 0]    TAG_OUT_BANK_1_IF2          ,
+        input                                   VALID_OUT_BANK_0_IF2        ,
+        input                                   VALID_OUT_BANK_1_IF2        ,
         input    [ADDRESS_WIDTH - 1     : 0]    PC_IF3                      ,
         input    [TAG_WIDTH - 1         : 0]    TAG_OUT_BANK_0_IF3          ,
         input    [TAG_WIDTH - 1         : 0]    TAG_OUT_BANK_1_IF3          ,
+        input                                   LRU_OUT_IF3                 ,
         input                                   HIT_BANK_0                  ,
         input                                   HIT_BANK_1                  ,
         
@@ -59,21 +62,16 @@ module CACHE_REPLACEMENT_CONTROLLER #(
     
     assign  line_if2    = PC_IF2[ADDRESS_WIDTH - TAG_WIDTH - 1  : ADDRESS_WIDTH - TAG_WIDTH - LINE_SELECT - 1 ] ;
     assign  tag_if2     = PC_IF2[ADDRESS_WIDTH - 1  : ADDRESS_WIDTH - TAG_WIDTH - 1 ]                           ;
-
-  
-    DUAL_PORT_MEMORY #(
-        .MEMORY_WIDTH(1),                       
-        .MEMORY_DEPTH(MEMORY_DEPTH),                      
-        .MEMORY_LATENCY("LOW_LATENCY")
-    ) lru(
-        .CLK(CLK),
-        .WRITE_ADDRESS(),   
-        .DATA_IN(),
-        .WRITE_ENABLE(),
-        .READ_ADDRESS(),                                         
-        .READ_ENBLE(),                                                     
-        .DATA_OUT()
-        ); 
+    
+    always@(*)
+    begin
+    
+    end
+        
+    always@(posedge CLK)
+    begin
+    
+    end
         
     function integer clog2;
         input integer depth;
