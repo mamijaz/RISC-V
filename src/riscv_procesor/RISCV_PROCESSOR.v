@@ -27,19 +27,21 @@ module RISCV_PROCESSOR #(
         parameter   ALU_INS_WIDTH           = 5         ,
         parameter   D_CACHE_LW_WIDTH        = 3         ,
         parameter   D_CACHE_SW_WIDTH        = 2         ,
+        parameter   BLOCK_ADDRESS_WIDTH     = 26        ,
+        parameter   BLOCK_WIDTH             = 512       ,
         parameter   L2_BUS_WIDTH            = 32
     ) (
         input                                   CLK                                     ,
         
         //Instruction Cache
         // Transfer Address From L1 Cache to L2
-        input                                   ADDRESS_TO_L2_READY_INS                 ,
-        output                                  ADDRESS_TO_L2_VALID_INS                 ,      
-        output  [ADDRESS_WIDTH - 2 - 1 : 0]     ADDRESS_TO_L2_INS                       ,
+        input                                   ADDRESS_TO_L2_READY_INSTRUCTION_CACHE   ,
+        output                                  ADDRESS_TO_L2_VALID_INSTRUCTION_CACHE   ,      
+        output  [BLOCK_ADDRESS_WIDTH-1 : 0]     ADDRESS_TO_L2_INSTRUCTION_CACHE         ,
         // Transfer Data From L2 Cache to L1       
-        input                                   DATA_FROM_L2_VALID_INS                  ,
-        output                                  DATA_FROM_L2_READY_INS                  ,
-        input   [L2_BUS_WIDTH   - 1    : 0]     DATA_FROM_L2_INS                        ,
+        input                                   DATA_FROM_L2_VALID_INSTRUCTION_CACHE    ,
+        output                                  DATA_FROM_L2_READY_INSTRUCTION_CACHE    ,
+        input   [BLOCK_WIDTH - 1       : 0]     DATA_FROM_L2_INSTRUCTION_CACHE          ,
         
         //Data Cache
         // Write Data From L1 to L2 Cache
@@ -239,12 +241,12 @@ module RISCV_PROCESSOR #(
         .PC_VALID(pc_valid_pc_to_if1),
         .INSTRUCTION(instruction),
         .INSTRUCTION_CACHE_READY(instruction_cache_ready),
-        .ADDRESS_TO_L2_READY_INS(ADDRESS_TO_L2_READY_INS),
-        .ADDRESS_TO_L2_VALID_INS(ADDRESS_TO_L2_VALID_INS),      
-        .ADDRESS_TO_L2_INS(ADDRESS_TO_L2_INS),    
-        .DATA_FROM_L2_READY_INS(DATA_FROM_L2_READY_INS),
-        .DATA_FROM_L2_VALID_INS(DATA_FROM_L2_VALID_INS),
-        .DATA_FROM_L2_INS(DATA_FROM_L2_INS)   
+        .ADDRESS_TO_L2_READY_INSTRUCTION_CACHE(ADDRESS_TO_L2_READY_INSTRUCTION_CACHE),
+        .ADDRESS_TO_L2_VALID_INSTRUCTION_CACHE(ADDRESS_TO_L2_VALID_INSTRUCTION_CACHE),      
+        .ADDRESS_TO_L2_INSTRUCTION_CACHE(ADDRESS_TO_L2_INSTRUCTION_CACHE),    
+        .DATA_FROM_L2_READY_INSTRUCTION_CACHE(DATA_FROM_L2_READY_INSTRUCTION_CACHE),
+        .DATA_FROM_L2_VALID_INSTRUCTION_CACHE(DATA_FROM_L2_VALID_INSTRUCTION_CACHE),
+        .DATA_FROM_L2_INSTRUCTION_CACHE(DATA_FROM_L2_INSTRUCTION_CACHE)   
         );
         
     INSTRUCTION_FETCH_STAGE instruction_fetch_stage_1(

@@ -39,49 +39,50 @@ module INSTRUCTION_CACHE #(
         localparam  LINE_SELECT             = clog2(MEMORY_DEPTH-1)         ,
         localparam  TAG_WIDTH               = ADDRESS_WIDTH - ( LINE_SELECT + WORD_SELECT + BYTE_SELECT )
     ) (
-        input                                   CLK                         ,
-        input                                   STALL_INSTRUCTION_CACHE     ,
-        input   [ADDRESS_WIDTH - 1      : 0]    PC                          ,
-        input                                   PC_VALID                    ,
-        output  [ADDRESS_WIDTH - 1      : 0]    INSTRUCTION                 ,
-        output                                  INSTRUCTION_CACHE_READY     ,
+        input                                           CLK                                     ,
+        input                                           STALL_INSTRUCTION_CACHE                 ,
+        input   [ADDRESS_WIDTH - 1              : 0]    PC                                      ,
+        input                                           PC_VALID                                ,
+        output  [ADDRESS_WIDTH - 1              : 0]    INSTRUCTION                             ,
+        output                                          INSTRUCTION_CACHE_READY                 ,
         
         // Transfer Address From L1 to L2 Cache 
-        input                                   ADDRESS_TO_L2_READY_INS     ,
-        output                                  ADDRESS_TO_L2_VALID_INS     ,      
-        output   [ADDRESS_WIDTH - 2 - 1 : 0]    ADDRESS_TO_L2_INS           ,
+        input                                           ADDRESS_TO_L2_READY_INSTRUCTION_CACHE   ,
+        output                                          ADDRESS_TO_L2_VALID_INSTRUCTION_CACHE   ,      
+        output  [TAG_WIDTH + LINE_SELECT - 1    : 0]    ADDRESS_TO_L2_INSTRUCTION_CACHE         ,
                 
         // Transfer Data From L2 to L1 Cache   
-        output                                  DATA_FROM_L2_READY_INS      ,
-        input                                   DATA_FROM_L2_VALID_INS      ,
-        input    [BLOCK_WIDTH - 1       : 0]    DATA_FROM_L2_INS
+        output                                          DATA_FROM_L2_READY_INSTRUCTION_CACHE    ,
+        input                                           DATA_FROM_L2_VALID_INSTRUCTION_CACHE    ,
+        input   [BLOCK_WIDTH - 1                : 0]    DATA_FROM_L2_INSTRUCTION_CACHE
     );
-    
-    // Status Registers For Pipeline
-    reg                                             instruction_cache_ready_reg     ;
     
     // Pipeline Registers
     reg     [ADDRESS_WIDTH - 1              : 0]    pc_if2                          ;
     reg     [ADDRESS_WIDTH - 1              : 0]    pc_if3                          ;
     reg     [TAG_WIDTH - 1                  : 0]    tag_out_bank_0_if3              ;
     reg     [TAG_WIDTH - 1                  : 0]    tag_out_bank_1_if3              ;
-    reg                                             hit_bank_0                      ;
-    reg                                             hit_bank_1                      ;
+    reg                                             hit_bank_0_if3                  ;
+    reg                                             hit_bank_1_if3                  ;
     reg     [DATA_WIDTH - 1                 : 0]    instruction_reg                 ;
        
     wire    [LINE_SELECT - 1                : 0]    line_if1                        ;
-    wire    [TAG_WIDTH + LINE_SELECT - 1    : 0]    tag_line_if1                    ;
+    wire    [TAG_WIDTH + LINE_SELECT - 1    : 0]    block_address_if1               ;
     wire                                            read_enable_if1                 ;
     wire    [TAG_WIDTH - 1                  : 0]    tag_if2                         ;
+    wire    [LINE_SELECT - 1                : 0]    line_if2                        ;
+    wire    [TAG_WIDTH + LINE_SELECT - 1    : 0]    block_address_if3               ;
     wire    [TAG_WIDTH - 1                  : 0]    tag_if3                         ;
     wire    [LINE_SELECT - 1                : 0]    line_if3                        ;
     wire    [TAG_WIDTH - 1                  : 0]    tag_out_bank_0_if2              ;
     wire    [TAG_WIDTH - 1                  : 0]    tag_out_bank_1_if2              ;
     wire                                            valid_out_bank_0_if2            ;
     wire                                            valid_out_bank_1_if2            ;
-    wire    [BLOCK_WIDTH - 1                : 0]    block_out_bank_0                ;
-    wire    [BLOCK_WIDTH - 1                : 0]    block_out_bank_1                ;
-    wire    [BLOCK_WIDTH - 1                : 0]    block_out_set_bank              ;
+    wire                                            hit_bank_0_if2                  ;
+    wire                                            hit_bank_1_if2                  ;
+    wire    [BLOCK_WIDTH - 1                : 0]    block_out_bank_0_if3            ;
+    wire    [BLOCK_WIDTH - 1                : 0]    block_out_bank_1_if3            ;
+    wire    [BLOCK_WIDTH - 1                : 0]    block_out_set_bank_if3          ;
     wire                                            lru_out_if3                     ;
     wire                                            cache_hit                       ;
     wire                                            victim_cache_hit                ;
@@ -90,30 +91,34 @@ module INSTRUCTION_CACHE #(
     wire    [BLOCK_WIDTH - 1                : 0]    block_out                       ;
     wire    [WORD_SELECT - 1                : 0]    word_if3                        ;
     wire    [DATA_WIDTH - 1                 : 0]    word_out                        ;
-    wire    [BLOCK_WIDTH - 1                : 0]    read_block_l2                   ;
-    wire    [TAG_WIDTH + LINE_SELECT - 1    : 0]    tag_line_to_victim_cache        ;
+    wire    [TAG_WIDTH + LINE_SELECT - 1    : 0]    block_address_to_victim_cache   ;
     wire    [BLOCK_WIDTH - 1                : 0]    block_to_victim_cache           ;
     wire                                            write_enable_victim_cache       ;
     wire    [BLOCK_WIDTH - 1                : 0]    write_block                     ;
     wire                                            write_enable_bank_0             ;
     wire                                            write_enable_bank_1             ;
+    wire                                            lru_in                          ;
+    wire                                            lru_write_enable                ;
     
-    assign  line_if1        = PC[ADDRESS_WIDTH - TAG_WIDTH - 1  : ADDRESS_WIDTH - TAG_WIDTH - LINE_SELECT - 1 ]                                 ;
-    assign  tag_line_if1    = PC[ADDRESS_WIDTH - 1  : ADDRESS_WIDTH - TAG_WIDTH - LINE_SELECT - 1 ]                                             ;
-    assign  read_enable_if1 = PC_VALID & !INSTRUCTION_CACHE_READY & !STALL_INSTRUCTION_CACHE                                                    ;
-    assign  tag_if2         = pc_if2[ADDRESS_WIDTH - 1  : ADDRESS_WIDTH - TAG_WIDTH - 1 ]                                                       ;
-    assign  cache_hit       = hit_bank_0 | hit_bank_1                                                                                           ;
-    assign  tag_if3         = pc_if3[ADDRESS_WIDTH - 1  : ADDRESS_WIDTH - TAG_WIDTH - 1 ]                                                       ;
-    assign  line_if3        = pc_if3[ADDRESS_WIDTH - TAG_WIDTH - 1  : ADDRESS_WIDTH - TAG_WIDTH - LINE_SELECT - 1 ]                             ;
-    assign  word_if3        = pc_if3[ADDRESS_WIDTH - TAG_WIDTH - LINE_SELECT - 1  : ADDRESS_WIDTH - TAG_WIDTH - LINE_SELECT - WORD_SELECT - 1 ] ;
+    assign  block_address_if1   = PC[ADDRESS_WIDTH - 1  : ADDRESS_WIDTH - TAG_WIDTH - LINE_SELECT ]                                             ;
+    assign  line_if1            = PC[ADDRESS_WIDTH - TAG_WIDTH - 1  : ADDRESS_WIDTH - TAG_WIDTH - LINE_SELECT ]                                 ;
+    assign  read_enable_if1     = PC_VALID & !INSTRUCTION_CACHE_READY & !STALL_INSTRUCTION_CACHE                                                ;
+    assign  tag_if2             = pc_if2[ADDRESS_WIDTH - 1  : ADDRESS_WIDTH - TAG_WIDTH ]                                                       ;
+    assign  line_if2            = pc_if2[ADDRESS_WIDTH - TAG_WIDTH - 1  : ADDRESS_WIDTH - TAG_WIDTH - LINE_SELECT ]                             ;
+    assign  hit_bank_0_if2      = (tag_out_bank_0_if2 == tag_if2) & valid_out_bank_0_if2                                                        ;
+    assign  hit_bank_1_if2      = (tag_out_bank_1_if2 == tag_if2) & valid_out_bank_1_if2                                                        ;
+    assign  cache_hit           = hit_bank_0_if3 | hit_bank_1_if3                                                                               ;
+    assign  block_address_if3   = pc_if3[ADDRESS_WIDTH - 1  : ADDRESS_WIDTH - TAG_WIDTH - LINE_SELECT ]                                         ;
+    assign  tag_if3             = pc_if3[ADDRESS_WIDTH - 1  : ADDRESS_WIDTH - TAG_WIDTH ]                                                       ;
+    assign  line_if3            = pc_if3[ADDRESS_WIDTH - TAG_WIDTH - 1  : ADDRESS_WIDTH - TAG_WIDTH - LINE_SELECT ]                             ;
+    assign  word_if3            = pc_if3[ADDRESS_WIDTH - TAG_WIDTH - LINE_SELECT - 1  : ADDRESS_WIDTH - TAG_WIDTH - LINE_SELECT - WORD_SELECT ] ;
     
     initial
     begin
-        instruction_cache_ready_reg     = HIGH                              ;
         pc_if2                          = {ADDRESS_WIDTH {1'b0}}            ;
         pc_if3                          = {ADDRESS_WIDTH {1'b0}}            ;
-        hit_bank_0                      = HIGH                              ;
-        hit_bank_1                      = HIGH                              ;
+        hit_bank_0_if3                  = HIGH                              ;
+        hit_bank_1_if3                  = HIGH                              ;
     end  
     
     DUAL_PORT_MEMORY #(
@@ -151,7 +156,7 @@ module INSTRUCTION_CACHE #(
     ) valid_bank_0(
         .CLK(CLK),
         .WRITE_ADDRESS(line_if3),   
-        .DATA_IN(1),
+        .DATA_IN(1'b1),
         .WRITE_ENABLE(write_enable_bank_0),
         .READ_ADDRESS(line_if1),                                         
         .READ_ENBLE(read_enable_if1),                                                     
@@ -165,7 +170,7 @@ module INSTRUCTION_CACHE #(
     ) valid_bank_1(
         .CLK(CLK),
         .WRITE_ADDRESS(line_if3),   
-        .DATA_IN(1),
+        .DATA_IN(1'b1),
         .WRITE_ENABLE(write_enable_bank_1),
         .READ_ADDRESS(line_if1),                                         
         .READ_ENBLE(read_enable_if1),                                                     
@@ -183,7 +188,7 @@ module INSTRUCTION_CACHE #(
         .WRITE_ENABLE(write_enable_bank_0),
         .READ_ADDRESS(line_if1),                                         
         .READ_ENBLE(read_enable_if1),                                                     
-        .DATA_OUT(block_out_bank_0)
+        .DATA_OUT(block_out_bank_0_if3)
         ); 
        
     DUAL_PORT_MEMORY #(
@@ -197,7 +202,7 @@ module INSTRUCTION_CACHE #(
         .WRITE_ENABLE(write_enable_bank_1),
         .READ_ADDRESS(line_if1),                                         
         .READ_ENBLE(read_enable_if1),                                                     
-        .DATA_OUT(block_out_bank_1)
+        .DATA_OUT(block_out_bank_1_if3)
         ); 
         
     DUAL_PORT_MEMORY #(
@@ -207,8 +212,8 @@ module INSTRUCTION_CACHE #(
     ) lru(
         .CLK(CLK),
         .WRITE_ADDRESS(line_if3),   
-        .DATA_IN(),
-        .WRITE_ENABLE(),
+        .DATA_IN(lru_in),
+        .WRITE_ENABLE(lru_write_enable),
         .READ_ADDRESS(line_if1),                                         
         .READ_ENBLE(read_enable_if1),                                                     
         .DATA_OUT(lru_out_if3)
@@ -220,10 +225,10 @@ module INSTRUCTION_CACHE #(
         .MEMORY_LATENCY("HIGH_LATENCY")
     ) victim_cache(
         .CLK(CLK),
-        .WRITE_TAG_ADDRESS(tag_line_to_victim_cache),   
+        .WRITE_TAG_ADDRESS(block_address_to_victim_cache),   
         .WRITE_DATA(block_to_victim_cache),
         .WRITE_ENABLE(write_enable_victim_cache),
-        .READ_TAG_ADDRESS(tag_line_if1),                                         
+        .READ_TAG_ADDRESS(block_address_if1),                                         
         .READ_ENBLE(read_enable_if1), 
         .READ_HIT(victim_cache_hit),                                                    
         .READ_DATA(block_out_victim_cache)
@@ -231,17 +236,17 @@ module INSTRUCTION_CACHE #(
         
     MULTIPLEXER_2_TO_1 #(
         .BUS_WIDTH(BLOCK_WIDTH)
-    ) select_set(
-        .IN1(block_out_bank_0),
-        .IN2(block_out_bank_1),
-        .SELECT(!hit_bank_0 & hit_bank_1),
-        .OUT(block_out_set_bank)  
+    ) select_read_bank(
+        .IN1(block_out_bank_0_if3),
+        .IN2(block_out_bank_1_if3),
+        .SELECT(!hit_bank_0_if3 & hit_bank_1_if3),
+        .OUT(block_out_set_bank_if3)  
         );
         
     MULTIPLEXER_2_TO_1 #(
         .BUS_WIDTH(BLOCK_WIDTH)
-    ) victim_cache_select(
-        .IN1(block_out_set_bank),
+    ) select_victim_cache(
+        .IN1(block_out_set_bank_if3),
         .IN2(block_out_victim_cache),
         .SELECT(!cache_hit & victim_cache_hit),
         .OUT(block_out_l1)  
@@ -249,9 +254,9 @@ module INSTRUCTION_CACHE #(
         
     MULTIPLEXER_2_TO_1 #(
         .BUS_WIDTH(BLOCK_WIDTH)
-    ) cache_miss_select(
+    ) select_cache_miss(
         .IN1(block_out_l1),
-        .IN2(read_block_l2),
+        .IN2(DATA_FROM_L2_INSTRUCTION_CACHE),
         .SELECT(!cache_hit & !victim_cache_hit),
         .OUT(block_out)  
         );
@@ -281,45 +286,55 @@ module INSTRUCTION_CACHE #(
         
     MULTIPLEXER_2_TO_1 #(
         .BUS_WIDTH(BLOCK_WIDTH)
-    ) write_block_to_bank(
+    ) select_write_block_to_bank(
         .IN1(block_out_victim_cache),
-        .IN2(read_block_l2),
+        .IN2(DATA_FROM_L2_INSTRUCTION_CACHE),
         .SELECT(!victim_cache_hit),
         .OUT(write_block)  
+        );
+        
+    MULTIPLEXER_2_TO_1 #(
+        .BUS_WIDTH( TAG_WIDTH + LINE_SELECT )
+    ) select_write_tag_to_victim_cache(
+        .IN1({tag_out_bank_0_if3,line_if3}),
+        .IN2({tag_out_bank_1_if3,line_if3}),
+        .SELECT(!write_enable_bank_0 & write_enable_bank_1),
+        .OUT(block_address_to_victim_cache)  
         );
     
     MULTIPLEXER_2_TO_1 #(
         .BUS_WIDTH(BLOCK_WIDTH)
-    ) write_to_victim_cache(
-        .IN1(block_out_bank_0),
-        .IN2(block_out_bank_1),
+    ) select_write_block_to_victim_cache(
+        .IN1(block_out_bank_0_if3),
+        .IN2(block_out_bank_1_if3),
         .SELECT(!write_enable_bank_0 & write_enable_bank_1),
         .OUT(block_to_victim_cache)  
         );
         
-    CACHE_REPLACEMENT_CONTROLLER #(
+    INSTRUCTION_CACHE_REPLACEMENT_CONTROLLER #(
         .ADDRESS_WIDTH(ADDRESS_WIDTH),
         .BLOCK_WIDTH(BLOCK_WIDTH),
         .MEMORY_DEPTH(MEMORY_DEPTH)                           
-    ) cache_replacement_controller(
+    ) instruction_cache_replacement_controller(
         .CLK(CLK),
-        .PC_IF2(pc_if2),
-        .TAG_OUT_BANK_0_IF2(tag_out_bank_0_if2),
-        .TAG_OUT_BANK_1_IF2(tag_out_bank_1_if2),
-        .VALID_OUT_BANK_0_IF2(valid_out_bank_0_if2),
-        .VALID_OUT_BANK_1_IF2(valid_out_bank_1_if2),
-        .PC_IF3(pc_if3),
-        .TAG_OUT_BANK_0_IF3(tag_out_bank_0_if3),
-        .TAG_OUT_BANK_1_IF3(tag_out_bank_1_if3),
+        .LINE_IF2(line_if2),
+        .HIT_BANK_0_IF2(hit_bank_0_if2),
+        .HIT_BANK_1_IF2(hit_bank_1_if2),
+        .LINE_IF3(line_if3),
+        .HIT_BANK_0_IF3(hit_bank_0_if3),
+        .HIT_BANK_1_IF3(hit_bank_1_if3),
         .LRU_OUT_IF3(lru_out_if3),
-        .HIT_BANK_0(hit_bank_0),
-        .HIT_BANK_1(hit_bank_1),
-        .ADDRESS_TO_L2_READY_INS(ADDRESS_TO_L2_READY_INS),
-        .ADDRESS_TO_L2_VALID_INS(ADDRESS_TO_L2_VALID_INS),      
-        .ADDRESS_TO_L2_INS(ADDRESS_TO_L2_INS), 
-        .DATA_FROM_L2_READY_INS(DATA_FROM_L2_READY_INS),
-        .DATA_FROM_L2_VALID_INS(DATA_FROM_L2_VALID_INS),
-        .DATA_FROM_L2_INS(DATA_FROM_L2_INS)
+        .VICTIM_CACHE_HIT(victim_cache_hit),
+        .WRITE_ENABLE_BANK_0(write_enable_bank_0),
+        .WRITE_ENABLE_BANK_1(write_enable_bank_1),
+        .WRITE_ENABLE_VICTIM_CACHE(write_enable_victim_cache),
+        .LRU_IN(lru_in),
+        .LRU_WRITE_ENABLE(lru_write_enable),
+        .INSTRUCTION_CACHE_READY(INSTRUCTION_CACHE_READY),
+        .ADDRESS_TO_L2_READY_INSTRUCTION_CACHE(ADDRESS_TO_L2_READY_INSTRUCTION_CACHE),
+        .ADDRESS_TO_L2_VALID_INSTRUCTION_CACHE(ADDRESS_TO_L2_VALID_INSTRUCTION_CACHE),      
+        .DATA_FROM_L2_READY_INSTRUCTION_CACHE(DATA_FROM_L2_READY_INSTRUCTION_CACHE),
+        .DATA_FROM_L2_VALID_INSTRUCTION_CACHE(DATA_FROM_L2_VALID_INSTRUCTION_CACHE)
         );                           
     
     always@(posedge CLK)
@@ -331,32 +346,16 @@ module INSTRUCTION_CACHE #(
         pc_if3              <= pc_if2               ;
         tag_out_bank_0_if3  <= tag_out_bank_0_if2   ;
         tag_out_bank_1_if3  <= tag_out_bank_1_if2   ;
-        
-        if((tag_out_bank_0_if2 == tag_if2) & valid_out_bank_0_if2)
-        begin
-            hit_bank_0 <= HIGH ;
-        end
-        else
-        begin
-            hit_bank_0 <= LOW ;
-        end
-        
-        if((tag_out_bank_1_if2 == tag_if2) & valid_out_bank_1_if2)
-        begin
-            hit_bank_0 <= HIGH ;
-        end
-        else
-        begin
-            hit_bank_0 <= LOW ;
-        end
+        hit_bank_0_if3      <= hit_bank_0_if2       ;
+        hit_bank_1_if3      <= hit_bank_1_if2       ;
         
         //IF3
         instruction_reg <= word_out ;
     
     end
     
-    assign  INSTRUCTION_CACHE_READY     = instruction_cache_ready_reg       ;
-    assign  INSTRUCTION                 = instruction_reg                   ;
+    assign  INSTRUCTION                             = instruction_reg                   ;
+    assign  ADDRESS_TO_L2_INSTRUCTION_CACHE         = block_address_if3                 ;
    
     function integer clog2;
         input integer depth;

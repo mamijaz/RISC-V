@@ -22,24 +22,25 @@
 
 module INSTRUCTION_CACHE_SIMULATION();
 
-    parameter   ADDRESS_WIDTH           = 32                            ;
-    parameter   L2_BUS_WIDTH            = 512                           ;
+    parameter   ADDRESS_WIDTH           = 32                                            ;
+    parameter   BLOCK_WIDTH             = 512                                           ;
+    parameter   BLOCK_ADDRESS_WIDTH     = 26                                            ;
     
     // Inputs
-    reg                                     clk                         ;
-    reg                                     stall_instruction_cache     ;
-    reg     [ADDRESS_WIDTH - 1      : 0]    pc                          ;
-    reg                                     pc_valid                    ;
-    reg                                     address_to_l2_ready_ins     ;
-    reg                                     data_from_l2_valid_ins      ;
-    reg     [L2_BUS_WIDTH   - 1     : 0]    data_from_l2_ins            ;
+    reg                                     clk                                         ;
+    reg                                     stall_instruction_cache                     ;
+    reg     [ADDRESS_WIDTH - 1      : 0]    pc                                          ;
+    reg                                     pc_valid                                    ;
+    reg                                     address_to_l2_ready_instruction_cache       ;
+    reg                                     data_from_l2_valid_instruction_cache        ;
+    reg     [BLOCK_WIDTH   - 1      : 0]    data_from_l2_instruction_cache              ;
      
     // Outputs
-    wire    [ADDRESS_WIDTH - 1      : 0]    instruction                 ;
-    wire                                    instruction_cache_ready     ;
-    wire                                    address_to_l2_valid_ins     ;      
-    wire    [ADDRESS_WIDTH - 2 - 1  : 0]    address_to_l2_ins           ;
-    wire                                    data_from_l2_ready_ins      ;
+    wire    [ADDRESS_WIDTH - 1      : 0]    instruction                                 ;
+    wire                                    instruction_cache_ready                     ;
+    wire                                    address_to_l2_valid_instruction_cache       ;      
+    wire    [BLOCK_ADDRESS_WIDTH - 1: 0]    address_to_l2_instruction_cache             ;
+    wire                                    data_from_l2_ready_instruction_cache        ;
      
     // Instantiate the Unit Under Test (UUT)
     INSTRUCTION_CACHE uut(
@@ -49,12 +50,12 @@ module INSTRUCTION_CACHE_SIMULATION();
         .PC_VALID(pc_valid),
         .INSTRUCTION(instruction),
         .INSTRUCTION_CACHE_READY(instruction_cache_ready),
-        .ADDRESS_TO_L2_READY_INS(address_to_l2_ready_ins),
-        .ADDRESS_TO_L2_VALID_INS(address_to_l2_valid_ins),      
-        .ADDRESS_TO_L2_INS(address_to_l2_ins), 
-        .DATA_FROM_L2_READY_INS(data_from_l2_ready_ins),
-        .DATA_FROM_L2_VALID_INS(data_from_l2_valid_ins),
-        .DATA_FROM_L2_INS(data_from_l2_ins)
+        .ADDRESS_TO_L2_READY_INSTRUCTION_CACHE(address_to_l2_ready_instruction_cache),
+        .ADDRESS_TO_L2_VALID_INSTRUCTION_CACHE(address_to_l2_valid_instruction_cache),      
+        .ADDRESS_TO_L2_INSTRUCTION_CACHE(address_to_l2_instruction_cache), 
+        .DATA_FROM_L2_READY_INSTRUCTION_CACHE(data_from_l2_ready_instruction_cache),
+        .DATA_FROM_L2_VALID_INSTRUCTION_CACHE(data_from_l2_valid_instruction_cache),
+        .DATA_FROM_L2_INSTRUCTION_CACHE(data_from_l2_instruction_cache)
         );
         
     initial 
