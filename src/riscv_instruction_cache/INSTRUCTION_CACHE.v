@@ -94,6 +94,7 @@ module INSTRUCTION_CACHE #(
     wire    [TAG_WIDTH + LINE_SELECT - 1    : 0]    block_address_to_victim_cache   ;
     wire    [BLOCK_WIDTH - 1                : 0]    block_to_victim_cache           ;
     wire                                            write_enable_victim_cache       ;
+    wire    [BLOCK_WIDTH - 1                : 0]    data_block_from_l2_cache        ;
     wire    [BLOCK_WIDTH - 1                : 0]    write_block                     ;
     wire                                            write_enable_bank_0             ;
     wire                                            write_enable_bank_1             ;
@@ -288,7 +289,7 @@ module INSTRUCTION_CACHE #(
         .BUS_WIDTH(BLOCK_WIDTH)
     ) select_write_block_to_bank(
         .IN1(block_out_victim_cache),
-        .IN2(DATA_FROM_L2_INSTRUCTION_CACHE),
+        .IN2(data_block_from_l2_cache),
         .SELECT(!victim_cache_hit),
         .OUT(write_block)  
         );
@@ -325,6 +326,8 @@ module INSTRUCTION_CACHE #(
         .HIT_BANK_1_IF3(hit_bank_1_if3),
         .LRU_OUT_IF3(lru_out_if3),
         .VICTIM_CACHE_HIT(victim_cache_hit),
+        .BLOCK_ADDRESS_IF3(block_address_if3),
+        .DATA_BLOCK_FROM_L2_CACHE(data_block_from_l2_cache),
         .WRITE_ENABLE_BANK_0(write_enable_bank_0),
         .WRITE_ENABLE_BANK_1(write_enable_bank_1),
         .WRITE_ENABLE_VICTIM_CACHE(write_enable_victim_cache),
@@ -332,9 +335,11 @@ module INSTRUCTION_CACHE #(
         .LRU_WRITE_ENABLE(lru_write_enable),
         .INSTRUCTION_CACHE_READY(INSTRUCTION_CACHE_READY),
         .ADDRESS_TO_L2_READY_INSTRUCTION_CACHE(ADDRESS_TO_L2_READY_INSTRUCTION_CACHE),
-        .ADDRESS_TO_L2_VALID_INSTRUCTION_CACHE(ADDRESS_TO_L2_VALID_INSTRUCTION_CACHE),      
+        .ADDRESS_TO_L2_VALID_INSTRUCTION_CACHE(ADDRESS_TO_L2_VALID_INSTRUCTION_CACHE),
+        .ADDRESS_TO_L2_INSTRUCTION_CACHE(ADDRESS_TO_L2_INSTRUCTION_CACHE),      
         .DATA_FROM_L2_READY_INSTRUCTION_CACHE(DATA_FROM_L2_READY_INSTRUCTION_CACHE),
-        .DATA_FROM_L2_VALID_INSTRUCTION_CACHE(DATA_FROM_L2_VALID_INSTRUCTION_CACHE)
+        .DATA_FROM_L2_VALID_INSTRUCTION_CACHE(DATA_FROM_L2_VALID_INSTRUCTION_CACHE),
+        .DATA_FROM_L2_INSTRUCTION_CACHE(DATA_FROM_L2_INSTRUCTION_CACHE)
         );                           
     
     always@(posedge CLK)
@@ -355,7 +360,6 @@ module INSTRUCTION_CACHE #(
     end
     
     assign  INSTRUCTION                             = instruction_reg                   ;
-    assign  ADDRESS_TO_L2_INSTRUCTION_CACHE         = block_address_if3                 ;
    
     function integer clog2;
         input integer depth;
