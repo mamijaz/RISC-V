@@ -27,6 +27,7 @@ module RISCV_PROCESSOR #(
         parameter   ALU_INS_WIDTH           = 5         ,
         parameter   D_CACHE_LW_WIDTH        = 3         ,
         parameter   D_CACHE_SW_WIDTH        = 2         ,
+        
         parameter   BLOCK_ADDRESS_WIDTH     = 26        ,
         parameter   BLOCK_WIDTH             = 512       ,
         parameter   L2_BUS_WIDTH            = 32

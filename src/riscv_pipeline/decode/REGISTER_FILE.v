@@ -47,9 +47,9 @@ module REGISTER_FILE #(
         for(i = 0 ; i < REGISTER_DEPTH ; i = i + 1)
         begin
             if(i == STACK_POINTER_ADD)
-                register[ i ] = STACK_POINTER_VAL;
+                register[ i ] = STACK_POINTER_VAL       ;
             else
-                register[ i ] = 32'd0;
+                register[ i ] = {REGISTER_WIDTH{1'b0}}  ;
         end
     end
     

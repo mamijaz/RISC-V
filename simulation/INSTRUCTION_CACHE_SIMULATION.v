@@ -22,9 +22,18 @@
 
 module INSTRUCTION_CACHE_SIMULATION();
 
+    parameter   HIGH                    = 1'b1                                          ;
+    parameter   LOW                     = 1'b0                                          ;
+
     parameter   ADDRESS_WIDTH           = 32                                            ;
-    parameter   BLOCK_WIDTH             = 512                                           ;
-    parameter   BLOCK_ADDRESS_WIDTH     = 26                                            ;
+    parameter   WORD_SIZE               = 4                                             ;
+    parameter   WORD_PER_BLOCK          = 16                                            ;
+    parameter   L2_BUS_WIDTH            = 32                                            ;
+    parameter   INS_RAM_DEPTH           = 64                                            ;
+    
+    localparam  WORD_WIDTH              = WORD_SIZE*8                                   ;
+    localparam  BLOCK_WIDTH             = WORD_WIDTH*WORD_PER_BLOCK                     ;
+    localparam  BLOCK_ADDRESS_WIDTH     = 26                                            ; 
     
     // Inputs
     reg                                     clk                                         ;
@@ -57,14 +66,35 @@ module INSTRUCTION_CACHE_SIMULATION();
         .DATA_FROM_L2_VALID_INSTRUCTION_CACHE(data_from_l2_valid_instruction_cache),
         .DATA_FROM_L2_INSTRUCTION_CACHE(data_from_l2_instruction_cache)
         );
-        
+    
+    // L2 Cache emulators
+    reg [WORD_WIDTH - 1     : 0] instruction_memory     [0: INS_RAM_DEPTH - 1               ]   ;
+    reg [BLOCK_WIDTH - 1    : 0] l2_memory              [0: INS_RAM_DEPTH/WORD_PER_BLOCK - 1]   ;
+
+    reg                                     data_from_l2_valid_instruction_cache_reg            ;
+    reg    [BLOCK_WIDTH   - 1       : 0]    data_from_l2_instruction_cache_reg                  ;
+     
+    integer i,j;
     initial 
     begin
         // Initialize Inputs
         clk                      = 1'b0 ;
         pc                       = 32'b0 ;
         pc_valid                 = 1'b1 ;
-
+        
+        //add
+        $readmemh("D:/Study/Verilog/RISC-V/verification programs/add/add.hex",instruction_memory);                      
+        #100;
+        for(i=0;i<INS_RAM_DEPTH/WORD_PER_BLOCK;i=i+1)
+        begin
+            l2_memory[i] = {BLOCK_WIDTH{1'b0}} ;
+            for(j=0;j<WORD_PER_BLOCK;j=j+1)
+            begin
+                l2_memory[i] = l2_memory[i] << WORD_WIDTH                               ;
+                l2_memory[i] = l2_memory[i] | instruction_memory[i*WORD_PER_BLOCK + j]  ;
+            end
+        end
+        
         // Wait 100 ns for global reset to finish
         #100;
         
@@ -83,6 +113,18 @@ module INSTRUCTION_CACHE_SIMULATION();
         clk                      = 1'b0 ;
         #100;
         clk                      = 1'b1 ;
+    end
+
+    always@(posedge clk)
+    begin
+        if(data_from_l2_ready_instruction_cache == HIGH)
+        begin
+            if(address_to_l2_valid_instruction_cache == HIGH)
+            begin
+                data_from_l2_valid_instruction_cache_reg    <= HIGH                                                     ;
+                data_from_l2_instruction_cache_reg          <= instruction_memory [address_to_l2_instruction_cache]     ;
+            end
+        end
     end
 
 endmodule
