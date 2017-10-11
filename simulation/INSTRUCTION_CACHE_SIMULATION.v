@@ -70,21 +70,17 @@ module INSTRUCTION_CACHE_SIMULATION();
     // L2 Cache emulators
     reg [WORD_WIDTH - 1     : 0] instruction_memory     [0: INS_RAM_DEPTH - 1               ]   ;
     reg [BLOCK_WIDTH - 1    : 0] l2_memory              [0: INS_RAM_DEPTH/WORD_PER_BLOCK - 1]   ;
-
-    reg                                     data_from_l2_valid_instruction_cache_reg            ;
-    reg    [BLOCK_WIDTH   - 1       : 0]    data_from_l2_instruction_cache_reg                  ;
      
     integer i,j;
     initial 
     begin
         // Initialize Inputs
-        clk                      = 1'b0 ;
-        pc                       = 32'b0 ;
-        pc_valid                 = 1'b1 ;
+        clk                                     = LOW   ;
+        address_to_l2_ready_instruction_cache   = HIGH  ;
         
         //add
         $readmemh("D:/Study/Verilog/RISC-V/verification programs/add/add.hex",instruction_memory);                      
-        #100;
+        
         for(i=0;i<INS_RAM_DEPTH/WORD_PER_BLOCK;i=i+1)
         begin
             l2_memory[i] = {BLOCK_WIDTH{1'b0}} ;
@@ -99,30 +95,28 @@ module INSTRUCTION_CACHE_SIMULATION();
         #100;
         
         // Add stimulus here
-        clk                      = 1'b1 ;
-        #100;
-        clk                      = 1'b0 ;
-        pc_valid                 = 1'b0 ;
-        #100;
-        clk                      = 1'b1 ;
-        #100;
-        clk                      = 1'b0 ;
-        #100;
-        clk                      = 1'b1 ;
-        #100;
-        clk                      = 1'b0 ;
-        #100;
-        clk                      = 1'b1 ;
+        stall_instruction_cache     = LOW ;
+        pc                          = 32'b000 ;
+        pc_valid                    = HIGH ;
+        #400;
+        pc                          = 32'b100 ;
+       
     end
-
+    
+    always
+    begin
+        clk=!clk;
+        #100;
+    end
+    
     always@(posedge clk)
     begin
         if(data_from_l2_ready_instruction_cache == HIGH)
         begin
             if(address_to_l2_valid_instruction_cache == HIGH)
             begin
-                data_from_l2_valid_instruction_cache_reg    <= HIGH                                                     ;
-                data_from_l2_instruction_cache_reg          <= instruction_memory [address_to_l2_instruction_cache]     ;
+                data_from_l2_valid_instruction_cache    <= HIGH                                                     ;
+                data_from_l2_instruction_cache          <= l2_memory [address_to_l2_instruction_cache]              ;
             end
         end
     end

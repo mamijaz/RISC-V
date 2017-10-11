@@ -221,7 +221,7 @@ module INSTRUCTION_CACHE_REPLACEMENT_CONTROLLER #(
 					end
 					else
 					begin
-                        data_ready_reg                                <= LOW                            ;
+                        data_ready_reg                              <= LOW                              ;
                         address_to_l2_instruction_cache_reg         <= {(TAG_WIDTH+LINE_SELECT) {1'b0}} ;
                         address_to_l2_valid_instruction_cache_reg   <= LOW                              ;
                         data_from_l2_ready_instruction_cache_reg    <= LOW                              ;
