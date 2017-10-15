@@ -41,6 +41,9 @@ module INSTRUCTION_CACHE_REPLACEMENT_CONTROLLER #(
         input                                   HIT_BANK_0_IF2                          ,
         input                                   HIT_BANK_1_IF2                          ,
         input    [LINE_SELECT - 1       : 0]    LINE_IF3                                , 
+        input                                   PC_VALID_IF3                            ,
+        input                                   VALID_OUT_BANK_0_IF3                    ,
+        input                                   VALID_OUT_BANK_1_IF3                    ,
         input                                   HIT_BANK_0_IF3                          ,
         input                                   HIT_BANK_1_IF3                          ,
         input                                   LRU_OUT_IF3                             ,
@@ -101,7 +104,11 @@ module INSTRUCTION_CACHE_REPLACEMENT_CONTROLLER #(
     
     always@(*)
     begin
-        if( HIT_BANK_0_IF3 & !HIT_BANK_1_IF3 & !VICTIM_CACHE_HIT)
+        if(PC_VALID_IF3!=HIGH)
+        begin
+            instruction_cache_ready_reg                 = HIGH 	; 
+        end
+        else if( HIT_BANK_0_IF3 & !HIT_BANK_1_IF3 & !VICTIM_CACHE_HIT )
         begin
             instruction_cache_ready_reg                 = HIGH  ;
             write_enable_bank_0_reg                     = LOW   ;
@@ -144,36 +151,52 @@ module INSTRUCTION_CACHE_REPLACEMENT_CONTROLLER #(
         begin
             if(data_ready_reg) 
             begin
-				instruction_cache_ready_reg                 = LOW   ;
-				if(data_write_reg)
-				begin
-					if( ( !LRU_OUT_IF3 & !( (LINE_IF2 == LINE_IF3) & HIT_BANK_0_IF2) ) | ( LRU_OUT_IF3 & ( (LINE_IF2 == LINE_IF3) & HIT_BANK_1_IF2) ) )
-					begin
-						write_enable_bank_0_reg                     = HIGH  ;
-						write_enable_bank_1_reg                     = LOW   ;
-						lru_in_reg                                  = LOW   ;
-						lru_write_enable_reg                        = HIGH  ;
-						write_enable_victim_cache_reg               = HIGH  ;
-					end	
-					else
-					begin
-						write_enable_bank_0_reg                     = LOW   ;
-						write_enable_bank_1_reg                     = HIGH  ;
-						lru_in_reg                                  = HIGH  ;
-						lru_write_enable_reg                        = HIGH  ;
-						write_enable_victim_cache_reg               = HIGH  ;
-					end
-				end
-				else
-				begin
-					write_enable_bank_0_reg                     = LOW   ;
-					write_enable_bank_1_reg                     = LOW   ;
-					lru_in_reg                                  = LOW   ;
-					lru_write_enable_reg                        = LOW   ;
-					write_enable_victim_cache_reg               = LOW   ;
-				end
+                instruction_cache_ready_reg                 = HIGH 	; 
+                if(data_write_reg)
+                begin
+                    if(!VALID_OUT_BANK_0_IF3)
+                    begin
+                        write_enable_bank_0_reg                     = HIGH  ;
+                        write_enable_bank_1_reg                     = LOW   ;
+                        lru_in_reg                                  = LOW   ;
+                        lru_write_enable_reg                        = HIGH  ;
+                        write_enable_victim_cache_reg               = LOW   ;
+                    end
+                    else if(!VALID_OUT_BANK_1_IF3)
+                    begin
+                        write_enable_bank_0_reg                     = LOW   ;
+                        write_enable_bank_1_reg                     = HIGH  ;
+                        lru_in_reg                                  = HIGH  ;
+                        lru_write_enable_reg                        = HIGH  ;
+                        write_enable_victim_cache_reg               = LOW   ;
+                    end
+                    else if( ( !LRU_OUT_IF3 & !( (LINE_IF2 == LINE_IF3) & HIT_BANK_0_IF2) ) | ( LRU_OUT_IF3 & ( (LINE_IF2 == LINE_IF3) & HIT_BANK_1_IF2) ) )
+                    begin
+                        write_enable_bank_0_reg                     = HIGH  ;
+                        write_enable_bank_1_reg                     = LOW   ;
+                        lru_in_reg                                  = LOW   ;
+                        lru_write_enable_reg                        = HIGH  ;
+                        write_enable_victim_cache_reg               = HIGH  ;
+                    end	
+                    else
+                    begin
+                        write_enable_bank_0_reg                     = LOW   ;
+                        write_enable_bank_1_reg                     = HIGH  ;
+                        lru_in_reg                                  = HIGH  ;
+                        lru_write_enable_reg                        = HIGH  ;
+                        write_enable_victim_cache_reg               = HIGH  ;
+                    end
+                end
+                else
+                begin
+                    write_enable_bank_0_reg                     = LOW   ;
+                    write_enable_bank_1_reg                     = LOW   ;
+                    lru_in_reg                                  = LOW   ;
+                    lru_write_enable_reg                        = LOW   ;
+                    write_enable_victim_cache_reg               = LOW   ;
+                end
             end
-            else
+            else 
             begin
                 instruction_cache_ready_reg                 = LOW   ;
                 write_enable_bank_0_reg                     = LOW   ;
@@ -196,7 +219,7 @@ module INSTRUCTION_CACHE_REPLACEMENT_CONTROLLER #(
     
     always@(posedge CLK)
     begin
-		if( !HIT_BANK_0_IF3 & !HIT_BANK_1_IF3 & !VICTIM_CACHE_HIT )
+		if( !HIT_BANK_0_IF3 & !HIT_BANK_1_IF3 & !VICTIM_CACHE_HIT & PC_VALID_IF3 )
 		begin
 			case(state)
 				1'b0:

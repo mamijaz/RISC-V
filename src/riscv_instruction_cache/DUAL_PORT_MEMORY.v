@@ -42,10 +42,15 @@ module DUAL_PORT_MEMORY #(
     initial
     begin
         if (INIT_FILE != "") 
+        begin
             $readmemh(INIT_FILE, memory, 0, MEMORY_DEPTH-1);
+        end
         else
+        begin
             for (i = 0; i < MEMORY_DEPTH; i = i + 1)
                 memory [ i ] = {MEMORY_WIDTH{1'b0}};
+        end
+        data_out_reg_1 = {MEMORY_WIDTH{1'b0}};
     end
         
     always @(posedge CLK) 
@@ -68,6 +73,10 @@ module DUAL_PORT_MEMORY #(
         else 
         begin
             reg [MEMORY_WIDTH - 1  :0] data_out_reg_2 = {MEMORY_WIDTH{1'b0}}  ;
+            initial
+            begin
+                 data_out_reg_2 = {MEMORY_WIDTH{1'b0}};
+            end
             always @(posedge CLK) 
             begin
                 if (READ_ENBLE)

@@ -75,8 +75,11 @@ module INSTRUCTION_CACHE_SIMULATION();
     initial 
     begin
         // Initialize Inputs
-        clk                                     = LOW   ;
-        address_to_l2_ready_instruction_cache   = HIGH  ;
+        clk                                     = LOW           ;
+        address_to_l2_ready_instruction_cache   = HIGH          ;
+        stall_instruction_cache                 = LOW           ;
+        pc                                      = 32'd8         ;
+        pc_valid                                = HIGH          ;
         
         //add
         $readmemh("D:/Study/Verilog/RISC-V/verification programs/add/add.hex",instruction_memory);                      
@@ -95,18 +98,22 @@ module INSTRUCTION_CACHE_SIMULATION();
         #100;
         
         // Add stimulus here
-        stall_instruction_cache     = LOW ;
-        pc                          = 32'b000 ;
-        pc_valid                    = HIGH ;
-        #400;
-        pc                          = 32'b100 ;
+        #100;
+        pc                                      = 32'd0         ;
+        #200;
        
+        pc                                      = 32'd8         ;
+        #200;
+        
+        pc                                      = 32'd12        ;
+        #200;
+        
     end
     
     always
     begin
-        clk=!clk;
         #100;
+        clk=!clk;
     end
     
     always@(posedge clk)
@@ -118,6 +125,16 @@ module INSTRUCTION_CACHE_SIMULATION();
                 data_from_l2_valid_instruction_cache    <= HIGH                                                     ;
                 data_from_l2_instruction_cache          <= l2_memory [address_to_l2_instruction_cache]              ;
             end
+            else
+            begin
+                data_from_l2_valid_instruction_cache    <= LOW                      ;
+                data_from_l2_instruction_cache          <= {BLOCK_WIDTH{1'b0}}      ;
+            end
+        end
+        else
+        begin
+            data_from_l2_valid_instruction_cache    <= LOW                      ;
+            data_from_l2_instruction_cache          <= {BLOCK_WIDTH{1'b0}}      ;
         end
     end
 

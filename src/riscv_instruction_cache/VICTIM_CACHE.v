@@ -62,7 +62,9 @@ module VICTIM_CACHE #(
             memory [ i ] = {BLOCK_WIDTH{1'b0}};
         for (i = 0; i < MEMORY_DEPTH; i = i + 1)
             valid [ i ] = 1'b0;
-        record_counter  = {ADDRESS_WIDTH{1'b0}};
+        record_counter      = {ADDRESS_WIDTH{1'b0}}         ;
+        read_hit_out_reg_1  = 1'b0                          ;
+        data_out_reg_1      = {BLOCK_WIDTH{1'b0}}           ;
     end
     
     always @(posedge CLK)
@@ -156,6 +158,11 @@ module VICTIM_CACHE #(
         begin
             reg                       read_hit_out_reg_2    = 1'b0                  ;
             reg [BLOCK_WIDTH - 1  :0] data_out_reg_2        = {BLOCK_WIDTH{1'b0}}   ;
+            initial
+            begin
+                read_hit_out_reg_2  <= 1'b0                         ;
+                data_out_reg_2      <= {BLOCK_WIDTH{1'b0}}          ;
+            end
             always @(posedge CLK) 
             begin
                 if (READ_ENBLE)

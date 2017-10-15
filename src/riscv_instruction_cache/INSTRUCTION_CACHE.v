@@ -59,7 +59,11 @@ module INSTRUCTION_CACHE #(
     
     // Pipeline Registers
     reg     [ADDRESS_WIDTH - 1              : 0]    pc_if2                          ;
+    reg                                             pc_valid_if2                    ;
     reg     [ADDRESS_WIDTH - 1              : 0]    pc_if3                          ;
+    reg                                             pc_valid_if3                    ;
+    reg                                             valid_out_bank_0_if3            ;
+    reg                                             valid_out_bank_1_if3            ;
     reg     [TAG_WIDTH - 1                  : 0]    tag_out_bank_0_if3              ;
     reg     [TAG_WIDTH - 1                  : 0]    tag_out_bank_1_if3              ;
     reg                                             hit_bank_0_if3                  ;
@@ -103,7 +107,7 @@ module INSTRUCTION_CACHE #(
     
     assign  block_address_if1   = PC[ADDRESS_WIDTH - 1  : ADDRESS_WIDTH - TAG_WIDTH - LINE_SELECT ]                                             ;
     assign  line_if1            = PC[ADDRESS_WIDTH - TAG_WIDTH - 1  : ADDRESS_WIDTH - TAG_WIDTH - LINE_SELECT ]                                 ;
-    assign  read_enable_if1     = PC_VALID & !INSTRUCTION_CACHE_READY & !STALL_INSTRUCTION_CACHE                                                ;
+    assign  read_enable_if1     = PC_VALID & INSTRUCTION_CACHE_READY & !STALL_INSTRUCTION_CACHE                                                 ;
     assign  tag_if2             = pc_if2[ADDRESS_WIDTH - 1  : ADDRESS_WIDTH - TAG_WIDTH ]                                                       ;
     assign  line_if2            = pc_if2[ADDRESS_WIDTH - TAG_WIDTH - 1  : ADDRESS_WIDTH - TAG_WIDTH - LINE_SELECT ]                             ;
     assign  hit_bank_0_if2      = (tag_out_bank_0_if2 == tag_if2) & valid_out_bank_0_if2                                                        ;
@@ -117,9 +121,14 @@ module INSTRUCTION_CACHE #(
     initial
     begin
         pc_if2                          = {ADDRESS_WIDTH {1'b0}}            ;
+        pc_valid_if2                    = LOW                               ;
         pc_if3                          = {ADDRESS_WIDTH {1'b0}}            ;
-        hit_bank_0_if3                  = HIGH                              ;
-        hit_bank_1_if3                  = HIGH                              ;
+        pc_valid_if3                    = LOW                               ;
+        valid_out_bank_0_if3            = LOW                               ;
+        valid_out_bank_1_if3            = LOW                               ;
+        hit_bank_0_if3                  = LOW                               ;
+        hit_bank_1_if3                  = LOW                               ;
+        instruction_reg                 = {DATA_WIDTH {1'b0}}               ;
     end  
     
     DUAL_PORT_MEMORY #(
@@ -322,6 +331,9 @@ module INSTRUCTION_CACHE #(
         .HIT_BANK_0_IF2(hit_bank_0_if2),
         .HIT_BANK_1_IF2(hit_bank_1_if2),
         .LINE_IF3(line_if3),
+        .PC_VALID_IF3(pc_valid_if3),
+        .VALID_OUT_BANK_0_IF3(valid_out_bank_0_if3),
+        .VALID_OUT_BANK_1_IF3(valid_out_bank_1_if3),
         .HIT_BANK_0_IF3(hit_bank_0_if3),
         .HIT_BANK_1_IF3(hit_bank_1_if3),
         .LRU_OUT_IF3(lru_out_if3),
@@ -344,19 +356,24 @@ module INSTRUCTION_CACHE #(
     
     always@(posedge CLK)
     begin
-        //IF1
-        pc_if2 <= PC ;
-        
-        //IF2
-        pc_if3              <= pc_if2               ;
-        tag_out_bank_0_if3  <= tag_out_bank_0_if2   ;
-        tag_out_bank_1_if3  <= tag_out_bank_1_if2   ;
-        hit_bank_0_if3      <= hit_bank_0_if2       ;
-        hit_bank_1_if3      <= hit_bank_1_if2       ;
-        
-        //IF3
-        instruction_reg <= word_out ;
-    
+        if(INSTRUCTION_CACHE_READY)
+        begin
+            //IF1
+            pc_if2                  <= PC                   ;
+            pc_valid_if2            <= PC_VALID             ;
+            //IF2
+            pc_if3                  <= pc_if2               ;
+            pc_valid_if3            <= pc_valid_if2         ;
+            valid_out_bank_0_if3    <= valid_out_bank_0_if2 ;
+            valid_out_bank_1_if3    <= valid_out_bank_1_if2 ;
+            tag_out_bank_0_if3      <= tag_out_bank_0_if2   ;
+            tag_out_bank_1_if3      <= tag_out_bank_1_if2   ;
+            hit_bank_0_if3          <= hit_bank_0_if2       ;
+            hit_bank_1_if3          <= hit_bank_1_if2       ;
+            
+            //IF3
+            instruction_reg         <= word_out             ;
+        end
     end
     
     assign  INSTRUCTION                             = instruction_reg                   ;
