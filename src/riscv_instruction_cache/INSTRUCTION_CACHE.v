@@ -88,7 +88,7 @@ module INSTRUCTION_CACHE #(
     wire    [BLOCK_WIDTH - 1                : 0]    block_out_bank_1_if3            ;
     wire    [BLOCK_WIDTH - 1                : 0]    block_out_set_bank_if3          ;
     wire                                            lru_out_if3                     ;
-    wire                                            cache_hit                       ;
+    wire                                            cache_hit_if3                   ;
     wire                                            victim_cache_hit                ;
     wire    [BLOCK_WIDTH - 1                : 0]    block_out_victim_cache          ;
     wire    [BLOCK_WIDTH - 1                : 0]    block_out_l1                    ;
@@ -112,7 +112,7 @@ module INSTRUCTION_CACHE #(
     assign  line_if2            = pc_if2[ADDRESS_WIDTH - TAG_WIDTH - 1  : ADDRESS_WIDTH - TAG_WIDTH - LINE_SELECT ]                             ;
     assign  hit_bank_0_if2      = (tag_out_bank_0_if2 == tag_if2) & valid_out_bank_0_if2                                                        ;
     assign  hit_bank_1_if2      = (tag_out_bank_1_if2 == tag_if2) & valid_out_bank_1_if2                                                        ;
-    assign  cache_hit           = hit_bank_0_if3 | hit_bank_1_if3                                                                               ;
+    assign  cache_hit_if3       = hit_bank_0_if3 | hit_bank_1_if3                                                                               ;
     assign  block_address_if3   = pc_if3[ADDRESS_WIDTH - 1  : ADDRESS_WIDTH - TAG_WIDTH - LINE_SELECT ]                                         ;
     assign  tag_if3             = pc_if3[ADDRESS_WIDTH - 1  : ADDRESS_WIDTH - TAG_WIDTH ]                                                       ;
     assign  line_if3            = pc_if3[ADDRESS_WIDTH - TAG_WIDTH - 1  : ADDRESS_WIDTH - TAG_WIDTH - LINE_SELECT ]                             ;
@@ -258,7 +258,7 @@ module INSTRUCTION_CACHE #(
     ) select_victim_cache(
         .IN1(block_out_set_bank_if3),
         .IN2(block_out_victim_cache),
-        .SELECT(!cache_hit & victim_cache_hit),
+        .SELECT(!cache_hit_if3 & victim_cache_hit),
         .OUT(block_out_l1)  
         );
         
@@ -266,8 +266,8 @@ module INSTRUCTION_CACHE #(
         .BUS_WIDTH(BLOCK_WIDTH)
     ) select_cache_miss(
         .IN1(block_out_l1),
-        .IN2(DATA_FROM_L2_INSTRUCTION_CACHE),
-        .SELECT(!cache_hit & !victim_cache_hit),
+        .IN2(data_block_from_l2_cache),
+        .SELECT(!cache_hit_if3 & !victim_cache_hit),
         .OUT(block_out)  
         );
     

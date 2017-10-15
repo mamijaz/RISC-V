@@ -99,13 +99,61 @@ module INSTRUCTION_CACHE_SIMULATION();
         
         // Add stimulus here
         #100;
+        
+        while(!instruction_cache_ready)
+        begin
+            #100;
+        end
         pc                                      = 32'd0         ;
         #200;
        
+        while(!instruction_cache_ready)
+        begin
+            #100;
+        end
         pc                                      = 32'd8         ;
         #200;
         
+        while(!instruction_cache_ready)
+        begin
+            #100;
+        end
         pc                                      = 32'd12        ;
+        #200;
+        
+        while(!instruction_cache_ready)
+        begin
+            #100;
+        end
+        pc                                      = 32'd4         ;
+        #200;
+        
+        while(!instruction_cache_ready)
+        begin
+            #100;
+        end
+        pc                                      = 32'd0         ;
+        #200;
+        
+        while(!instruction_cache_ready)
+        begin
+            #100;
+        end
+        pc                                      = 32'd16        ;
+        #200;
+        
+        while(!instruction_cache_ready)
+        begin
+            #100;
+        end
+        pc                                      = 32'd20        ;
+        #200;
+        
+        while(!instruction_cache_ready)
+        begin
+            #100;
+        end
+        pc                                      = 32'd4         ;
         #200;
         
     end
@@ -125,7 +173,7 @@ module INSTRUCTION_CACHE_SIMULATION();
                 data_from_l2_valid_instruction_cache    <= HIGH                                                     ;
                 data_from_l2_instruction_cache          <= l2_memory [address_to_l2_instruction_cache]              ;
             end
-            else
+            else 
             begin
                 data_from_l2_valid_instruction_cache    <= LOW                      ;
                 data_from_l2_instruction_cache          <= {BLOCK_WIDTH{1'b0}}      ;
