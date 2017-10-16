@@ -98,6 +98,7 @@ module INSTRUCTION_CACHE_REPLACEMENT_CONTROLLER #(
 		data_write_reg								= LOW								;			
 		state										= 1'b0								;
         address_to_l2_valid_instruction_cache_reg   = LOW   							;
+        data_from_l2_ready_instruction_cache_reg    = LOW                               ;
         address_to_l2_instruction_cache_reg         = {(TAG_WIDTH+LINE_SELECT) {1'b0}}  ;
         data_block_from_l2_cache_reg                = {BLOCK_WIDTH{1'b0}}   			;
     end

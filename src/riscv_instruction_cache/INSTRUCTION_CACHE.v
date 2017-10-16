@@ -356,11 +356,12 @@ module INSTRUCTION_CACHE #(
     
     always@(posedge CLK)
     begin
-        if(INSTRUCTION_CACHE_READY)
+        if(INSTRUCTION_CACHE_READY & !STALL_INSTRUCTION_CACHE)
         begin
             //IF1
             pc_if2                  <= PC                   ;
             pc_valid_if2            <= PC_VALID             ;
+            
             //IF2
             pc_if3                  <= pc_if2               ;
             pc_valid_if3            <= pc_valid_if2         ;

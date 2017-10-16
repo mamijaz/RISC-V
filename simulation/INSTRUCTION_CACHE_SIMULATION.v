@@ -28,7 +28,6 @@ module INSTRUCTION_CACHE_SIMULATION();
     parameter   ADDRESS_WIDTH           = 32                                            ;
     parameter   WORD_SIZE               = 4                                             ;
     parameter   WORD_PER_BLOCK          = 16                                            ;
-    parameter   L2_BUS_WIDTH            = 32                                            ;
     parameter   INS_RAM_DEPTH           = 64                                            ;
     
     localparam  WORD_WIDTH              = WORD_SIZE*8                                   ;
@@ -100,56 +99,56 @@ module INSTRUCTION_CACHE_SIMULATION();
         // Add stimulus here
         #100;
         
-        while(!instruction_cache_ready)
+        while(!instruction_cache_ready | stall_instruction_cache)
         begin
             #100;
         end
         pc                                      = 32'd0         ;
         #200;
        
-        while(!instruction_cache_ready)
+        while(!instruction_cache_ready | stall_instruction_cache)
         begin
             #100;
         end
         pc                                      = 32'd8         ;
         #200;
         
-        while(!instruction_cache_ready)
+        while(!instruction_cache_ready | stall_instruction_cache)
         begin
             #100;
         end
         pc                                      = 32'd12        ;
         #200;
         
-        while(!instruction_cache_ready)
+        while(!instruction_cache_ready | stall_instruction_cache)
         begin
             #100;
         end
         pc                                      = 32'd4         ;
         #200;
         
-        while(!instruction_cache_ready)
+        while(!instruction_cache_ready | stall_instruction_cache)
         begin
             #100;
         end
         pc                                      = 32'd0         ;
         #200;
         
-        while(!instruction_cache_ready)
+        while(!instruction_cache_ready | stall_instruction_cache)
         begin
             #100;
         end
         pc                                      = 32'd16        ;
         #200;
         
-        while(!instruction_cache_ready)
+        while(!instruction_cache_ready | stall_instruction_cache)
         begin
             #100;
         end
         pc                                      = 32'd20        ;
         #200;
         
-        while(!instruction_cache_ready)
+        while(!instruction_cache_ready | stall_instruction_cache)
         begin
             #100;
         end

@@ -22,33 +22,39 @@
 
 module RISCV_PROCESSOR_SIMULATION();
 
-    parameter   ADDRESS_WIDTH           = 32    ;
-    parameter   DATA_WIDTH              = 32    ;
-    parameter   REG_ADD_WIDTH           = 5     ;
-    parameter   ALU_INS_WIDTH           = 5     ;
-    parameter   D_CACHE_LW_WIDTH        = 3     ;
-    parameter   D_CACHE_SW_WIDTH        = 2     ;
-    parameter   BLOCK_ADDRESS_WIDTH     = 26    ;
-    parameter   BLOCK_WIDTH             = 512   ;
-    parameter   L2_BUS_WIDTH            = 32    ;
-    parameter   INS_RAM_DEPTH           = 64    ; 
-    parameter   DAT_RAM_DEPTH           = 512   ; 
+    parameter   HIGH                    = 1'b1                                      ;        
+    parameter   LOW                     = 1'b0                                      ;
+
+    parameter   ADDRESS_WIDTH           = 32                                        ;
+    parameter   DATA_WIDTH              = 32                                        ;
+    parameter   REG_ADD_WIDTH           = 5                                         ;
+    parameter   ALU_INS_WIDTH           = 5                                         ;
+    parameter   D_CACHE_LW_WIDTH        = 3                                         ;
+    parameter   D_CACHE_SW_WIDTH        = 2                                         ;
     
-    parameter   HIGH                    = 1'b1  ;        
-    parameter   LOW                     = 1'b0  ;
+    parameter   L2_BUS_WIDTH            = 32                                        ; 
+    parameter   DAT_RAM_DEPTH           = 512                                       ; 
+    
+    parameter   WORD_SIZE               = 4                                         ;
+    parameter   WORD_PER_BLOCK          = 16                                        ;
+    parameter   INS_RAM_DEPTH           = 64                                        ;
+    
+    localparam  WORD_WIDTH              = WORD_SIZE*8                               ;
+    localparam  BLOCK_WIDTH             = WORD_WIDTH*WORD_PER_BLOCK                 ;
+    localparam  BLOCK_ADDRESS_WIDTH     = 26                                        ; 
     
     //Standerd Inputs
     reg                                     clk                                     ;
     
     //Instruction Cache
     // Transfer Address From L1 to L2 Cache
-    wire                                    address_to_l2_ready_instruction_cache   ;
+    reg                                     address_to_l2_ready_instruction_cache   ;
     wire                                    address_to_l2_valid_instruction_cache   ;      
     wire    [BLOCK_ADDRESS_WIDTH-1 : 0]     address_to_l2_instruction_cache         ;
     // Transfer Data From L2 to L1 Cache       
-    wire                                    data_from_l2_valid_instruction_cache    ;
+    reg                                     data_from_l2_valid_instruction_cache    ;
     wire                                    data_from_l2_ready_instruction_cache    ;
-    wire    [BLOCK_WIDTH - 1       : 0]     data_from_l2_instruction_cache          ;
+    reg     [BLOCK_WIDTH - 1       : 0]     data_from_l2_instruction_cache          ;
     
     //Data Cache
     // Write Data From L1 to L2 Cache
@@ -118,12 +124,12 @@ module RISCV_PROCESSOR_SIMULATION();
         );
     
     // L2 Cache emulators
-    reg [DATA_WIDTH - 1 : 0] instruction_memory     [0: INS_RAM_DEPTH - 1]  ;  
-    reg [DATA_WIDTH - 1 : 0] data_memory            [0: DAT_RAM_DEPTH - 1]  ;  
+    reg [DATA_WIDTH - 1     : 0] instruction_memory     [0: INS_RAM_DEPTH - 1               ]  ;  
+    reg [DATA_WIDTH - 1     : 0] data_memory            [0: DAT_RAM_DEPTH - 1               ]  ;  
+    
+    reg [BLOCK_WIDTH - 1    : 0] l2_memory              [0: INS_RAM_DEPTH/WORD_PER_BLOCK - 1]   ;
     
     //////////////////------ TEST CODE ------//////////////////
-    reg                                     data_from_l2_valid_instruction_cache_reg    ;
-    reg    [L2_BUS_WIDTH   - 1      : 0]    data_from_l2_instruction_cache_reg          ;
     
     reg    [ADDRESS_WIDTH - 2 - 1   : 0]    write_addr_to_l2_data_reg                   ;  
     reg    [L2_BUS_WIDTH   - 1      : 0]    data_to_l2_data_reg                         ;
@@ -132,14 +138,15 @@ module RISCV_PROCESSOR_SIMULATION();
     reg    [L2_BUS_WIDTH   - 1      : 0]    data_from_l2_data_reg                       ;
     
     
-    integer i;
+    integer i,j;
     initial 
     begin
         // Initialize Inputs
         clk                                         = 1'b0          ;
         
-        data_from_l2_instruction_cache_reg          = 32'b0         ;
-        data_from_l2_valid_instruction_cache_reg    = 1'b0          ;
+        address_to_l2_ready_instruction_cache       = 1'b1          ;
+        data_from_l2_instruction_cache              = 32'b0         ;
+        data_from_l2_valid_instruction_cache        = 1'b0          ;
         
         write_addr_to_l2_data_reg                   = 30'b0         ;
         data_to_l2_data_reg                         = 32'b0         ;
@@ -148,7 +155,7 @@ module RISCV_PROCESSOR_SIMULATION();
         data_from_l2_data_reg                       = 32'b0         ;
         
         //add
-        //$readmemh("D:/Study/Verilog/RISC-V/verification programs/add/add.hex",instruction_memory);				//Success-30
+        $readmemh("D:/Study/Verilog/RISC-V/verification programs/add/add.hex",instruction_memory);				//Success-30
         
         //count
         //$readmemh("D:/Study/Verilog/RISC-V/verification programs/count/count.hex",instruction_memory);			//Success
@@ -157,7 +164,17 @@ module RISCV_PROCESSOR_SIMULATION();
         //$readmemh("D:/Study/Verilog/RISC-V/verification programs/sum/sum.hex",instruction_memory);            	//Success-45
         
         //fibonacci
-        $readmemh("D:/Study/Verilog/RISC-V/verification programs/fibonacci/fibonacci.hex",instruction_memory); 	//Success-34
+        //$readmemh("D:/Study/Verilog/RISC-V/verification programs/fibonacci/fibonacci.hex",instruction_memory); 	//Success-34
+        
+        for(i=0;i<INS_RAM_DEPTH/WORD_PER_BLOCK;i=i+1)
+        begin
+            l2_memory[i] = {BLOCK_WIDTH{1'b0}} ;
+            for(j=0;j<WORD_PER_BLOCK;j=j+1)
+            begin
+                l2_memory[i] = l2_memory[i] << WORD_WIDTH                               ;
+                l2_memory[i] = l2_memory[i] | instruction_memory[i*WORD_PER_BLOCK + j]  ;
+            end
+        end
         
         for(i = 0 ;i < DAT_RAM_DEPTH ; i = i + 1)
         begin
@@ -174,19 +191,29 @@ module RISCV_PROCESSOR_SIMULATION();
             
     end
     
-    
-    
     always@(posedge clk)
     begin
+        //Instruction cache
         if(data_from_l2_ready_instruction_cache == HIGH)
         begin
             if(address_to_l2_valid_instruction_cache == HIGH)
             begin
-                data_from_l2_valid_instruction_cache_reg    <= HIGH                                     ;
-                data_from_l2_instruction_cache_reg          <= instruction_memory [address_to_l2_ins]   ;
+                data_from_l2_valid_instruction_cache    <= HIGH                                                     ;
+                data_from_l2_instruction_cache          <= l2_memory [address_to_l2_instruction_cache]              ;
+            end
+            else 
+            begin
+                data_from_l2_valid_instruction_cache    <= LOW                      ;
+                data_from_l2_instruction_cache          <= {BLOCK_WIDTH{1'b0}}      ;
             end
         end
+        else
+        begin
+            data_from_l2_valid_instruction_cache    <= LOW                      ;
+            data_from_l2_instruction_cache          <= {BLOCK_WIDTH{1'b0}}      ;
+        end
         
+        //Data Cache
         if(read_addr_to_l2_valid_data == HIGH)
         begin
             data_from_l2_valid_data_reg <= HIGH                                 ;
@@ -207,9 +234,6 @@ module RISCV_PROCESSOR_SIMULATION();
         
         //data_memory [write_addr_to_l2_data_reg] <= data_to_l2_data_reg          ;
     end
-    
-    assign data_from_l2_valid_instruction_cache = data_from_l2_valid_instruction_cache_reg  ;
-    assign data_from_l2_instruction_cache       = data_from_l2_instruction_cache_reg        ;
    
     assign data_from_l2_valid_data              = data_from_l2_valid_data_reg               ;
     assign data_from_l2_data                    = data_from_l2_data_reg                     ;
